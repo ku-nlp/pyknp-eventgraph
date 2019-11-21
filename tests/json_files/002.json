@@ -1,0 +1,175 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "彼女は海外経験が長いので、英語がうまいに違いない。",
+                        "mrphs": "彼女 は 海外 経験 が 長い ので 、 英語 が うまい に 違いない 。",
+                        "rep": "彼女/かのじょ は/は 海外/かいがい 経験/けいけん が/が 長い/ながい ので/ので 、/、 英語/えいご が/が 上手い/うまい に/に 違い無い/ちがいない 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "原因・理由",
+                                        "surf": "ので",
+                                        "reliable": true
+                                }
+                        ],
+                        "surf": "彼女は海外経験が長いので、",
+                        "surf_with_mark": "彼女は海外経験が長い (ので、)",
+                        "mrphs": "彼女 は 海外 経験 が 長い ので 、",
+                        "mrphs_with_mark": "彼女 は 海外 経験 が 長い (ので 、)",
+                        "normalized_mrphs": "彼女 は 海外 経験 が 長い",
+                        "normalized_mrphs_with_mark": "彼女 は 海外 経験 が 長い",
+                        "rep": "彼女/かのじょ は/は 海外/かいがい 経験/けいけん が/が 長い/ながい ので/ので 、/、",
+                        "rep_with_mark": "彼女/かのじょ は/は 海外/かいがい 経験/けいけん が/が 長い/ながい (ので/ので 、/、)",
+                        "normalized_rep": "彼女/かのじょ は/は 海外/かいがい 経験/けいけん が/が 長い/ながい",
+                        "normalized_rep_with_mark": "彼女/かのじょ は/は 海外/かいがい 経験/けいけん が/が 長い/ながい",
+                        "pas": {
+                                "predicate": {
+                                        "surf": "長い",
+                                        "normalized_surf": "長い",
+                                        "mrphs": "長い",
+                                        "normalized_mrphs": "長い",
+                                        "rep": "長い/ながい",
+                                        "normalized_rep": "長い/ながい",
+                                        "standard_rep": "長い/ながい",
+                                        "type": "形",
+                                        "clausal_modifier_event_ids": [],
+                                        "complementizer_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ２": {
+                                                "surf": "彼女は",
+                                                "normalized_surf": "彼女",
+                                                "mrphs": "彼女 は",
+                                                "normalized_mrphs": "彼女",
+                                                "rep": "彼女/かのじょ は/は",
+                                                "normalized_rep": "彼女/かのじょ",
+                                                "head_rep": "彼女/かのじょ",
+                                                "entity_id": 3,
+                                                "flag": "N",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        },
+                                        "ガ": {
+                                                "surf": "経験が",
+                                                "normalized_surf": "経験",
+                                                "mrphs": "経験 が",
+                                                "normalized_mrphs": "経験",
+                                                "rep": "経験/けいけん が/が",
+                                                "normalized_rep": "経験/けいけん",
+                                                "head_rep": "経験/けいけん",
+                                                "entity_id": 5,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": [
+                                                        {
+                                                                "surf": "海外",
+                                                                "normalized_surf": "海外",
+                                                                "mrphs": "海外",
+                                                                "normalized_mrphs": "海外",
+                                                                "rep": "海外/かいがい",
+                                                                "normalized_rep": "海外/かいがい",
+                                                                "clausal_modifier_event_ids": [],
+                                                                "complementizer_event_ids": [],
+                                                                "modifier": false,
+                                                                "possessive": false
+                                                        }
+                                                ]
+                                        }
+                                }
+                        },
+                        "feature": {
+                                "modality": [],
+                                "tense": "現在",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "[彼女が２] 英語がうまいに違いない。",
+                        "surf_with_mark": "[彼女が２] 英語がうまい (に違いない。)",
+                        "mrphs": "[彼女 が２] 英語 が うまい に 違いない 。",
+                        "mrphs_with_mark": "[彼女 が２] 英語 が うまい (に 違いない 。)",
+                        "normalized_mrphs": "[彼女 が２] 英語 が うまい",
+                        "normalized_mrphs_with_mark": "[彼女 が２] 英語 が うまい",
+                        "rep": "[彼女/かのじょ が２/が２] 英語/えいご が/が 上手い/うまい に/に 違い無い/ちがいない 。/。",
+                        "rep_with_mark": "[彼女/かのじょ が２/が２] 英語/えいご が/が 上手い/うまい (に/に 違い無い/ちがいない 。/。)",
+                        "normalized_rep": "[彼女/かのじょ が２/が２] 英語/えいご が/が 上手い/うまい",
+                        "normalized_rep_with_mark": "[彼女/かのじょ が２/が２] 英語/えいご が/が 上手い/うまい",
+                        "pas": {
+                                "predicate": {
+                                        "surf": "うまい",
+                                        "normalized_surf": "うまい",
+                                        "mrphs": "うまい",
+                                        "normalized_mrphs": "うまい",
+                                        "rep": "上手い/うまい",
+                                        "normalized_rep": "上手い/うまい",
+                                        "standard_rep": "上手い/うまい",
+                                        "type": "形",
+                                        "clausal_modifier_event_ids": [],
+                                        "complementizer_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ２": {
+                                                "surf": "[彼女] が２",
+                                                "normalized_surf": "[彼女]",
+                                                "mrphs": "[彼女] が２",
+                                                "normalized_mrphs": "[彼女]",
+                                                "rep": "[彼女/かのじょ] が２/が２",
+                                                "normalized_rep": "[彼女/かのじょ]",
+                                                "head_rep": "[彼女/かのじょ]",
+                                                "entity_id": 3,
+                                                "flag": "O",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        },
+                                        "ガ": {
+                                                "surf": "英語が",
+                                                "normalized_surf": "英語",
+                                                "mrphs": "英語 が",
+                                                "normalized_mrphs": "英語",
+                                                "rep": "英語/えいご が/が",
+                                                "normalized_rep": "英語/えいご",
+                                                "head_rep": "英語/えいご",
+                                                "entity_id": 6,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        }
+                                }
+                        },
+                        "feature": {
+                                "modality": [
+                                        "認識-蓋然性"
+                                ],
+                                "tense": "現在",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

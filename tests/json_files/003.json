@@ -1,0 +1,203 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "それにしても、報道番組でマジコンがここまで取り上げられてるというのが驚きでした。",
+                        "mrphs": "それにしても 、 報道 番組 で マジコン が ここ まで 取り 上げ られて る と いう の が 驚き でした 。",
+                        "rep": "それにしても/それにしても 、/、 報道/ほうどう 番組/ばんぐみ で/で マジコン/マジコン が/が ここ/ここ まで/まで 取る/とる 上げる/あげる られる/られる る/る と/と 言う/いう の/の が/が 驚き/おどろきv でした/でした 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "補文",
+                                        "surf": "",
+                                        "reliable": true
+                                }
+                        ],
+                        "surf": "報道番組でマジコンがここまで取り上げられてると",
+                        "surf_with_mark": "報道番組でマジコンがここまで取り上げられてる (と)",
+                        "mrphs": "報道 番組 で マジコン が ここ まで 取り 上げ られて る と",
+                        "mrphs_with_mark": "報道 番組 で マジコン が ここ まで 取り 上げ られて る (と)",
+                        "normalized_mrphs": "報道 番組 で マジコン が ここ まで 取り 上げ られて る",
+                        "normalized_mrphs_with_mark": "報道 番組 で マジコン が ここ まで 取り 上げ られて る",
+                        "rep": "報道/ほうどう 番組/ばんぐみ で/で マジコン/マジコン が/が ここ/ここ まで/まで 取る/とる 上げる/あげる られる/られる る/る と/と",
+                        "rep_with_mark": "報道/ほうどう 番組/ばんぐみ で/で マジコン/マジコン が/が ここ/ここ まで/まで 取る/とる 上げる/あげる られる/られる る/る (と/と)",
+                        "normalized_rep": "報道/ほうどう 番組/ばんぐみ で/で マジコン/マジコン が/が ここ/ここ まで/まで 取る/とる 上げる/あげる られる/られる る/る",
+                        "normalized_rep_with_mark": "報道/ほうどう 番組/ばんぐみ で/で マジコン/マジコン が/が ここ/ここ まで/まで 取る/とる 上げる/あげる られる/られる る/る",
+                        "pas": {
+                                "predicate": {
+                                        "surf": "取り上げられてる",
+                                        "normalized_surf": "取り上げられてる",
+                                        "mrphs": "取り 上げ られて る",
+                                        "normalized_mrphs": "取り 上げ られて る",
+                                        "rep": "取る/とる+上げる/あげる+られる/られる~テ形+る/る",
+                                        "normalized_rep": "取る/とる+上げる/あげる+られる/られる~テ形+る/る",
+                                        "standard_rep": "取る/とる+上げる/あげる+られる/られる~テ形+る/る",
+                                        "type": "動",
+                                        "clausal_modifier_event_ids": [],
+                                        "complementizer_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": {
+                                                "surf": "マジコンが",
+                                                "normalized_surf": "マジコン",
+                                                "mrphs": "マジコン が",
+                                                "normalized_mrphs": "マジコン",
+                                                "rep": "マジコン/マジコン が/が",
+                                                "normalized_rep": "マジコン/マジコン",
+                                                "head_rep": "マジコン/マジコン",
+                                                "entity_id": 5,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        },
+                                        "デ": {
+                                                "surf": "番組で",
+                                                "normalized_surf": "番組",
+                                                "mrphs": "番組 で",
+                                                "normalized_mrphs": "番組",
+                                                "rep": "番組/ばんぐみ で/で",
+                                                "normalized_rep": "番組/ばんぐみ",
+                                                "head_rep": "番組/ばんぐみ",
+                                                "entity_id": 4,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": [
+                                                        {
+                                                                "surf": "報道",
+                                                                "normalized_surf": "報道",
+                                                                "mrphs": "報道",
+                                                                "normalized_mrphs": "報道",
+                                                                "rep": "報道/ほうどう",
+                                                                "normalized_rep": "報道/ほうどう",
+                                                                "clausal_modifier_event_ids": [],
+                                                                "complementizer_event_ids": [],
+                                                                "modifier": false,
+                                                                "possessive": false
+                                                        }
+                                                ]
+                                        },
+                                        "マデ": {
+                                                "surf": "ここまで",
+                                                "normalized_surf": "ここ",
+                                                "mrphs": "ここ まで",
+                                                "normalized_mrphs": "ここ",
+                                                "rep": "ここ/ここ まで/まで",
+                                                "normalized_rep": "ここ/ここ",
+                                                "head_rep": "ここ/ここ",
+                                                "entity_id": 6,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        }
+                                }
+                        },
+                        "feature": {
+                                "modality": [],
+                                "tense": "未来",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": true
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "それにしても、いうのが驚きでした。",
+                        "surf_with_mark": "それにしても、■いうのが驚き (でした。)",
+                        "mrphs": "それにしても 、 いう の が 驚き でした 。",
+                        "mrphs_with_mark": "それにしても 、 ■ いう の が 驚き (でした 。)",
+                        "normalized_mrphs": "それにしても 、 いう の が 驚き",
+                        "normalized_mrphs_with_mark": "それにしても 、 ■ いう の が 驚き",
+                        "rep": "それにしても/それにしても 、/、 言う/いう の/の が/が 驚き/おどろきv でした/でした 。/。",
+                        "rep_with_mark": "それにしても/それにしても 、/、 ■ 言う/いう の/の が/が 驚き/おどろきv (でした/でした 。/。)",
+                        "normalized_rep": "それにしても/それにしても 、/、 言う/いう の/の が/が 驚き/おどろきv",
+                        "normalized_rep_with_mark": "それにしても/それにしても 、/、 ■ 言う/いう の/の が/が 驚き/おどろきv",
+                        "pas": {
+                                "predicate": {
+                                        "surf": "驚き",
+                                        "normalized_surf": "驚き",
+                                        "mrphs": "驚き",
+                                        "normalized_mrphs": "驚き",
+                                        "rep": "驚き/おどろきv",
+                                        "normalized_rep": "驚き/おどろきv",
+                                        "standard_rep": "驚き/おどろきv",
+                                        "type": "判",
+                                        "clausal_modifier_event_ids": [],
+                                        "complementizer_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": {
+                                                "surf": "のが",
+                                                "normalized_surf": "の",
+                                                "mrphs": "の が",
+                                                "normalized_mrphs": "の",
+                                                "rep": "の/の が/が",
+                                                "normalized_rep": "の/の",
+                                                "head_rep": "の/の",
+                                                "entity_id": 7,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": [
+                                                        {
+                                                                "surf": "いう",
+                                                                "normalized_surf": "いう",
+                                                                "mrphs": "いう",
+                                                                "normalized_mrphs": "いう",
+                                                                "rep": "言う/いう",
+                                                                "normalized_rep": "言う/いう",
+                                                                "clausal_modifier_event_ids": [],
+                                                                "complementizer_event_ids": [
+                                                                        0
+                                                                ],
+                                                                "modifier": false,
+                                                                "possessive": false
+                                                        }
+                                                ]
+                                        },
+                                        "修飾": {
+                                                "surf": "それにしても、",
+                                                "normalized_surf": "それにしても",
+                                                "mrphs": "それにしても 、",
+                                                "normalized_mrphs": "それにしても",
+                                                "rep": "それにしても/それにしても 、/、",
+                                                "normalized_rep": "それにしても/それにしても",
+                                                "head_rep": "それにしても/それにしても",
+                                                "entity_id": -1,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        }
+                                }
+                        },
+                        "feature": {
+                                "modality": [],
+                                "tense": "過去",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

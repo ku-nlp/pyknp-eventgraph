@@ -1,0 +1,282 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "子供に食べさせにくいので、もっととろみが持続する作り方をして欲しい。",
+                        "mrphs": "子供 に 食べ させ にくい ので 、 もっと とろみ が 持続 する 作り 方 を して 欲しい 。",
+                        "rep": "子供/こども に/に 食べる/たべる させる/させる にくい/にくい ので/ので 、/、 もっと/もっと とろみ/とろみ が/が 持続/じぞく する/する 作り/つくりv 方/かた を/を する/する 欲しい/ほしい 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 2,
+                                        "label": "原因・理由",
+                                        "surf": "ので",
+                                        "reliable": false
+                                }
+                        ],
+                        "surf": "[著者が] 子供に食べさせにくいので、",
+                        "surf_with_mark": "[著者が] 子供に食べさせにくい (ので、)",
+                        "mrphs": "[著者 が] 子供 に 食べ させ にくい ので 、",
+                        "mrphs_with_mark": "[著者 が] 子供 に 食べ させ にくい (ので 、)",
+                        "normalized_mrphs": "[著者 が] 子供 に 食べ させ にくい",
+                        "normalized_mrphs_with_mark": "[著者 が] 子供 に 食べ させ にくい",
+                        "rep": "[著者 が/が] 子供/こども に/に 食べる/たべる させる/させる にくい/にくい ので/ので 、/、",
+                        "rep_with_mark": "[著者 が/が] 子供/こども に/に 食べる/たべる させる/させる にくい/にくい (ので/ので 、/、)",
+                        "normalized_rep": "[著者 が/が] 子供/こども に/に 食べる/たべる させる/させる にくい/にくい",
+                        "normalized_rep_with_mark": "[著者 が/が] 子供/こども に/に 食べる/たべる させる/させる にくい/にくい",
+                        "pas": {
+                                "predicate": {
+                                        "surf": "食べさせにくい",
+                                        "normalized_surf": "食べさせにくい",
+                                        "mrphs": "食べ させ にくい",
+                                        "normalized_mrphs": "食べ させ にくい",
+                                        "rep": "食べる/たべる+させる/させる+にくい/にくい",
+                                        "normalized_rep": "食べる/たべる+させる/させる+にくい/にくい",
+                                        "standard_rep": "食べる/たべる",
+                                        "type": "動",
+                                        "clausal_modifier_event_ids": [],
+                                        "complementizer_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": {
+                                                "surf": "[著者] が",
+                                                "normalized_surf": "[著者]",
+                                                "mrphs": "[著者] が",
+                                                "normalized_mrphs": "[著者]",
+                                                "rep": "[著者] が/が",
+                                                "normalized_rep": "[著者]",
+                                                "head_rep": "[著者]",
+                                                "entity_id": 0,
+                                                "flag": "E",
+                                                "sdist": -1,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        },
+                                        "ニ": {
+                                                "surf": "子供に",
+                                                "normalized_surf": "子供",
+                                                "mrphs": "子供 に",
+                                                "normalized_mrphs": "子供",
+                                                "rep": "子供/こども に/に",
+                                                "normalized_rep": "子供/こども",
+                                                "head_rep": "子供/こども",
+                                                "entity_id": 3,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        }
+                                }
+                        },
+                        "feature": {
+                                "modality": [],
+                                "tense": "現在",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 2,
+                                        "label": "連体修飾",
+                                        "surf": "",
+                                        "reliable": true
+                                }
+                        ],
+                        "surf": "もっととろみが持続する",
+                        "surf_with_mark": "もっととろみが持続 (する)",
+                        "mrphs": "もっと とろみ が 持続 する",
+                        "mrphs_with_mark": "もっと とろみ が 持続 (する)",
+                        "normalized_mrphs": "もっと とろみ が 持続",
+                        "normalized_mrphs_with_mark": "もっと とろみ が 持続",
+                        "rep": "もっと/もっと とろみ/とろみ が/が 持続/じぞく する/する",
+                        "rep_with_mark": "もっと/もっと とろみ/とろみ が/が 持続/じぞく (する/する)",
+                        "normalized_rep": "もっと/もっと とろみ/とろみ が/が 持続/じぞく",
+                        "normalized_rep_with_mark": "もっと/もっと とろみ/とろみ が/が 持続/じぞく",
+                        "pas": {
+                                "predicate": {
+                                        "surf": "持続",
+                                        "normalized_surf": "持続",
+                                        "mrphs": "持続",
+                                        "normalized_mrphs": "持続",
+                                        "rep": "持続/じぞく",
+                                        "normalized_rep": "持続/じぞく",
+                                        "standard_rep": "持続/じぞく",
+                                        "type": "動",
+                                        "clausal_modifier_event_ids": [],
+                                        "complementizer_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": {
+                                                "surf": "とろみが",
+                                                "normalized_surf": "とろみ",
+                                                "mrphs": "とろみ が",
+                                                "normalized_mrphs": "とろみ",
+                                                "rep": "とろみ/とろみ が/が",
+                                                "normalized_rep": "とろみ/とろみ",
+                                                "head_rep": "とろみ/とろみ",
+                                                "entity_id": 4,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        },
+                                        "時間": {
+                                                "surf": "方を",
+                                                "normalized_surf": "方",
+                                                "mrphs": "方 を",
+                                                "normalized_mrphs": "方",
+                                                "rep": "方/かた を/を",
+                                                "normalized_rep": "方/かた",
+                                                "head_rep": "",
+                                                "entity_id": 6,
+                                                "flag": "N",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": [
+                                                        {
+                                                                "surf": "作り",
+                                                                "normalized_surf": "作り",
+                                                                "mrphs": "作り",
+                                                                "normalized_mrphs": "作り",
+                                                                "rep": "作り/つくりv",
+                                                                "normalized_rep": "作り/つくりv",
+                                                                "clausal_modifier_event_ids": [],
+                                                                "complementizer_event_ids": [],
+                                                                "modifier": false,
+                                                                "possessive": false
+                                                        }
+                                                ]
+                                        },
+                                        "修飾": {
+                                                "surf": "もっと",
+                                                "normalized_surf": "もっと",
+                                                "mrphs": "もっと",
+                                                "normalized_mrphs": "もっと",
+                                                "rep": "もっと/もっと",
+                                                "normalized_rep": "もっと/もっと",
+                                                "head_rep": "もっと/もっと",
+                                                "entity_id": -1,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        }
+                                }
+                        },
+                        "feature": {
+                                "modality": [],
+                                "tense": "未来",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 2,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "[著者が] 作り方をして欲しい。",
+                        "surf_with_mark": "[著者が] ▼作り方をして欲しい (。)",
+                        "mrphs": "[著者 が] 作り 方 を して 欲しい 。",
+                        "mrphs_with_mark": "[著者 が] ▼ 作り 方 を して 欲しい (。)",
+                        "normalized_mrphs": "[著者 が] 作り 方 を して 欲しい",
+                        "normalized_mrphs_with_mark": "[著者 が] ▼ 作り 方 を して 欲しい",
+                        "rep": "[著者 が/が] 作り/つくりv 方/かた を/を する/する 欲しい/ほしい 。/。",
+                        "rep_with_mark": "[著者 が/が] ▼ 作り/つくりv 方/かた を/を する/する 欲しい/ほしい (。/。)",
+                        "normalized_rep": "[著者 が/が] 作り/つくりv 方/かた を/を する/する 欲しい/ほしい",
+                        "normalized_rep_with_mark": "[著者 が/が] ▼ 作り/つくりv 方/かた を/を する/する 欲しい/ほしい",
+                        "pas": {
+                                "predicate": {
+                                        "surf": "して欲しい",
+                                        "normalized_surf": "して欲しい",
+                                        "mrphs": "して 欲しい",
+                                        "normalized_mrphs": "して 欲しい",
+                                        "rep": "する/する~テ形+欲しい/ほしい",
+                                        "normalized_rep": "する/する~テ形+欲しい/ほしい",
+                                        "standard_rep": "する/する~テ形+欲しい/ほしい",
+                                        "type": "動",
+                                        "clausal_modifier_event_ids": [],
+                                        "complementizer_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": {
+                                                "surf": "[著者] が",
+                                                "normalized_surf": "[著者]",
+                                                "mrphs": "[著者] が",
+                                                "normalized_mrphs": "[著者]",
+                                                "rep": "[著者] が/が",
+                                                "normalized_rep": "[著者]",
+                                                "head_rep": "[著者]",
+                                                "entity_id": 0,
+                                                "flag": "E",
+                                                "sdist": -1,
+                                                "clausal_modifier_event_ids": [],
+                                                "complementizer_event_ids": [],
+                                                "children": []
+                                        },
+                                        "ヲ": {
+                                                "surf": "方を",
+                                                "normalized_surf": "方",
+                                                "mrphs": "方 を",
+                                                "normalized_mrphs": "方",
+                                                "rep": "方/かた を/を",
+                                                "normalized_rep": "方/かた",
+                                                "head_rep": "方/かた",
+                                                "entity_id": 6,
+                                                "flag": "C",
+                                                "sdist": 0,
+                                                "clausal_modifier_event_ids": [
+                                                        1
+                                                ],
+                                                "complementizer_event_ids": [],
+                                                "children": [
+                                                        {
+                                                                "surf": "作り",
+                                                                "normalized_surf": "作り",
+                                                                "mrphs": "作り",
+                                                                "normalized_mrphs": "作り",
+                                                                "rep": "作り/つくりv",
+                                                                "normalized_rep": "作り/つくりv",
+                                                                "clausal_modifier_event_ids": [],
+                                                                "complementizer_event_ids": [],
+                                                                "modifier": false,
+                                                                "possessive": false
+                                                        }
+                                                ]
+                                        }
+                                }
+                        },
+                        "feature": {
+                                "modality": [
+                                        "依頼Ｂ"
+                                ],
+                                "tense": "未来",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}
