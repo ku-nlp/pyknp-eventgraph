@@ -1,3 +1,4 @@
+"""The base class of EventGraph components."""
 from abc import ABC, abstractmethod
 import json
 
@@ -8,23 +9,23 @@ class Base(ABC):
     @classmethod
     @abstractmethod
     def build(cls, *args, **kwargs):
-        """Build this instance."""
+        """Create an instance from language analysis."""
         pass
 
     @classmethod
     @abstractmethod
     def load(cls, *args, **kwargs):
-        """Load this instance."""
+        """Create an instance from a dictionary."""
         pass
 
     @abstractmethod
-    def assemble(self):
-        """Assemble contents to output."""
+    def finalize(self):
+        """Finalize this instance."""
         pass
 
     @abstractmethod
     def to_dict(self):
-        """Output this information as a dictionary."""
+        """Convert this instance into a dictionary."""
         pass
 
     def __repr__(self):

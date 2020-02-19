@@ -13,12 +13,12 @@ setup(
     author_email='contact@nlp.ist.i.kyoto-u.ac.jp',
     license='BSD-3-Clause',
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=['pyknp==0.4.1', 'graphviz==0.10.1', 'typing', 'future'],
+    install_requires=['pyknp==0.4.1', 'graphviz==0.10.1'],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest==4.6.5'],
+    tests_require=['pytest', 'parameterized'],
     entry_points={
         'console_scripts': [
-            'evg=pyknp_eventgraph.cli:eventgraph',
+            'evg=pyknp_eventgraph.cli:build_eventgraph',
             'evgviz=pyknp_eventgraph.cli:visualize_eventgraph',
         ],
     }

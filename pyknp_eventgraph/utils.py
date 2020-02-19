@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-import typing
 from io import open
+from typing import List
 
 from pyknp import KNP, BList
 
@@ -8,14 +7,12 @@ from pyknp import KNP, BList
 def read_knp_result_file(filename):
     """Read a file of KNP results.
 
-    Parameters
-    ----------
-    filename : str
-        A filename.
+    Args:
+        filename (str): A filename.
 
-    Returns
-    -------
-    blists : typing.List[BList]
+    Returns:
+        List[BList]: A list of KNP results.
+
     """
     knp = KNP()
     blists = []

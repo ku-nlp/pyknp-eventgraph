@@ -1,44 +1,42 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
+"""A class to manage PAS information."""
 import collections
-import re
-import typing
+from typing import List, Dict
 
-from pyknp import Tag
 from pyknp import Argument as PyknpArgument
+from pyknp import Tag
 
-from pyknp_eventgraph.content import Content
-from pyknp_eventgraph.helper import PAS_ORDER
 from pyknp_eventgraph.base import Base
+from pyknp_eventgraph.basic_phrase import BasicPhrase
+from pyknp_eventgraph.basic_phrase import convert_basic_phrases_to_string
+from pyknp_eventgraph.helper import (
+    PAS_ORDER,
+    convert_mrphs_to_repname_list
+)
 
 
 class PAS(Base):
-    """Manage PAS information.
+    """A class to manage PAS information.
 
-    Attributes
-    ----------
-    predicate : Predicate
-        The predicate of a PAS.
-    arguments : typing.Dict[str, Argument]
-        The arguments of the predicate.
+    Attributes:
+        predicate (Predicate): A predicate.
+        arguments (Dict[str, Argument]): Arguments.
+
     """
 
     def __init__(self):
-        """Initialize this instance."""
         self.predicate = None
         self.arguments = {}
 
     @classmethod
     def build(cls, head):
-        """Build this instance.
+        """Create an instance from language analysis.
 
-        Parameters
-        ----------
-        head : Tag
-            A head tag of an event.
+        Args:
+            head (Tag): The head tag of an event.
+
+        Returns:
+            PAS: A PAS.
+
         """
         pas = PAS()
         pas.predicate = Predicate.build(head)
@@ -49,16 +47,14 @@ class PAS(Base):
 
     @classmethod
     def load(cls, dct):
-        """Load this instance.
+        """Create an instance from a dictionary.
 
-        Parameters
-        ----------
-        dct : dict
-            A dictionary storing PAS information.
+        Args:
+            dct (dict): A dictionary storing an instance.
 
-        Returns
-        -------
-        PAS
+        Returns:
+            PAS: A PAS.
+
         """
         pas = PAS()
         pas.predicate = Predicate.load(dct['predicate'])
@@ -66,18 +62,18 @@ class PAS(Base):
             pas.arguments[case] = Argument.load(argument)
         return pas
 
-    def assemble(self):
-        """Assemble contents to output."""
-        self.predicate.assemble()
+    def finalize(self):
+        """Finalize this instance."""
+        self.predicate.finalize()
         for argument in self.arguments.values():
-            argument.assemble()
+            argument.finalize()
 
     def to_dict(self):
-        """Return this PAS information as a dictionary.
+        """Convert this instance into a dictionary.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: A dictionary storing this PAS information.
+
         """
         return collections.OrderedDict([
             ('predicate', self.predicate.to_dict()),
@@ -89,232 +85,264 @@ class PAS(Base):
 
 
 class Predicate(Base):
-    """Manage predicate information.
+    """A class to manage predicate information.
 
-    Attributes
-    ----------
-    cont : Content
-        The content of this predicate.
-    surf : str
-        The surface string of this predicate.
-    normalized_surf : str
-        The normalized  surface string of an event.
-    mrphs : str
-        The surface string (with white spaces) of this predicate.
-    normalized_mrphs : str
-        The normalized surface string (with white spaces) of this predicate.
-    rep : str
-        The representative string of this predicate.
-    normalized_rep : str
-        The normalized  representative string of this predicate.
-    child_cont : Content
-        The content of the children of this predicate.
-    children : List[dict]
-        The children of this predicate.
-    clausal_modifier_event_ids : typing.List[int]
-        A list of event IDs which modify this predicate.
-    complementizer_event_ids : typing.List[int]
-        A list of event IDs which complementize this predicate.
-    standard_rep : str
-        The standard representative string of this predicate.
-    type_ : str
-        The type of this predicate.
+    Attributes:
+        bps (List[BasicPhrase]): A list of basic phrases.
+        surf (str): A surface string.
+        normalized_surf (str): A normalized version of `surf`.
+        mrphs (str): `surf` with white spaces between morphemes.
+        normalized_mrphs (str): A normalized version of `mrphs`.
+        reps (str): A representative string.
+        normalized_reps (str): A normalized version of `reps`.
+        standard_reps (str): A standard representative string.
+        children (List[dict]): Children.
+        adnominal_evids (List[int]): A list of adnominal event IDs.
+        sentential_complement_evids (List[int]): A list of sentential complement event IDs.
+        type_ (str): A type.
+
     """
 
     def __init__(self):
-        """Initialize this instance."""
-        self.cont = Content()
+        self.head = None
+
+        self.bps = []
+
         self.surf = ''
         self.normalized_surf = ''
         self.mrphs = ''
         self.normalized_mrphs = ''
-        self.rep = ''
-        self.normalized_rep = ''
+        self.reps = ''
+        self.normalized_reps = ''
 
-        self.child_cont = Content()
         self.children = []
 
-        self.clausal_modifier_event_ids = []
-        self.complementizer_event_ids = []
+        self.adnominal_evids = []
+        self.sentential_complement_evids = []
 
-        self.standard_rep = ''
+        self.standard_reps = ''
         self.type_ = ''
 
     @classmethod
     def build(cls, head):
-        """Build this instance.
+        """Create an instance from language analysis.
 
-        Parameters
-        ----------
-        head : Tag
-            A head tag of an event.
+        Args:
+            head (Tag): The head tag of an event.
 
-        Returns
-        -------
-        Predicate
+        Returns:
+            Predicate: A predicate.
+
         """
         predicate = Predicate()
-        predicate.type_ = predicate._extract_type(head)
+        predicate.head = head
         return predicate
 
     @classmethod
     def load(cls, dct):
-        """Load this instance.
+        """Create an instance from a dictionary.
 
-        Parameters
-        ----------
-        dct : dict
-            A dictionary storing predicate information.
+        Args:
+            dct (dict): A dictionary storing an instance.
 
-        Returns
-        -------
-        Predicate
+        Returns:
+            Predicate: A predicate.
+
         """
         predicate = Predicate()
         predicate.surf = dct['surf']
         predicate.normalized_surf = dct['normalized_surf']
         predicate.mrphs = dct['mrphs']
         predicate.normalized_mrphs = dct['normalized_mrphs']
-        predicate.rep = dct['rep']
-        predicate.normalized_rep = dct['normalized_rep']
-        predicate.standard_rep = dct['standard_rep']
+        predicate.reps = dct['reps']
+        predicate.normalized_reps = dct['normalized_reps']
+        predicate.standard_reps = dct['standard_reps']
         predicate.type_ = dct['type']
-        predicate.normalized_mrphs = dct['normalized_mrphs']
-        predicate.clausal_modifier_event_ids = dct['clausal_modifier_event_ids']
-        predicate.complementizer_event_ids = dct['complementizer_event_ids']
+        predicate.adnominal_evids = dct['adnominal_event_ids']
+        predicate.sentential_complement_evids = dct['sentential_complement_event_ids']
         predicate.children = dct['children']
         return predicate
 
-    def assemble(self):
-        """Assemble contents to output."""
-        self.surf = self.cont.to_string('midasi', mark=False, space=False, normalize=False, mode='pas')
-        self.normalized_surf = self.cont.to_string('midasi', mark=False, space=False, normalize=True, mode='pas')
-        self.mrphs = self.cont.to_string('midasi', mark=False, space=True, normalize=False, mode='pas')
-        self.normalized_mrphs = self.cont.to_string('midasi', mark=False, space=True, normalize=True, mode='pas')
-        self.rep = self.cont.to_string('repname', mark=False, space=True, normalize=False, mode='pas')
-        self.normalized_rep = self.cont.to_string('repname', mark=False, space=True, normalize=True, mode='pas')
+    def finalize(self):
+        """Finalize this instance."""
+        def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=True):
+            bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
+            return convert_basic_phrases_to_string(
+                bps=bps,
+                type_=type_,
+                space=space,
+                normalize='predicate',
+                truncate=truncate,
+                normalizes_child_bps=normalizes_child_bps
+            )
+
+        head_bps = list(filter(lambda x: not x.is_child, self.bps))
+        self.mrphs = self._get_mrphs()
+        self.normalized_mrphs = self.mrphs
+        self.surf = self.mrphs.replace(' ', '')  # remove white spaces
+        self.normalized_surf = self.surf
+        self.reps = self._get_reps()
+        self.normalized_reps = self.reps
+        self.standard_reps = self._get_standard_reps()
+        self.type_ = self.head.features.get('用言', '')
+        self.adnominal_evids = [evid for bp in head_bps for evid in bp.adnominal_evids]
+        self.sentential_complement_evids = [evid for bp in head_bps for evid in bp.sentential_complement_evids]
+
+        child_bps = sorted(list(filter(lambda x: x.is_child, self.bps)), key=lambda x: -x.tid)
         self.children = [collections.OrderedDict([
-            ('surf', cont.to_string('midasi', mark=False, space=False, normalize=False, mode='pas')),
-            ('mrphs', cont.to_string('midasi', mark=False, space=True, normalize=False, mode='pas')),
-            ('normalized_mrphs', cont.to_string('midasi', mark=False, space=True, normalize=True, mode='pas')),
-            ('rep', cont.to_string('repname', mark=False, space=True, normalize=False, mode='pas')),
-            ('normalized_rep', cont.to_string('repname', mark=False, space=True, normalize=True, mode='pas')),
-            ('clausal_modifier_event_ids', cont.get_clausal_modifier_evids()),
-            ('complementizer_event_ids', cont.get_complementizer_evids()),
-            ('modifier', cont.is_modifier()),
-            ('possessive', cont.is_possessive())
-        ]) for cont in self.child_cont]
-        self.clausal_modifier_event_ids = self.cont.get_clausal_modifier_evids()
-        self.complementizer_event_ids = self.cont.get_complementizer_evids()
+            ('surf', to_string(bp, type_='midasi', space=False, normalizes_child_bps=True)),
+            ('normalized_surf', to_string(bp, type_='midasi', space=False, truncate=True, normalizes_child_bps=True)),
+            ('mrphs', to_string(bp, type_='midasi', normalizes_child_bps=True)),
+            ('normalized_mrphs', to_string(bp, type_='midasi', truncate=True, normalizes_child_bps=True)),
+            ('reps', to_string(bp, type_='repname', normalizes_child_bps=True)),
+            ('normalized_reps', to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
+            ('adnominal_event_ids', bp.adnominal_evids),
+            ('sentential_complement_event_ids', bp.sentential_complement_evids),
+            ('modifier', bp.is_modifier),
+            ('possessive', bp.is_possessive)
+        ]) for bp in child_bps]
 
     def to_dict(self):
-        """Return this predicate information as a dictionary.
+        """Convert this instance into a dictionary.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: A dictionary storing this predicate information.
+
         """
         return collections.OrderedDict([
             ('surf', self.surf),
             ('normalized_surf', self.normalized_surf),
             ('mrphs', self.mrphs),
             ('normalized_mrphs', self.normalized_mrphs),
-            ('rep', self.rep),
-            ('normalized_rep', self.normalized_rep),
-            ('standard_rep', self.standard_rep),
+            ('reps', self.reps),
+            ('normalized_reps', self.normalized_reps),
+            ('standard_reps', self.standard_reps),
             ('type', self.type_),
-            ('clausal_modifier_event_ids', self.clausal_modifier_event_ids),
-            ('complementizer_event_ids', self.complementizer_event_ids),
+            ('adnominal_event_ids', self.adnominal_evids),
+            ('sentential_complement_event_ids', self.sentential_complement_evids),
             ('children', self.children)
         ])
 
-    @staticmethod
-    def _extract_type(head):
-        """Extract the type of a predicate.
+    def _get_mrphs(self):
+        """Return a surface string with white spaces between morphemes.
 
-        Parameters
-        ----------
-        head : Tag
-            A head tag of an event.
+        Returns:
+            str: A surface string.
 
-        Returns
-        -------
-        str
         """
-        type_ = re.search('<用言:([動形判])>', head.fstring)
-        return type_.group(1) if type_ else ''
+        head_tags = sorted(
+            list(set(bp.tag for bp in list(filter(lambda x: not x.is_child, self.bps)))),
+            key=lambda x: x.tag_id
+        )
+
+        mrphs = []
+        is_within_standard_repname = False
+        for tag in head_tags:
+            for m in tag.mrph_list():
+                if '用言表記先頭' in m.fstring:
+                    is_within_standard_repname = True
+                if '用言表記末尾' in m.fstring:
+                    mrphs.append(m.genkei)  # normalize the expression
+                    return ' '.join(mrphs)
+                if is_within_standard_repname:
+                    mrphs.append(m.midasi)
+
+        return ' '.join(mrphs)
+
+    def _get_reps(self):
+        """Return a representative string.
+
+        Returns:
+            str: A representative string.
+
+        """
+        head_tags = sorted(
+            list(set(bp.tag for bp in filter(lambda x: not x.is_child, self.bps))),
+            key=lambda x: x.tag_id
+        )
+
+        for tag in head_tags:
+            if '用言代表表記' in tag.features:
+                return tag.features['用言代表表記']
+        else:
+            return ' '.join(convert_mrphs_to_repname_list(self.head.mrph_list()))
+
+    def _get_standard_reps(self):
+        """Return a standard representative string.
+
+        Returns:
+            str: A standard representative string.
+
+        """
+        head_tags = sorted(
+            list(set(bp.tag for bp in filter(lambda x: not x.is_child, self.bps))),
+            key=lambda x: x.tag_id
+        )
+
+        for tag in head_tags:
+            if '標準用言代表表記' in tag.features:
+                return tag.features['標準用言代表表記']
+        else:
+            return self.reps
 
 
 class Argument(Base):
-    """Manage argument information.
+    """A class to manage argument information.
 
-    Attributes
-    ----------
-    arg : PyknpArgument
-        The argument of a argument.
-    cont : Content
-        The content of an argument.
-    surf : str
-        The surface string of this argument.
-    normalized_surf : str
-        The normalized  surface string of an event.
-    mrphs : str
-        The surface string (with white spaces) of this argument.
-    normalized_mrphs : str
-        The normalized surface string (with white spaces) of this argument.
-    rep : str
-        The representative string of this argument.
-    normalized_rep : str
-        The normalized  representative string of this argument.
-    child_cont : Content
-        The content of argument children.
-    children : List[dict]
-        The children of this argument.
-    clausal_modifier_event_ids : typing.List[int]
-        A list of event IDs which modify this argument.
-    complementizer_event_ids : typing.List[int]
-        A list of event IDs which complementize this argument.
-    head_rep : str
-        The head representative string of this argument.
-    eid : int
-        The entity ID of this argument.
-    flag : str
-        The flag of this argument.
-    sdist : int
-        The sentence distance between this argument and the predicate.
+    Attributes:
+        arg (PyknpArgument): An argument.
+        bps (List[BasicPhrase]): A list of basic phrases.
+        surf (str): A surface string.
+        normalized_surf (str): A normalized version of `surf`.
+        mrphs (str): `surf` with white spaces between morphemes.
+        normalized_mrphs (str): A normalized version of `mrphs`.
+        reps (str): A representative string.
+        normalized_reps (str): A normalized version of `reps`.
+        children (List[dict]): The children of this predicate.
+        adnominal_evids (List[int]): A list of adnominal event IDs.
+        sentential_complement_evids (List[int]): A list of sentential complement event IDs.
+        head_reps (str): The head representative string.
+        eid (int): An entity ID.
+        flag (str): A flag.
+        sdist (int): The sentence distance between this argument and the predicate.
+        event_head (bool): Whether this argument is an event head or not.
+
     """
 
     def __init__(self):
-        """Initialize this instance."""
         self.arg = None
 
-        self.cont = Content()
+        self.bps = []
+
         self.surf = ''
         self.normalized_surf = ''
         self.mrphs = ''
         self.normalized_mrphs = ''
-        self.rep = ''
-        self.normalized_rep = ''
+        self.reps = ''
+        self.normalized_reps = ''
 
-        self.child_cont = Content()
         self.children = []
 
-        self.clausal_modifier_event_ids = []
-        self.complementizer_event_ids = []
+        self.adnominal_evids = []
+        self.sentential_complement_evids = []
 
-        self.head_rep = ''
+        self.head_reps = ''
         self.eid = -1
         self.flag = ''
         self.sdist = -1
 
+        self.event_head = False
+
     @classmethod
     def build(cls, arg):
-        """Build this instance.
+        """Create an instance from language analysis.
 
-        Parameters
-        ----------
-        arg : Argument
-            An argument instance.
+        Args:
+            arg (PyknpArgument): An argument.
+
+        Returns:
+            Argument: An argument.
+
         """
         argument = Argument()
         argument.arg = arg
@@ -322,95 +350,124 @@ class Argument(Base):
 
     @classmethod
     def load(cls, dct):
-        """Load this instance.
+        """Create an instance from a dictionary.
 
-        Parameters
-        ----------
-        dct : dict
-            A dictionary storing argument information.
+        Args:
+            dct (dict): A dictionary storing an instance.
 
-        Returns
-        -------
-        Argument
+        Returns:
+            Argument: An argument.
+
         """
         argument = Argument()
         argument.surf = dct['surf']
         argument.normalized_surf = dct['normalized_surf']
         argument.mrphs = dct['mrphs']
         argument.normalized_mrphs = dct['normalized_mrphs']
-        argument.rep = dct['rep']
-        argument.normalized_rep = dct['normalized_rep']
-        argument.head_rep = dct['head_rep']
-        argument.eid = dct['entity_id']
+        argument.reps = dct['reps']
+        argument.normalized_reps = dct['normalized_reps']
+        argument.head_reps = dct['head_reps']
+        argument.eid = dct['eid']
         argument.flag = dct['flag']
         argument.sdist = dct['sdist']
-        argument.clausal_modifier_event_ids = dct['clausal_modifier_event_ids']
-        argument.complementizer_event_ids = dct['complementizer_event_ids']
+        argument.adnominal_evids = dct['adnominal_event_ids']
+        argument.sentential_complement_evids = dct['sentential_complement_event_ids']
         argument.children = dct['children']
+        argument.event_head = dct['event_head']
         return argument
 
-    def assemble(self):
-        """Assemble contents to output."""
-        self.surf = self.cont.to_string('midasi', mark=False, space=False, normalize=False, mode='pas')
-        self.normalized_surf = self.cont.to_string('midasi', mark=False, space=False, normalize=True, mode='pas')
-        self.mrphs = self.cont.to_string('midasi', mark=False, space=True, normalize=False, mode='pas')
-        self.normalized_mrphs = self.cont.to_string('midasi', mark=False, space=True, normalize=True, mode='pas')
-        self.rep = self.cont.to_string('repname', mark=False, space=True, normalize=False, mode='pas')
-        self.normalized_rep = self.cont.to_string('repname', mark=False, space=True, normalize=True, mode='pas')
-        self.head_rep = self._make_head_repname()
+    def finalize(self):
+        """Finalize this instance."""
+        def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=False):
+            bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
+            return convert_basic_phrases_to_string(
+                bps=bps,
+                type_=type_,
+                space=space,
+                normalize='argument',
+                truncate=truncate,
+                normalizes_child_bps=normalizes_child_bps
+            )
+
+        head_bps = list(filter(lambda x: not x.is_child, self.bps))
+        self.surf = to_string(head_bps, space=False)
+        self.normalized_surf = to_string(head_bps, space=False, truncate=True)
+        self.mrphs = to_string(head_bps)
+        self.normalized_mrphs = to_string(head_bps, truncate=True)
+        self.reps = to_string(head_bps, type_='repname')
+        self.normalized_reps = to_string(head_bps, type_='repname', truncate=True)
+        self.head_reps = self._get_head_reps()
         self.eid = self.arg.eid
         self.flag = self.arg.flag
         self.sdist = self.arg.sdist
-        self.clausal_modifier_event_ids = self.cont.get_clausal_modifier_evids()
-        self.complementizer_event_ids = self.cont.get_complementizer_evids()
+        self.adnominal_evids = [evid for bp in head_bps for evid in bp.adnominal_evids]
+        self.sentential_complement_evids = [evid for bp in head_bps for evid in bp.sentential_complement_evids]
+
+        child_bps = sorted(list(filter(lambda x: x.is_child, self.bps)), key=lambda x: -x.tid)
         self.children = [collections.OrderedDict([
-            ('surf', cont.to_string('midasi', mark=False, space=False, normalize=False, mode='pas')),
-            ('normalized_surf', cont.to_string('midasi', mark=False, space=False, normalize=True, mode='pas')),
-            ('mrphs', cont.to_string('midasi', mark=False, space=True, normalize=False, mode='pas')),
-            ('normalized_mrphs', cont.to_string('midasi', mark=False, space=True, normalize=True, mode='pas')),
-            ('rep', cont.to_string('repname', mark=False, space=True, normalize=False, mode='pas')),
-            ('normalized_rep', cont.to_string('repname', mark=False, space=True, normalize=True, mode='pas')),
-            ('clausal_modifier_event_ids', cont.get_clausal_modifier_evids()),
-            ('complementizer_event_ids', cont.get_complementizer_evids()),
-            ('modifier', cont.is_modifier()),
-            ('possessive', cont.is_possessive())
-        ]) for cont in self.child_cont]
+            ('surf', to_string(bp, type_='midasi', space=False, normalizes_child_bps=True)),
+            ('normalized_surf', to_string(bp, type_='midasi', space=False, truncate=True, normalizes_child_bps=True)),
+            ('mrphs', to_string(bp, type_='midasi', normalizes_child_bps=True)),
+            ('normalized_mrphs', to_string(bp, type_='midasi', truncate=True, normalizes_child_bps=True)),
+            ('reps', to_string(bp, type_='repname', normalizes_child_bps=True)),
+            ('normalized_reps', to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
+            ('adnominal_event_ids', bp.adnominal_evids),
+            ('sentential_complement_event_ids', bp.sentential_complement_evids),
+            ('modifier', bp.is_modifier),
+            ('possessive', bp.is_possessive)
+        ]) for bp in child_bps]
+
+        self.event_head = any(feature in bp.tag.features for feature in {'節-主辞', '節-区切'}
+                              for bp in head_bps if bp.tag)
 
     def to_dict(self):
-        """Return this argument information as a dictionary.
+        """Convert this instance into a dictionary.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: A dictionary storing this argument information.
+
         """
         if self.surf == '':
-            return {}  # this argument is empty
+            return {}
         else:
             return collections.OrderedDict([
                 ('surf', self.surf),
                 ('normalized_surf', self.normalized_surf),
                 ('mrphs', self.mrphs),
                 ('normalized_mrphs', self.normalized_mrphs),
-                ('rep', self.rep),
-                ('normalized_rep', self.normalized_rep),
-                ('head_rep', self.head_rep),
-                ('entity_id', self.eid),
+                ('reps', self.reps),
+                ('normalized_reps', self.normalized_reps),
+                ('head_reps', self.head_reps),
+                ('eid', self.eid),
                 ('flag', self.flag),
                 ('sdist', self.sdist),
-                ('clausal_modifier_event_ids', self.clausal_modifier_event_ids),
-                ('complementizer_event_ids', self.complementizer_event_ids),
-                ('children', self.children)
+                ('adnominal_event_ids', self.adnominal_evids),
+                ('sentential_complement_event_ids', self.sentential_complement_evids),
+                ('children', self.children),
+                ('event_head', self.event_head)
             ])
 
-    def _make_head_repname(self):
-        """Get the head representative string of this argument.
-        If it is empty, the normalized representative string of this argument will be returned.
+    def _get_head_reps(self):
+        """Return a head representative string.
 
-        Returns
-        -------
-        str
+        Returns:
+            str: A head representative string.
+
         """
-        if self.head_rep:
-            return self.head_rep
-        else:
-            return self.cont.to_string('repname', mark=False, space=True, normalize=True)
+        head_bp = sorted(list(filter(lambda x: not x.is_child, self.bps)), key=lambda x: x.tid)[0]
+
+        head_reps = None
+
+        if head_bp.tag:
+            arg_tag = head_bp.tag
+            if arg_tag.head_prime_repname:
+                head_reps = arg_tag.head_prime_repname
+            elif arg_tag.head_repname:
+                head_reps = arg_tag.head_repname
+
+        if not head_reps:
+            head_reps = self.normalized_reps
+        elif head_bp.omitted_case:
+            head_reps = '[{}]'.format(head_reps)
+
+        return head_reps

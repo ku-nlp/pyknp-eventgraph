@@ -1,4 +1,3 @@
-"""Extract event pairs from analyzed corpora."""
 import argparse
 
 from pyknp_eventgraph import EventGraph
@@ -6,19 +5,15 @@ from pyknp_eventgraph.utils import read_knp_result_file
 
 
 def main():
-    parser = argparse.ArgumentParser('Build an EventGraph')
-    parser.add_argument('IN', help='path to knp result file')
-    parser.add_argument('OUT', help='path to output file')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('IN', help='path to a knp result file')
+    parser.add_argument('OUT', help='path to an output file')
+    parser.add_argument('--binary', action='store_true', help='whether to save EventGraph as a binary file')
     args = parser.parse_args()
 
-    # load a file in the KNP format
     blists = read_knp_result_file(args.IN)
-
-    # convert knp results to the eventgraph
-    evg = EventGraph.build(blists, verbose=True)
-
-    # output the eventgraph as a json file
-    evg.output_json(args.OUT)
+    evg = EventGraph.build(blists, logging_level='DEBUG')
+    evg.save(args.OUT, binary=args.binary)
 
 
 if __name__ == '__main__':

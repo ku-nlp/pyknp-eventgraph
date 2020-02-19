@@ -1,254 +1,274 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
-import codecs
+"""A class to manage EventGraph information."""
 import collections
 import json
+import pickle
+import queue
 import re
-import typing
-from logging import getLogger, StreamHandler, Formatter, ERROR, DEBUG
+from logging import getLogger, StreamHandler, Formatter, Logger
+from typing import List, IO
 
 from pyknp import BList
 
-from pyknp_eventgraph.content import Content, ContentUnit
+from pyknp_eventgraph.base import Base
+from pyknp_eventgraph.basic_phrase import BasicPhrase
 from pyknp_eventgraph.event import Event
-from pyknp_eventgraph.helper import (
-    convert_katakana_to_hiragana,
-    get_child_tags_by_tag,
-    get_head_repname,
-    get_midasi,
-    get_midasi_for_pas_pred,
-    get_repname,
-    get_repname_for_pas_pred,
-    get_standard_repname_for_pas_pred
-)
-from pyknp_eventgraph.map import Map
 from pyknp_eventgraph.relation import Relation
 from pyknp_eventgraph.sentence import Sentence
-from pyknp_eventgraph.base import Base
 
 
 class EventGraph(Base):
-    """Manage EventGraph information.
+    """A class to manage EventGraph information.
 
-    Attributes
-    ----------
-    map : Map
-        A manager to help access objects.
-    sentences : typing.List[Sentence]
-        A list of sentences.
-    events : typing.List[Event]
-        A list of events.
+    Attributes:
+        sentences (List[Sentence]): A list of sentences.
+        events (List[Event]): A list of events.
+
     """
 
     def __init__(self):
-        """Initialize this instance."""
-        self.logger = getLogger(__name__)
-        handler = StreamHandler()
-        handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        self.logger.addHandler(handler)
-        self.logger.propagate = False
-
         Event.reset_serial_id()
-        self.map = Map()
         self.sentences = []
         self.events = []
 
+        self.__stid_tag_map = {}
+        self.__stid_bid_map = {}
+        self.__evid_event_map = {}
+        self.__stid_event_map = {}
+        self.__ssid_events_map = collections.defaultdict(list)
+
     @classmethod
-    def build(cls, blists, verbose=False):
-        """Build this instance.
+    def build(cls, blists, logger=None, logging_level='INFO'):
+        """Create an instance from language analysis.
 
-        Parameters
-        ----------
-        blists : typing.List[BList]
-            A list of KNP results at a sentence level.
-        verbose : bool
-            If true, debug information will be outputted.
+        Args:
+            blists (List[BList]): A list of KNP outputs.
+            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
+            logging_level (str): A logging level.
 
-        Returns
-        -------
-        EventGraph
+        Returns:
+            EventGraph: EventGraph.
+
         """
         evg = EventGraph()
 
-        evg.logger.setLevel(DEBUG if verbose else ERROR)
+        if logger is None:
+            logger = getLogger(__name__)
+            handler = StreamHandler()
+            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+            logger.addHandler(handler)
+            logger.propagate = False
+            logger.setLevel(logging_level)
 
-        evg.logger.debug('Constructing hash tables to access basic phrases')
-        evg.map.build_maps_from_blists(blists)
-
-        evg.logger.debug('Extracting sentences')
+        logger.debug('Construct hash tables')
         for ssid, blist in enumerate(blists):
-            evg.sentences.append(Sentence.build(ssid, blist))
-        evg.logger.debug('The number of extracted sentences: %d' % len(evg.sentences))
+            for bid, bnst in enumerate(blist.bnst_list()):
+                for tag in bnst.tag_list():
+                    evg.__stid_tag_map[(ssid, tag.tag_id)] = tag
+                    evg.__stid_bid_map[(ssid, tag.tag_id)] = bid
 
-        evg.logger.debug('Extracting events')
+        logger.debug('Extract sentences')
+        evg.sentences = evg._extract_sentences_from_blists(blists)
+
+        logger.debug('Extract events')
         for sentence in evg.sentences:
-            sent_events = evg._extract_events_from_sentence(sentence)
-            evg.events.extend(sent_events)
-        evg.logger.debug('The number of extracted events: %d' % len(evg.events))
+            evg.events.extend(evg._extract_events_from_sentence(sentence))
 
-        evg.logger.debug('Constructing hash tables to access events')
-        evg.map.build_maps_from_events(evg.events)
-
-        evg.logger.debug('Extracting relations between events')
+        logger.debug('Construct hash tables')
         for event in evg.events:
-            for relation in evg._extract_event_relations_from_event(event):
-                evg.map.get_event_by_evid(relation.modifier_evid).outgoing_relations.append(relation)
-                evg.map.get_event_by_evid(relation.head_evid).incoming_relations.append(relation)
-        evg.logger.debug('The number of extracted relations: %d' % sum(len(e.outgoing_relations) for e in evg.events))
+            evg.__evid_event_map[event.evid] = event
+            evg.__ssid_events_map[event.ssid].append(event)
+            for tid_within_event in range(event.start.tag_id, event.end.tag_id + 1):
+                evg.__stid_event_map[(event.ssid, tid_within_event)] = event
 
-        evg.logger.debug('Setting contents to events')
+        logger.debug('Extract relations between events')
         for event in evg.events:
-            evg._assign_content(event)
+            for relation in evg._extract_relations_from_event(event):
+                evg.__evid_event_map[relation.modifier_evid].outgoing_relations.append(relation)
+                evg.__evid_event_map[relation.head_evid].incoming_relations.append(relation)
 
-        evg.logger.debug('Assembling the EventGraph')
-        evg.assemble()
+        logger.debug('Assign basic phrases to events')
+        for event in evg.events:
+            evg._assign_bps_to_event(event)
 
-        evg.logger.debug('Successfully constructed the EventGraph')
+        logger.debug('Finalize EventGraph')
+        evg.finalize()
+
+        logger.debug('Successfully constructed EventGraph')
         return evg
 
     @classmethod
-    def load(cls, dct, verbose=False):
-        """Build this instance.
+    def load(cls, f, binary=False, logger=None, logging_level='INFO'):
+        """Create an instance from a dictionary.
 
-        Parameters
-        ----------
-        dct : dict
-            A dictionary storing an EventGraph.
-        verbose : bool
-            If true, debug information will be outputted.
+        Args:
+            f (IO): A file.
+            binary (bool): A flag that indicates whether the file is binary or not.
+            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
+            logging_level (str): A logging level.
 
-        Returns
-        -------
-        EventGraph
+        Returns:
+            EventGraph: EventGraph.
+
         """
         evg = EventGraph()
 
-        evg.logger.setLevel(DEBUG if verbose else ERROR)
+        if logger is None:
+            logger = getLogger(__name__)
+            handler = StreamHandler()
+            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+            logger.addHandler(handler)
+            logger.propagate = False
+            logger.setLevel(logging_level)
 
-        evg.logger.debug('Loading sentences')
-        for sentence in dct['sentences']:
-            evg.sentences.append(Sentence.load(sentence))
-        evg.logger.debug('The number of loaded sentences: %d' % len(evg.sentences))
+        if binary:
+            logger.debug('Load EventGraph')
+            evg = pickle.load(f)
+        else:
+            dct = json.load(f)
 
-        evg.logger.debug('Loading events')
-        for event_dct in dct['events']:
-            evg.events.append(Event.load(event_dct))
-        evg.logger.debug('The number of loaded events: %d' % len(evg.events))
+            logger.debug('Load sentences')
+            for sentence in dct['sentences']:
+                evg.sentences.append(Sentence.load(sentence))
 
-        evg.logger.debug('Extracting relations between events')
-        for event_dct in dct['events']:
-            for relation_dct in event_dct['rel']:
-                relation = Relation.load(event_dct['event_id'], relation_dct)
-                evg.events[relation.modifier_evid].outgoing_relations.append(relation)
-                evg.events[relation.head_evid].incoming_relations.append(relation)
-        evg.logger.debug('The number of extracted relations: %d' % sum(len(e.outgoing_relations) for e in evg.events))
+            logger.debug('Load events')
+            for event_dct in dct['events']:
+                evg.events.append(Event.load(event_dct))
 
-        evg.logger.debug('Successfully loaded the EventGraph')
+            logger.debug('Load relations between events')
+            for event_dct in dct['events']:
+                for relation_dct in event_dct['rel']:
+                    relation = Relation.load(event_dct['event_id'], relation_dct)
+                    evg.events[relation.modifier_evid].outgoing_relations.append(relation)
+                    evg.events[relation.head_evid].incoming_relations.append(relation)
+
+        logger.debug('Successfully loaded EventGraph')
         return evg
 
-    def assemble(self):
-        """Assemble contents to output."""
+    def finalize(self):
+        """Finalizes this instance."""
         for sentence in self.sentences:
-            sentence.assemble()
+            sentence.finalize()
         for event in self.events:
-            event.assemble()
+            event.finalize()
 
     def to_dict(self):
-        """Return this EventGraph information as a dictionary.
+        """Convert this instance into a dictionary.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: A dictionary storing this instance.
+
         """
         return collections.OrderedDict([
             ('sentences', [sentence.to_dict() for sentence in self.sentences]),
             ('events', [event.to_dict() for event in self.events])
         ])
 
+    def save(self, filename, binary=False, indent=8):
+        """Output this instance as a series of bytes.
+
+        Args:
+            filename (str): Path to output.
+            binary (bool): binary (bool): Whether to output this instance as a binary file or not.
+            indent (int): The number of indent (the default is 8).
+
+        """
+        if binary:
+            with open(filename, 'wb') as f:
+                pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+        else:
+            with open(filename, 'w', encoding='utf-8', errors='ignore') as f:
+                json.dump(self.to_dict(), f, indent=indent, ensure_ascii=False)
+
+    def _extract_sentences_from_blists(self, blists):
+        """Extract sentences from language analysis.
+
+        Args:
+            blists (List[BList]): A list of KNP outputs.
+
+        Returns:
+            List[Sentence]: A list of sentences.
+
+        """
+        return [Sentence.build(ssid, blist) for ssid, blist in enumerate(blists)]
+
     def _extract_events_from_sentence(self, sentence):
         """Extract events from a sentence.
 
-        Parameters
-        ----------
-        sentence : Sentence
-            A sentence.
+        Args:
+            sentence (Sentence): A sentence.
 
-        Returns
-        -------
-        typing.List[Event]
+        Returns:
+            List[Event]: A list of events.
+
         """
-        sent_events = []
+        events = []
         start, end, head = None, None, None
         for tag in sentence.blist.tag_list():
             if start is None:
                 start = tag
-            if "<節-主辞>" in tag.fstring:
+            if '節-主辞' in tag.features:
                 head = tag
-            if "<節-区切" in tag.fstring:
+            if '節-区切' in tag.features:
                 end = tag
                 if head:
-                    sent_events.append(Event.build(sentence.sid, sentence.ssid, start, head, end))
+                    events.append(Event.build(sentence.sid, sentence.ssid, start, head, end))
                 else:
-                    self.logger.error('Failed to find the clause head (ssid: %d)' % sentence.ssid)
+                    pass
                 start, end, head = None, None, None
-        return sent_events
+        return events
 
-    def _extract_event_relations_from_event(self, event):
-        """Extract event relations from a given event.
+    def _extract_relations_from_event(self, event):
+        """Extract event-to-event relations from a given event.
 
-        Parameters
-        ----------
-        event : Event
-            An event.
+        Args:
+            event (Event): An event.
 
-        Returns
-        -------
-        typing.List[Relation]
+        Returns:
+            List[Relation]: A list of relations.
+
         """
         relations = []
 
-        # parent event
+        # finds the parent event
         parent_event = None
         parent_tid = event.head.parent_id
-        while 0 < parent_tid:  # when it reaches the end of a sentence, parent_tid will be -1
-            for parent_event_cand in filter(lambda e: event.evid < e.evid, self.map.get_events_by_ssid(event.ssid)):
-                if parent_tid in {parent_event_cand.head.tag_id, parent_event_cand.end.tag_id}:
+        while 0 < parent_tid:  # -1 if it reaches the end of the sentence
+            for parent_event_cand in filter(lambda x: event.evid < x.evid, self.__ssid_events_map[event.ssid]):
+                if parent_tid in (parent_event_cand.head.tag_id, parent_event_cand.end.tag_id):
                     parent_event = parent_event_cand
                     break
             if parent_event:
                 break
             else:
-                parent_tid = self.map.get_tag_by_stid(event.ssid, parent_tid).parent_id
+                parent_tag = self.__stid_tag_map[(event.ssid, parent_tid)]
+                parent_tid = parent_tag.parent_id
         if parent_event:
             event.parent_evid = parent_event.evid
 
-        # check whether the dependency involves ambiguity  (this feature won't be activated for discourse relations)
-        sent_evids = [e.evid for e in self.map.get_events_by_ssid(event.ssid)]
+        # checks if the dependency involves ambiguity (this feature won't be activated for discourse relations)
+        sent_evids = [x.evid for x in self.__ssid_events_map[event.ssid]]
         reliable = True if sent_evids[-2:] == [event.evid, event.parent_evid] else False
 
-        # clausal modifier
-        if not relations and parent_event and '<節-区切:連体修飾>' in event.end.fstring:
+        # checks if it has an adnominal relation
+        if parent_event and event.end.features['節-区切'] == '連体修飾':
             parent_tid = event.end.parent_id
             relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, '連体修飾', '', reliable))
 
-        # clausal complementizer
-        if not relations and parent_event and '<節-区切:補文>' in event.end.fstring:
+        # checks if it is a sentential complement
+        if parent_event and event.end.features['節-区切'] == '補文':
             parent_tid = event.end.parent_id
             relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, '補文', '', reliable))
 
-        # discourse relations
+        # checks if it has a discourse relation
         if not relations:
             for discourse_relation in re.findall('<談話関係[;:](.+?)>', event.end.fstring):
                 tmp, label = discourse_relation.split(':')
                 sdist, tid, sid = tmp.split('/')
-                head_event = self.map.get_event_by_stid(event.ssid + int(sdist), int(tid))
+                head_event = self.__stid_event_map.get((event.ssid + int(sdist), int(tid)), None)
                 if head_event:
                     relations.append(Relation.build(event.evid, head_event.evid, -1, '談話関係:' + label, '', False))
 
-        # clausal functions
+        # checks if it has a clausal function
         if not relations and parent_event:
             for clause_function in re.findall('<節-機能-(.+?)>', event.end.fstring):
                 if ':' in clause_function:
@@ -258,193 +278,89 @@ class EventGraph(Base):
                 parent_tid = event.end.parent_id
                 relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, label, surf, reliable))
 
-        # clausal parallel relation
-        if not relations and parent_event and event.end.dpndtype == 'P':
-            relations.append(Relation.build(event.evid, parent_event.evid, -1, '並列', '', reliable))
+        # checks if it has a clausal parallel relation
+        if not relations and parent_event:
+            if event.end.dpndtype == 'P':
+                relations.append(Relation.build(event.evid, parent_event.evid, -1, '並列', '', reliable))
 
-        # clausal dependency
+        # checks if it has a clausal dependency
         if not relations and parent_event:
             relations.append(Relation.build(event.evid, parent_event.evid, -1, '係り受け', '', reliable))
 
         return relations
 
-    def _assign_content(self, event):
-        """Assign the content to a given event.
+    def _assign_bps_to_event(self, event):
+        """Assign base phrases to a given event.
 
-        Parameters
-        ----------
-        event: Event
-            An event.
+        Args:
+            event (Event): An event.
+
         """
-        tid_modifier_evids_map = collections.defaultdict(list)
-        for relation in filter(lambda r: r.label == '連体修飾', event.incoming_relations):
-            tid_modifier_evids_map[relation.head_tid].append(relation.modifier_evid)
-
-        tid_complementizer_evids_map = collections.defaultdict(list)
-        for relation in filter(lambda r: r.label == '補文', event.incoming_relations):
-            tid_complementizer_evids_map[relation.head_tid].append(relation.modifier_evid)
-
-        def _add_unit(cont, ssid, tid, midasi='', repname='', normalize='', omitted_case='', mode='both'):
-            """Add a content unit.
-
-            Parameters
-            ----------
-            cont : Content
-                A content.
-            ssid : int
-                A serial sentence ID.
-            tid : int
-                A serial tag ID.
-            midasi : str, optional
-                A surface string (the default is '', which implies the value will be read from the tag).
-            repname : str, optional
-                A representative string (the default is '', which implies the value will be read from the tag).
-            normalize : str, optional
-                A normalization strategy indicator (the default is '', which implies no normalization will be applied).
-            omitted_case : str, optional
-                An omitted case (the default is '', which implies no cases are omitted).
-            mode : {'both', 'surf', 'pas'}, optional
-                "both" implies that this unit is used for displaying both surface string and PAS string of the content.
-                "surf" implies that this unit is only used for displaying surface string of the content.
-                "pas" implies that this unit is only used for displaying PAS string of the content.
-            """
-            tag = self.map.get_tag_by_stid(ssid, tid)
-            bid = self.map.get_bid_by_stid(ssid, tid)
-
-            midasi = midasi if midasi else get_midasi(tag)
-            repname = repname if repname else get_repname(tag)
-
-            normalizer_pos = -1
-            normalizer = ''
-            if normalize == 'predicate':
-                for i, m in enumerate(tag.mrph_list()):
-                    if '<用言意味表記末尾>' in m.fstring:
-                        normalizer_pos = i + 1
-                        normalizer = tag.mrph_list()[normalizer_pos - 1].genkei
-                        break
-            elif normalize == 'argument':
-                def is_valid_normalizer_pos(tag, index):
-                    return any(m.hinsi not in ('助詞', '特殊', '判定詞') for m in tag.mrph_list()[:index])
-
-                normalizer_pos = len(tag.mrph_list())
-                normalizer = tag.mrph_list()[normalizer_pos - 1].genkei
-                for i, m in enumerate(tag.mrph_list()):
-                    if m.hinsi in ('助詞', '特殊', '判定詞') and is_valid_normalizer_pos(tag, i):
-                        normalizer_pos = i
-                        normalizer = tag.mrph_list()[normalizer_pos - 1].genkei
-                        break
-            elif normalize == 'exophora':
-                normalizer_pos = 1
-                normalizer = midasi
-
-            if omitted_case:
-                omitted_case = convert_katakana_to_hiragana(omitted_case)
-                midasi = ' '.join(midasi.split(' ')[:normalizer_pos]) + ' ' + omitted_case
-                repname = ' '.join(repname.split(' ')[:normalizer_pos]) + ' ' + omitted_case + '/' + omitted_case
-
-            modifier_evids = tuple(tid_modifier_evids_map.get(tid, []))
-            complementizer_evids = tuple(tid_complementizer_evids_map.get(tid, []))
-
-            modifier = '<修飾>' in tag.fstring if tag else False
-            possessive = 'ノ格' in tag.fstring if tag else False
-
-            cont.add_unit(ContentUnit(ssid=ssid, bid=bid, tid=tid, midasi=midasi, repname=repname,
-                                      normalizer_pos=normalizer_pos, normalizer=normalizer, omitted_case=omitted_case,
-                                      modifier_evids=modifier_evids, complementizer_evids=complementizer_evids,
-                                      modifier=modifier, possessive=possessive, mode=mode))
-
-        # the content of the predicate
-        pred_cont = Content()
-        for tag in {event.head, event.end}:
-            _add_unit(pred_cont, event.ssid, tag.tag_id, normalize='predicate')
-
-        # the contents of the predicate children
-        pred_child_cont = Content()
-        for tag in get_child_tags_by_tag(event.head) + get_child_tags_by_tag(event.end):
-            _add_unit(pred_child_cont, event.ssid, tag.tag_id)
-
-        # the contents of the arguments
-        case_cont_map = {}
+        # assigns the base phrases of the arguments
         if event.head.pas:
             for case, args in event.head.pas.arguments.items():
                 arg = args[0]
                 arg_ssid = event.ssid - arg.sdist
                 arg_tid = arg.tid
-                arg_tag = self.map.get_tag_by_stid(arg_ssid, arg_tid)
+                arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tid), -1)
+                arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid), None)
 
-                case_arg_cont = Content()
-                arg_child_cont_for_case = Content()
-                head_repname = ''
                 if arg.flag == 'E':
-                    # exophora
-                    _add_unit(case_arg_cont,  arg_ssid, arg_tid, midasi=arg.midasi, repname=arg.midasi,
-                              normalize='exophora', omitted_case=case)
+                    # assigns the base phrase of an argument (exophpra)
+                    event.add_argument_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, omitted_case=case), case=case)
                 elif arg.flag == 'O' and arg_tag:
-                    # zero anaphora
-                    _add_unit(case_arg_cont, arg_ssid, arg_tid, normalize='argument', omitted_case=case)
-                    head_repname = get_head_repname(arg_tag)
+                    # assigns the base phrase of an argument (zero anaphora; omission)
+                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, omitted_case=case), case=case)
                 elif arg_tag:
-                    # anaphora
-                    mode = 'both'
-                    if event.head.tag_id < arg_tid:
-                        # an argument modified by this predicate
-                        mode = 'pas'
-                    elif arg_tag and ('<節-区切' in arg_tag.fstring or '<節-主辞>' in arg_tag.fstring):
-                        # an argument which is another predicate
-                        mode = 'pas'
+                    # assigns the base phrase of an argument
+                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid), case=case)
 
-                    _add_unit(case_arg_cont, ssid=arg_ssid, tid=arg_tid, normalize='argument', mode=mode)
-                    next_arg_tag = self.map.get_tag_by_stid(arg_ssid, arg_tid + 1)
-                    if next_arg_tag and '<複合辞>' in next_arg_tag.fstring:
-                        _add_unit(case_arg_cont, arg_ssid, next_arg_tag.tag_id, normalize='argument', mode=mode)
-                        head_repname += '+' + get_head_repname(next_arg_tag)
-                    # the children of the arguments
-                    for tag in get_child_tags_by_tag(arg_tag):
-                        _add_unit(arg_child_cont_for_case, arg_ssid, tag.tag_id, mode=mode)
-                    head_repname = get_head_repname(arg_tag)
-                case_cont_map[case] = {
-                    'cont': case_arg_cont,
-                    'child_cont': arg_child_cont_for_case,
-                    'head_repname': head_repname
-                }
+                    # assigns the base phrase of the next of the argument
+                    next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
+                    if next_arg_tag and '複合辞' in next_arg_tag.features:
+                        event.add_argument_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid), case=case)
 
-        # the aggregated argument content
-        arg_cont = Content()
-        for cont_map in case_cont_map.values():
-            arg_cont += cont_map['cont']
-            arg_cont += cont_map['child_cont']
+                    # assigns the base phrases of the argument children
+                    for tag in self._get_children(arg_tag):
+                        event.add_argument_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True), case=case)
 
-        # the contents of the predicate for PAS
-        pas_pred_cont = Content()
-        midasi = get_midasi_for_pas_pred(event.head, event.end)
-        repname = get_repname_for_pas_pred(event.head, event.end)
-        _add_unit(pas_pred_cont, event.ssid, event.head.tag_id, midasi=midasi, repname=repname)
+        # assigns the base phrases of the predicate
+        for tag in {event.head, event.end}:
+            bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
+            event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid))
 
-        # set the contents
-        event.cont = event.merge_content(pred_child_cont + pred_cont, arg_cont)
-        event.pas.predicate.cont = pas_pred_cont
-        event.pas.predicate.child_cont = pred_child_cont - arg_cont  # remove ones in the arguments
-        for case, cont_map in case_cont_map.items():
-            event.pas.arguments[case].cont = cont_map['cont']
-            event.pas.arguments[case].child_cont = cont_map['child_cont']
-            event.pas.arguments[case].head_repname = cont_map['head_repname']
+        # assigns the base phrases of the predicate children
+        for tag in set(self._get_children(event.head) + self._get_children(event.end)):
+            bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
+            event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid, is_child=True))
 
-        # others
-        event.pas.predicate.standard_rep = get_standard_repname_for_pas_pred(event.head, event.end)
+    @staticmethod
+    def _get_children(tag):
+        """Return child tags of a given tag.
 
-    def output_json(self, filename='', indent=8):
-        """Output this EventGraph information in JSON format.
+        Notes:
+            This function recursively searches child tags of a given tag.
+            This search stops when it encounters a clause-head or clause-end.
 
-        Parameters
-        ----------
-        filename : str
-            The filename to write the result (the default is '', which implies stdout will be used).
-        indent : int
-            The number of indent (the default is 8).
+        Args:
+            tag (Tag): A tag.
+
+        Returns:
+            List[Tag]: A list of child tags.
+
         """
-        d = self.to_dict()
-        if filename:
-            with codecs.open(filename, "w", encoding="utf-8", errors="ignore") as f:
-                json.dump(d, f, indent=indent, ensure_ascii=False)
-        else:
-            print(json.dumps(d, indent=indent, ensure_ascii=False))
+        if tag.tag_id < 0:
+            return []
+
+        children = []
+        q = queue.Queue()
+        q.put(tag)
+        while not q.empty():
+            tag_ = q.get()
+            for child_tag in tag_.children:
+                if '節-主辞' in child_tag.features or '節-区切' in child_tag.features:
+                    continue
+                if child_tag not in children:
+                    children.append(child_tag)
+                    q.put(child_tag)
+        return sorted(children, key=lambda x: x.tag_id)

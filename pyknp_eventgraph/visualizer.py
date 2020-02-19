@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import collections
 import itertools
 import os
-import typing
-import unicodedata
-from logging import getLogger, StreamHandler, Formatter, ERROR, DEBUG
+from typing import List
+from logging import getLogger, StreamHandler, Formatter, Logger
 
 import graphviz
 
@@ -19,287 +13,242 @@ from pyknp_eventgraph.helper import PAS_ORDER
 NUM_EVENTS_IN_ROW = 4
 
 
+def make_image(evg, output, with_detail=True, with_original_text=True, logging_level='INFO', logger=None):
+    """Visualize EventGraph.
+
+    Args:
+        evg (EventGraph): EventGraph.
+        output (str): Path to the output. This path should end with '.svg'.
+        with_detail (bool): Whether to include the detail information or not.
+        with_original_text (bool): Whether to include the original text or not.
+        logging_level (str): A logging level.
+        logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
+
+    """
+    evgviz = EventGraphVisualizer()
+    evgviz.make_image(
+        evg=evg,
+        output=output,
+        with_detail=with_detail,
+        with_original_text=with_original_text,
+        logging_level=logging_level,
+        logger=logger
+    )
+
+
 class EventGraphVisualizer(object):
     """Visualize an EventGraph as an image."""
 
-    def __init__(self):
-        """Initialize a visualizer."""
-        self.logger = getLogger(__name__)
-        handler = StreamHandler()
-        handler.setFormatter(Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-        self.logger.addHandler(handler)
-        self.logger.propagate = False
+    def make_image(self, evg, output, with_detail=True, with_original_text=True, logging_level='INFO', logger=None):
+        """Visualize EventGraph.
 
-    def make_image(self, evg, output_filename, include_original_text=True, verbose=False):
-        """Make the visualization of a given EventGraph.
+        Args:
+            evg (EventGraph): EventGraph.
+            output (str): Path to the output. This path should end with '.svg'.
+            with_detail (bool): Whether to include the detail information or not.
+            with_original_text (bool): Whether to include the original text or not.
+            logging_level (str): A logging level.
+            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
 
-        Parameters
-        ----------
-        evg : EventGraph
-            An EventGraph.
-        output_filename : str
-            The path to an output file.
-        include_original_text : bool
-            A boolean flag which indicates whether to include the original text.
-        verbose : bool
-            A boolean flag which indicates whether to output debug information.
         """
-        self.logger.setLevel(DEBUG if verbose else ERROR)
+        if logger is None:
+            logger = getLogger(__name__)
+            handler = StreamHandler()
+            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+            logger.addHandler(handler)
+            logger.propagate = False
+            logger.setLevel(logging_level)
 
-        output_filename, ext = os.path.splitext(output_filename)
-        assert ext == '.svg', 'the extension of the output file should end with ".svg"'
+        output, ext = os.path.splitext(output)
+        assert ext == '.svg', 'the extension of the output file must end with ".svg"'
 
-        self.logger.debug('Making document-level chunks')
-
-        def convert_sid_to_did(sid):
-            did, *sid = sid.rsplit('-', 1)
-            return did
-
+        logger.debug('Split EventGraph at a document level')
         sentences = collections.OrderedDict()
-        for k, v in itertools.groupby(evg.sentences, key=lambda s: convert_sid_to_did(s.sid)):
+        for k, v in itertools.groupby(evg.sentences, key=lambda x: x.sid.rsplit('-', 1)[0]):
             sentences[k] = list(v)
-
         events = collections.OrderedDict()
-        for k, v in itertools.groupby(evg.events, key=lambda e: convert_sid_to_did(e.sid)):
+        for k, v in itertools.groupby(evg.events, key=lambda x: x.sid.rsplit('-', 1)[0]):
             events[k] = list(v)
 
-        self.logger.debug('Constructing a canvas')
+        logger.debug('Draw an image')
         g = graphviz.Digraph('G', format='svg')
-
-        self.logger.debug('Drawing sentences, nodes, and edges')
+        g.attr('graph', ranksep='0', margin='0', pad='0')
 
         n_cluster = 0
         for did in sentences.keys():
             doc_sentences = sentences.get(did, [])
             doc_events = events.get(did, [])
 
-            nodes = [Node(event) for event in doc_events]
-            edges = [Edge(rel) for event in doc_events for rel in event.outgoing_relations]
-
-            if include_original_text:
-                with g.subgraph(name='cluster_head_%d' % n_cluster) as h:
-                    h.attr(color='white')
-                    h.attr('node', shape='record', color='white')
-                    h.node('head_%i' % n_cluster, '\\l'.join(sentence.surf for sentence in doc_sentences) + '\\l')
-                    h.node('cluster_%i_top' % n_cluster, shape='none', label='', width='0')
+            if with_original_text:
+                with g.subgraph(name='cluster_{}'.format(n_cluster)) as h:
+                    h.attr('graph', style='invis')
+                    h.node(
+                        name='head_{}'.format(n_cluster),
+                        label='\\l'.join(sentence.surf for sentence in doc_sentences) + '\\l',
+                        shape='plaintext'
+                    )
+                    h.node(
+                        name='cluster_{}_top'.format(n_cluster),
+                        label='',
+                        shape='none',
+                        width='0'
+                    )
                 n_cluster += 1
 
-            nodes_grouped = self._group_nodes_by_sid(nodes)
-            for row, nodes_ in enumerate(nodes_grouped):
-                with g.subgraph(name='cluster_%d' % n_cluster) as c:
-                    for node in reversed(nodes_):
-                        c.attr(label='')
-                        c.attr(style='invis')
-                        c.attr('node', shape='box')
-                        node_content = node.to_string()
-                        c.node(node.name, node_content, width=str(node.width()))
-                    c.attr(label='', style='invis')
-                    c.node('cluster_%i_top' % n_cluster, shape='none', label="", width='0')
+            sent_events_list = self._split_events_by_sid(doc_events)  # too long sentences are split
+            for row, sent_events in enumerate(sent_events_list):
+                with g.subgraph(name='cluster_{}'.format(n_cluster)) as c:
+                    c.attr('graph', style='invis')
+                    for event in reversed(sent_events):
+                        c.node(
+                            name=self._get_event_name(event),
+                            label=self._get_event_string(event, with_detail),
+                            shape='box',
+                            labelloc='b',
+                            height='0'
+                        )
+                    c.node(
+                        name='cluster_{}_top'.format(n_cluster),
+                        label='',
+                        shape='none',
+                        width='0'
+                    )
                 n_cluster += 1
 
-            # align clusters vertically
-            for i in range(n_cluster - 1):
-                g.edge('cluster_%d_top' % i, 'cluster_%d_top' % (i + 1), lhead='cluster_%d' % i, style='invis')
+            for event in doc_events:
+                for relation in event.outgoing_relations:
+                    g.edge(
+                        tail_name=self._get_event_name(evg.events[relation.modifier_evid]),
+                        head_name=self._get_event_name(evg.events[relation.head_evid]),
+                        label=self._get_relation_string(relation),
+                        weight='1',
+                        constraint='false'
+                    )
 
-            for edge in edges:
-                g.edge(edge.modifier_name, edge.head_name, edge.to_string(), weight='1', constraint='false')
+        # align clusters vertically
+        for i in range(n_cluster - 1):
+            g.edge(
+                tail_name='cluster_{}_top'.format(i),
+                head_name='cluster_{}_top'.format(i + 1),
+                style='invis'
+            )
 
-        output_dir = os.path.abspath(os.path.dirname(output_filename))
+        output_dir = os.path.abspath(os.path.dirname(output))
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        self.logger.debug('Rendering an image')
-        g.render(output_filename, cleanup=True)
+        logger.debug('Render an image')
+        g.render(output, cleanup=True)
 
-        self.logger.debug('Successfully constructed EventGraph visualization')
-
-    @staticmethod
-    def _group_nodes_by_sid(nodes, max_length=4):
-        """Group nodes by their sentence IDs.
-
-        Parameters
-        ----------
-        nodes : typing.List[Node]
-            A list of nodes (events).
-        max_length : int
-            A maximum number of events which are written in the same row.
-
-        Returns
-        -------
-        typing.List[typing.List[Node]]
-        """
-        sid_nodes_map = collections.defaultdict(list)
-        for node in nodes:
-            sid_nodes_map[node.sid].append(node)
-
-        grouped_nodes = []
-        for sid in sorted(sid_nodes_map.keys()):
-            nodes_ = sid_nodes_map[sid]
-            for i in range(0, len(nodes_), max_length):
-                grouped_nodes.append(nodes_[i:i+max_length])
-        return grouped_nodes
-
-
-class Node(object):
-    """Manage node (event) information.
-
-    Attributes
-    ----------
-    name : str
-        The name of this nodes.
-    sid : int
-        A serial sentence ID.
-    surf : str
-        The surface string of an event.
-    pas : str
-        The PAS string of an event.
-    feature : str
-        The feature string of an event.
-    """
-
-    def __init__(self, event):
-        """Initialize a node.
-
-        Parameters
-        ----------
-        event : Event
-            An event.
-        """
-        self.name = 'node_%d' % event.evid
-        self.sid = event.sid
-        self.surf = self._get_surf_by_event(event)
-        self.pas = self._get_pas_by_event(event)
-        self.feature = self._get_feature_by_event(event)
-
-    def to_string(self):
-        """Return the string of this node.
-
-        Returns
-        -------
-        str
-        """
-        return '\\l\\n'.join(filter(lambda x: x != '', (self.surf, self.pas, self.feature))) + '\\l'
-
-    def width(self):
-        """Return the width of this node.
-
-        Returns
-        -------
-        float
-        """
-        def str_width(in_str):
-            return sum([2 if unicodedata.east_asian_width(c) in 'FWA' else 1 for c in in_str])
-
-        return max(str_width(self.surf), str_width(self.pas), str_width(self.feature)) * 0.10
+        logger.debug('Successfully constructed visualization')
 
     @staticmethod
-    def _get_surf_by_event(event):
-        """Get the surface string of an event.
+    def _split_events_by_sid(events, max_length=4):
+        """Group events by their sentence IDs.
 
-        Parameters
-        ----------
-        event : Event
-            An event.
+        Args:
+            events (List[Event]): A list of events.
+            max_length (int): A maximum number of events which are written in the same row.
 
-        Returns
-        -------
-        str
+        Returns:
+            List[List[Event]]
+
         """
-        return '[surf] ' + event.surf_with_mark
+        ssid_events_map = collections.defaultdict(list)
+        for event in events:
+            ssid_events_map[event.ssid].append(event)
+
+        split_events = []
+        for ssid, sent_events in sorted(ssid_events_map.items(), key=lambda x: x[0]):
+            for i in range(0, len(sent_events), max_length):
+                split_events.append(sent_events[i:i+max_length])
+        return split_events
 
     @staticmethod
-    def _get_pas_by_event(event):
-        """Get the PAS string of an event.
+    def _get_event_name(event):
+        """Return the name of a given event.
 
-        Parameters
-        ----------
-        event : Event
-            An event.
+        Args:
+            event (Event): An event.
 
-        Returns
-        -------
-        str
+        Returns:
+            str: The name of a given event.
+
         """
-        pred = event.pas.predicate.standard_rep
-        if event.pas.predicate.type_:
-            pred += ':' + event.pas.predicate.type_
-        arg_list = []
-        for case, arg in sorted(event.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
-            if '外の関係' not in case:
-                arg_list.append(arg.head_rep + ':' + case)
-        if arg_list:
-            return '[pas] ' + pred + ',  ' + ',  '.join(arg_list)
+        return 'event_{}'.format(event.evid)
+
+    @staticmethod
+    def _get_event_string(event, with_detail):
+        """Return the string of a given event.
+
+        Args:
+            event (Event): An event.
+            with_detail (bool): Whether to include the detail information or not.
+
+        Returns:
+            str: The string of a given event.
+
+        """
+        if with_detail:
+            surf = event.surf_with_mark
+            if surf.endswith(')'):
+                main, adjunct = surf[:-1].rsplit('(', 1)
+                surf = '{}<font color="gray">{}</font>'.format(main.strip(), adjunct.strip())
+            surf = '<tr><td align="left">[surf] {}</td></tr>'.format(surf)
+
+            pred = event.pas.predicate.standard_reps
+            if event.pas.predicate.type_:
+                pred += ':{}'.format(event.pas.predicate.type_)
+            arg_list = []
+            for case, arg in sorted(event.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
+                if '外の関係' not in case:
+                    arg_list.append('{}:{}'.format(arg.head_reps, case))
+            pas = '[pas] {}'.format(pred)
+            if arg_list:
+                pas = ', '.join([pas] + arg_list)
+            pas = '<tr><td align="left">{}</td></tr>'.format(pas)
+
+            feature_list = []
+            if event.features.negation:
+                feature_list.append('否定')
+            if event.features.tense:
+                feature_list.append('時制:{}'.format(event.features.tense))
+            for modality in event.features.modality:
+                feature_list.append('モダリティ:{}'.format(modality))
+            feature = '[feature] {}'.format(',  '.join(feature_list)) if feature_list else ''
+            if feature:
+                feature = '<tr><td align="left">{}</td></tr>'.format(feature)
+
+            return '<<table border="0" cellborder="0" cellspacing="1">{}</table>>'.format(surf + pas + feature)
+
         else:
-            return '[pas] ' + pred
+            surf = event.surf_with_mark
+            if surf.endswith(')'):
+                main, adjunct = surf[:-1].rsplit('(', 1)
+                surf = '{}<font color="gray">{}</font>'.format(main.strip(), adjunct.strip())
+            surf = '<tr><td align="left">{}</td></tr>'.format(surf)
+            return '<<table border="0" cellborder="0" cellspacing="1">{}</table>>'.format(surf)
 
     @staticmethod
-    def _get_feature_by_event(event):
-        """Get the feature string of an event.
+    def _get_relation_string(relation):
+        """Return the string of a given relation.
 
-        Parameters
-        ----------
-        event : Event
-            An event.
+        Args:
+            relation (Relation): A relation.
 
-        Returns
-        -------
-        str
+        Returns:
+            str: The string of a given relation.
+
         """
-        feature_list = []
-        if event.feature.negation:
-            feature_list.append('否定')
-        if event.feature.tense:
-            feature_list.append('時制:' + event.feature.tense)
-        for modality in event.feature.modality:
-            feature_list.append('モダリティ: ' + modality)
-        if feature_list:
-            return '[feature] ' + ',  '.join(feature_list)
-        else:
-            return ''
-
-
-class Edge(object):
-    """Manage edge (relation) information.
-
-    Attributes
-    ----------
-    label : str
-        The label of a relation.
-    surf : str
-        The surface string of a relation.
-    modifier_name : str
-        The name of the modifier node.
-    head_name : str
-        The name of the head node.
-    """
-
-    def __init__(self, rel):
-        """Initialize an edge.
-
-        Parameters
-        ----------
-        rel : Relation
-            A relation.
-        """
-        self.label = rel.label
-        self.surf = rel.surf
-        self.modifier_name = 'node_%d' % rel.modifier_evid
-        self.head_name = 'node_%d' % rel.head_evid
-
-    def to_string(self):
-        """Return the string of this edge.
-
-        Returns
-        -------
-        str
-        """
-        label = self.label.\
-            replace('談話関係', '談').\
-            replace('連体修飾', '▼').\
-            replace('補文', '■').\
+        label = relation.label. \
+            replace('談話関係', '談'). \
+            replace('連体修飾', '▼'). \
+            replace('補文', '■'). \
             replace('係り受け', '')
-        if label and self.surf:
-            out = label + ':' + self.surf
+
+        if label and relation.surf:
+            out = '{}:{}'.format(label, relation.surf)
         else:
             out = label
-        return '   ' + out + '   '
+
+        return '   {}    '.format(out)

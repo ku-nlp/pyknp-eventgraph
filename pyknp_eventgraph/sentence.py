@@ -1,37 +1,24 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
+"""Sentence is a class to manage sentence information."""
 import collections
 
 from pyknp import BList
-from pyknp_eventgraph.helper import get_midasi
-from pyknp_eventgraph.helper import get_repname
 from pyknp_eventgraph.base import Base
 
 
 class Sentence(Base):
-    """Manage sentence information.
+    """A class to manage sentence information.
 
-    Attributes
-    ----------
-    sid : str
-        A original sentence ID.
-    ssid : int
-        A serial sentence ID.
-    blist : BList
-        A KNP result at a sentence level.
-    surf : str
-        The surface string of a sentence.
-    mrphs : str
-        The surface string (with white spaces) of a sentence.
-    rep : str
-        The representative string of a sentence.
+    Attributes:
+        sid (str): A original sentence ID.
+        ssid (int): A serial sentence ID.
+        blist (BList): A KNP output.
+        surf (str): A surface string.
+        mrphs (str): A surface string with white spaces.
+        reps (str): A representative string.
+
     """
 
     def __init__(self):
-        """Initialize this instance."""
         self.sid = ''
         self.ssid = -1
 
@@ -39,22 +26,19 @@ class Sentence(Base):
 
         self.surf = ''
         self.mrphs = ''
-        self.rep = ''
+        self.reps = ''
 
     @classmethod
     def build(cls, ssid, blist):
-        """Build this instance.
+        """Create an instance from language analysis.
 
-        Parameters
-        ----------
-        ssid : int
-            A serial sentence ID.
-        blist : BList
-            A KNP result at a sentence level.
+        Args:
+            ssid (int): A serial sentence ID.
+            blist (BList): A KNP output.
 
-        Returns
-        -------
-        Sentence
+        Returns:
+            Sentence: A sentence.
+
         """
         sentence = Sentence()
         sentence.sid = blist.sid
@@ -64,42 +48,40 @@ class Sentence(Base):
 
     @classmethod
     def load(cls, dct):
-        """Load this instance.
+        """Create an instance from a dictionary.
 
-        Parameters
-        ----------
-        dct : dict
-            A dictionary storing sentence information.
+        Args:
+            dct (dict): A dictionary storing an instance.
 
-        Returns
-        -------
-        Sentence
+        Returns:
+            Sentence: A sentence.
+
         """
         sentence = Sentence()
         sentence.sid = dct['sid']
         sentence.ssid = dct['ssid']
         sentence.surf = dct['surf']
         sentence.mrphs = dct['mrphs']
-        sentence.rep = dct['rep']
+        sentence.reps = dct['reps']
         return sentence
 
-    def assemble(self):
-        """Assemble contents to output."""
-        self.surf = get_midasi(self.blist).replace(' ', '')
-        self.mrphs = get_midasi(self.blist)
-        self.rep = get_repname(self.blist)
+    def finalize(self):
+        """Finalize this instance."""
+        self.surf = ''.join(m.midasi for m in self.blist.mrph_list())
+        self.mrphs = ' '.join(m.midasi for m in self.blist.mrph_list())
+        self.reps = ' '.join(m.repname if m.repname else m.midasi + '/' + m.midasi for m in self.blist.mrph_list())
 
     def to_dict(self):
-        """Return this sentence information as a dictionary.
+        """Convert this instance into a dictionary.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: A dictionary storing this sentence information.
+
         """
         return collections.OrderedDict([
             ('sid', self.sid),
             ('ssid', self.ssid),
             ('surf', self.surf),
             ('mrphs', self.mrphs),
-            ('rep', self.rep),
+            ('reps', self.reps),
         ])

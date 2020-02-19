@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
 import glob
 import json
 from io import open
+
+from parameterized import parameterized
 
 from pyknp_eventgraph import EventGraph
 
@@ -20,266 +21,133 @@ class TestEventGraph(unittest.TestCase):
         self.hypotheses = [self._load_json_by_evg(path) for path in json_file_paths]
         self.references = [self._load_json(path) for path in json_file_paths]
 
-    def test_sentences(self):
+    @parameterized.expand((
+            'sid',
+            'ssid',
+            'surf',
+            'mrphs',
+            'reps'
+    ))
+    def test_sentence(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
-            assert hyp['sentences'] == ref['sentences']
+            for hyp_sentence, ref_sentence in zip(hyp['sentences'], ref['sentences']):
+                assert hyp_sentence[param] == ref_sentence[param]
 
-    def test_events_event_id(self):
+    @parameterized.expand((
+            'event_id',
+            'sid',
+            'ssid',
+            'surf',
+            'surf_with_mark',
+            'mrphs',
+            'mrphs_with_mark',
+            'normalized_mrphs',
+            'normalized_mrphs_with_mark',
+            'normalized_mrphs_without_exophora',
+            'normalized_mrphs_with_mark_without_exophora',
+            'reps',
+            'reps_with_mark',
+            'normalized_reps',
+            'normalized_reps_with_mark',
+            'content_rep_list'
+    ))
+    def test_event_event(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['event_id'] == ref_event['event_id']
+                assert hyp_event[param] == ref_event[param]
 
-    def test_events_sid(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['sid'] == ref_event['sid']
-
-    def test_events_ssid(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['ssid'] == ref_event['ssid']
-
-    def test_events_rel(self):
+    @parameterized.expand((
+            'event_id',
+            'label',
+            'surf',
+            'reliable',
+            'head_tid'
+    ))
+    def test_event_rel(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
                 for hyp_rel, ref_rel in zip(hyp_event['rel'], ref_event['rel']):
-                    assert hyp_rel == ref_rel
+                    assert hyp_rel[param] == ref_rel[param]
 
-    def test_events_surf(self):
+    @parameterized.expand((
+            'surf',
+            'normalized_surf',
+            'mrphs',
+            'normalized_mrphs',
+            'reps',
+            'normalized_reps',
+            'standard_reps',
+            'type',
+            'adnominal_event_ids',
+            'sentential_complement_event_ids',
+            'children'
+    ))
+    def test_event_pas_predicate(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['surf'] == ref_event['surf']
+                assert hyp_event['pas']['predicate'][param] == ref_event['pas']['predicate'][param]
 
-    def test_events_surf_with_mark(self):
+    @parameterized.expand((
+            'surf',
+            'normalized_surf',
+            'mrphs',
+            'normalized_mrphs',
+            'reps',
+            'normalized_reps',
+            'head_reps',
+            'eid',
+            'flag',
+            'sdist',
+            'adnominal_event_ids',
+            'sentential_complement_event_ids',
+            'children',
+            'event_head'
+    ))
+    def test_event_pas_argument(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['surf_with_mark'] == ref_event['surf_with_mark']
+                cases = list(
+                    set(list(hyp_event['pas']['argument'].keys()) + list(ref_event['pas']['argument'].keys()))
+                )
+                for case in cases:
+                    assert hyp_event['pas']['argument'][case][param] == ref_event['pas']['argument'][case][param]
 
-    def test_events_mrphs(self):
+    @parameterized.expand((
+            'modality',
+            'tense',
+            'negation',
+            'state',
+            'complement'
+    ))
+    def test_event_features(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['mrphs'] == ref_event['mrphs']
-
-    def test_events_mrphs_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['mrphs_with_mark'] == ref_event['mrphs_with_mark']
-
-    def test_events_normalized_mrphs(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_mrphs'] == ref_event['normalized_mrphs']
-
-    def test_events_normalized_mrphs_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_mrphs_with_mark'] == ref_event['normalized_mrphs_with_mark']
-
-    def test_events_rep(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['rep'] == ref_event['rep']
-
-    def test_events_rep_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['rep_with_mark'] == ref_event['rep_with_mark']
-
-    def test_events_normalized_rep(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_rep'] == ref_event['normalized_rep']
-
-    def test_events_normalized_rep_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_rep_with_mark'] == ref_event['normalized_rep_with_mark']
-
-    def test_events_pas_predicate_surf(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['surf'] == ref_event['pas']['predicate']['surf']
-
-    def test_events_pas_predicate_normalized_surf(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['normalized_surf'] == \
-                       ref_event['pas']['predicate']['normalized_surf']
-
-    def test_events_pas_predicate_mrphs(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['mrphs'] == ref_event['pas']['predicate']['mrphs']
-
-    def test_events_pas_predicate_normalized_mrphs(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['normalized_mrphs'] == \
-                       ref_event['pas']['predicate']['normalized_mrphs']
-
-    def test_events_pas_predicate_rep(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['rep'] == ref_event['pas']['predicate']['rep']
-
-    def test_events_pas_predicate_normalized_rep(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['normalized_rep'] == \
-                       ref_event['pas']['predicate']['normalized_rep']
-
-    def test_events_pas_predicate_standard_rep(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['standard_rep'] == ref_event['pas']['predicate']['standard_rep']
-
-    def test_events_pas_predicate_type(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['type'] == ref_event['pas']['predicate']['type']
-
-    def test_events_pas_predicate_clausal_modifier_event_ids(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['clausal_modifier_event_ids'] == \
-                       ref_event['pas']['predicate']['clausal_modifier_event_ids']
-
-    def test_events_pas_predicate_complementizer_event_ids(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['complementizer_event_ids'] == \
-                       ref_event['pas']['predicate']['complementizer_event_ids']
-
-    def test_events_pas_predicate_children(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate']['children'] == ref_event['pas']['predicate']['children']
-
-    def test_events_pas_argument_surf(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                for case in ref_event['pas']['argument'].keys():
-                    assert hyp_event['pas']['argument'][case]['surf'] == \
-                           ref_event['pas']['argument'][case]['surf']
-
-    # def test_events_pas_argument_normalized_surf(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['normalized_surf'] == \
-    #                        ref_event['pas']['argument'][case]['normalized_surf']
-    #
-    # def test_events_pas_argument_mrphs(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['mrphs'] == \
-    #                        ref_event['pas']['argument'][case]['mrphs']
-    #
-    # def test_events_pas_argument_normalized_mrphs(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['normalized_mrphs'] == \
-    #                        ref_event['pas']['argument'][case]['normalized_mrphs']
-    #
-    # def test_events_pas_argument_rep(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['rep'] == \
-    #                        ref_event['pas']['argument'][case]['rep']
-    #
-    # def test_events_pas_argument_normalized_rep(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['normalized_rep'] == \
-    #                        ref_event['pas']['argument'][case]['normalized_rep']
-    #
-    # def test_events_pas_argument_head_rep(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['head_rep'] == \
-    #                        ref_event['pas']['argument'][case]['head_rep']
-    #
-    # def test_events_pas_argument_entity_id(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['entity_id'] == \
-    #                        ref_event['pas']['argument'][case]['entity_id']
-    #
-    # def test_events_pas_argument_flag(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['flag'] == \
-    #                        ref_event['pas']['argument'][case]['flag']
-    #
-    # def test_events_pas_argument_sdist(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['sdist'] == \
-    #                        ref_event['pas']['argument'][case]['sdist']
-    #
-    # def test_events_pas_argument_clausal_modifier_event_ids(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['clausal_modifier_event_ids'] == \
-    #                        ref_event['pas']['argument'][case]['clausal_modifier_event_ids']
-    #
-    # def test_events_pas_argument_complementizer_event_ids(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['complementizer_event_ids'] == \
-    #                        ref_event['pas']['argument'][case]['complementizer_event_ids']
-    #
-    # def test_events_pas_argument_children(self):
-    #     for hyp, ref in zip(self.hypotheses, self.references):
-    #         for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-    #             for case in ref_event['pas']['argument'].keys():
-    #                 assert hyp_event['pas']['argument'][case]['children'] == \
-    #                        ref_event['pas']['argument'][case]['children']
-
-    def test_events_feature(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['feature'] == ref_event['feature']
+                assert hyp_event['features'][param] == ref_event['features'][param]
 
     @staticmethod
     def _load_json(path):
         """Loads a JSON file.
 
-        Parameters
-        ----------
-        path : str
-            The path to a JSON file.
+        Args:
+            path (str): Path to a JSON file.
 
-        Returns
-        -------
-        dct : dict
+        Returns:
+            dct (dict): Loaded EventGraph.
+
         """
         with open(path, 'rt', encoding='utf-8', errors='ignore') as f:
             return json.load(f)
 
     @staticmethod
     def _load_json_by_evg(path):
-        """Loads a JSON file using EventGraph.
+        """Loads a JSON file and reproduce it using EventGraph.
 
-        Parameters
-        ----------
-        path : str
-            The path to a KNP-format file.
+        Args:
+            path (str): Path to a JSON file.
 
-        Returns
-        -------
-        dct : dict
+        Returns:
+            dct (dict): Loaded EventGraph.
+
         """
         with open(path, 'rt', encoding='utf-8', errors='ignore') as f:
-            dct = json.load(f)
-        return EventGraph.load(dct).to_dict()
+            return EventGraph.load(f, binary=False).to_dict()

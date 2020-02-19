@@ -1,34 +1,24 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
+"""Relation is a class to manage relation information."""
 import collections
+
 from pyknp_eventgraph.base import Base
 
 
 class Relation(Base):
-    """Manage relation information.
+    """A class to manage relation information.
 
-    Attributes
-    ----------
-    modifier_evid : int
-        The serial event ID of a modifier event.
-    head_evid : int
-        The serial event ID of a head event.
-    head_tid : int
-        The serial tag ID of a head event's head tag.
-        Negative values imply that an event does not relate to a specific token.
-    label : str
-        The label of a relation.
-    surf : str
-        The surface string of a relation.
-    reliable : bool
-        A boolean flag which indicates whether the relation is reliable.
+    Attributes:
+        modifier_evid (int): The serial event ID of a modifier event.
+        head_evid (int): The serial event ID of a head event.
+        head_tid (int): The serial tag ID of a head event's head tag.
+            A negative value implies that the modifier event does not modify a specific token.
+        label (str): A label.
+        surf (str): An explicit marker.
+        reliable (bool): Whether a syntactic dependency is ambiguous or not.
+
     """
 
     def __init__(self):
-        """Initialize this instance."""
         self.modifier_evid = -1
         self.head_evid = -1
         self.head_tid = -1
@@ -38,27 +28,20 @@ class Relation(Base):
 
     @classmethod
     def build(cls, modifier_evid, head_evid, head_tid, label, surf, reliable):
-        """Build this instance.
+        """Create an instance from language analysis.
 
-        Parameters
-        ----------
-        modifier_evid : int
-            The serial event ID of a modifier event.
-        head_evid : int
-            The serial event ID of a head event.
-        head_tid : int
-            The serial tag ID of a head event's head tag.
-            Negative values imply that an event does not relate to a specific token.
-        label : str
-            The label of a relation.
-        surf : str
-            The surface string of a relation.
-        reliable : bool
-            A boolean flag which indicates whether the relation is reliable.
+        Args:
+            modifier_evid (int): The serial event ID of the modifier event.
+            head_evid (int): The serial event ID of the head event.
+            head_tid (int): The serial tag ID of a head event's head tag.
+                A negative value implies that the modifier event does not modify a specific token.
+            label (str): A label.
+            surf (str): An explicit marker.
+            reliable (bool): Whether a syntactic dependency is ambiguous or not.
 
-        Returns
-        -------
-        Relation
+        Returns:
+            Relation: A relation.
+
         """
         relation = Relation()
         relation.modifier_evid = modifier_evid
@@ -71,18 +54,15 @@ class Relation(Base):
 
     @classmethod
     def load(cls, modifier_evid, dct):
-        """Load this instance.
+        """Create an instance from a dictionary.
 
-        Parameters
-        ----------
-        modifier_evid : int
-            A modifier event ID.
-        dct : dict
-            A dictionary storing relation information.
+        Args:
+            modifier_evid (int): A modifier event ID.
+            dct (dict): A dictionary storing relation information.
 
-        Returns
-        -------
-        Relation
+        Returns:
+            Relation: A relation.
+
         """
         relation = Relation()
         relation.modifier_evid = modifier_evid
@@ -90,22 +70,24 @@ class Relation(Base):
         relation.label = dct['label']
         relation.surf = dct['surf']
         relation.reliable = dct['reliable']
+        relation.head_tid = dct['head_tid']
         return relation
 
-    def assemble(self):
-        """Assemble contents to output."""
+    def finalize(self):
+        """Finalize this instance."""
         pass
 
     def to_dict(self):
-        """Return this relation information as a dictionary.
+        """Convert this instance into a dictionary.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: A dictionary storing this relation information.
+
         """
         return collections.OrderedDict([
             ('event_id', self.head_evid),
             ('label', self.label),
             ('surf', self.surf),
-            ('reliable', self.reliable)
+            ('reliable', self.reliable),
+            ('head_tid', self.head_tid)
         ])

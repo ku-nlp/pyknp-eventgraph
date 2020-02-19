@@ -1,8 +1,8 @@
 # pyknp-eventgraph
 
-**EventGraph** is a Python library for event-level text processing.
-In EventGraph, an **event** is defined by a predicate-argument structure (PAS) and the associated information such as the modality and tense.
-Events are linked based on their grammatical and semantic relations.
+**EventGraph** is a development platform for high-level NLP applications in Japanese.
+The core concept of EventGraph is event, a language information unit that is closely related to predicate-argument structure but more application-oriented.
+Events are linked to each other based on their syntactic and semantic relations.
 
 ## Requirements
 
@@ -38,36 +38,35 @@ $ evgviz example-eventgraph.json example-eventgraph.svg
 from pyknp_eventgraph import EventGraph
 from pyknp_eventgraph.utils import read_knp_result_file
 
-# convert knp results to the eventgraph
-evg = EventGraph.build(read_knp_result_file('example.knp'), verbose=True)
-# output the eventgraph as a JSON file
-evg.output_json('example-eventgraph.json')
+# construct EventGraph from a KNP result file
+evg = EventGraph.build(read_knp_result_file('example.knp'))
+
+# output EventGraph as a JSON file
+evg.save('example-eventgraph.json')
 ```
 
 ### Loading EventGraph
 
 ```python
-import json
 from pyknp_eventgraph import EventGraph
 
-# load the eventgraph from a JSON file
+# load EventGraph from a JSON file
 with open('example-eventgraph.json', encoding='utf-8', errors='ignore') as f:
-    evg = EventGraph.load(json.load(f), verbose=True)
+    evg = EventGraph.load(f)
 ```
 
 ### Visualizing EventGraph
 
 ```python
-import json
-from pyknp_eventgraph import EventGraph, EventGraphVisualizer
+from pyknp_eventgraph import EventGraph
+from pyknp_eventgraph import make_image
 
+# load EventGraph from a JSON file
 with open('example-eventgraph.json', 'r', encoding='utf-8', errors='ignore') as f:
-    evg = EventGraph.load(json.load(f), verbose=True)
+    evg = EventGraph.load(f)
 
-# prepare a visualizer
-evgviz = EventGraphVisualizer()
-# convert a eventgraph to its visualization
-evgviz.make_image(evg, 'example-eventgraph.svg', verbose=True)
+# convert EventGraph to its visualization
+make_image(evg, 'example-eventgraph.svg')
 ```
 
 ## Authors

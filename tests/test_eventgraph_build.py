@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
 import glob
 import json
 from io import open
+
+from parameterized import parameterized
 
 from pyknp_eventgraph import EventGraph
 from pyknp_eventgraph.utils import read_knp_result_file
@@ -26,108 +27,119 @@ class TestEventGraph(unittest.TestCase):
         self.hypotheses = [self._make_json(path) for path in knp_file_paths]
         self.references = [self._load_json(path) for path in json_file_paths]
 
-    def test_sentences(self):
+    @parameterized.expand((
+        'sid',
+        'ssid',
+        'surf',
+        'mrphs',
+        'reps'
+    ))
+    def test_sentence(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
-            assert hyp['sentences'] == ref['sentences']
+            for hyp_sentence, ref_sentence in zip(hyp['sentences'], ref['sentences']):
+                assert hyp_sentence[param] == ref_sentence[param]
 
-    def test_events_event_id(self):
+    @parameterized.expand((
+        'event_id',
+        'sid',
+        'ssid',
+        'surf',
+        'surf_with_mark',
+        'mrphs',
+        'mrphs_with_mark',
+        'normalized_mrphs',
+        'normalized_mrphs_with_mark',
+        'normalized_mrphs_without_exophora',
+        'normalized_mrphs_with_mark_without_exophora',
+        'reps',
+        'reps_with_mark',
+        'normalized_reps',
+        'normalized_reps_with_mark',
+        'content_rep_list'
+    ))
+    def test_event_event(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['event_id'] == ref_event['event_id']
+                assert hyp_event[param] == ref_event[param]
 
-    def test_events_sid(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['sid'] == ref_event['sid']
-
-    def test_events_ssid(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['ssid'] == ref_event['ssid']
-
-    def test_events_rel(self):
+    @parameterized.expand((
+        'event_id',
+        'label',
+        'surf',
+        'reliable',
+        'head_tid'
+    ))
+    def test_event_rel(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
                 for hyp_rel, ref_rel in zip(hyp_event['rel'], ref_event['rel']):
-                    assert hyp_rel == ref_rel
+                    assert hyp_rel[param] == ref_rel[param]
 
-    def test_events_surf(self):
+    @parameterized.expand((
+        'surf',
+        'normalized_surf',
+        'mrphs',
+        'normalized_mrphs',
+        'reps',
+        'normalized_reps',
+        'standard_reps',
+        'type',
+        'adnominal_event_ids',
+        'sentential_complement_event_ids',
+        'children'
+    ))
+    def test_event_pas_predicate(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['surf'] == ref_event['surf']
+                assert hyp_event['pas']['predicate'][param] == ref_event['pas']['predicate'][param]
 
-    def test_events_surf_with_mark(self):
+    @parameterized.expand((
+        'surf',
+        'normalized_surf',
+        'mrphs',
+        'normalized_mrphs',
+        'reps',
+        'normalized_reps',
+        'head_reps',
+        'eid',
+        'flag',
+        'sdist',
+        'adnominal_event_ids',
+        'sentential_complement_event_ids',
+        'children',
+        'event_head'
+    ))
+    def test_event_pas_argument(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['surf_with_mark'] == ref_event['surf_with_mark']
+                cases = list(
+                    set(list(hyp_event['pas']['argument'].keys()) + list(ref_event['pas']['argument'].keys()))
+                )
+                for case in cases:
+                    assert hyp_event['pas']['argument'][case][param] == ref_event['pas']['argument'][case][param]
 
-    def test_events_mrphs(self):
+    @parameterized.expand((
+        'modality',
+        'tense',
+        'negation',
+        'state',
+        'complement'
+    ))
+    def test_event_features(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
             for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['mrphs'] == ref_event['mrphs']
-
-    def test_events_mrphs_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['mrphs_with_mark'] == ref_event['mrphs_with_mark']
-
-    def test_events_normalized_mrphs(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_mrphs'] == ref_event['normalized_mrphs']
-
-    def test_events_normalized_mrphs_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_mrphs_with_mark'] == ref_event['normalized_mrphs_with_mark']
-
-    def test_events_rep(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['rep'] == ref_event['rep']
-
-    def test_events_rep_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['rep_with_mark'] == ref_event['rep_with_mark']
-
-    def test_events_normalized_rep(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_rep'] == ref_event['normalized_rep']
-
-    def test_events_normalized_rep_with_mark(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['normalized_rep_with_mark'] == ref_event['normalized_rep_with_mark']
-
-    def test_events_pas_predicate(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['predicate'] == ref_event['pas']['predicate']
-
-    def test_events_pas_argument(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['pas']['argument'] == ref_event['pas']['argument']
-
-    def test_events_feature(self):
-        for hyp, ref in zip(self.hypotheses, self.references):
-            for hyp_event, ref_event in zip(hyp['events'], ref['events']):
-                assert hyp_event['feature'] == ref_event['feature']
+                assert hyp_event['features'][param] == ref_event['features'][param]
 
     @staticmethod
     def _load_json(path):
         """Loads a JSON file.
 
-        Parameters
-        ----------
-        path : str
-            The path to a JSON file.
+        Args:
+            path (str): Path to a JSON file.
 
-        Returns
-        -------
-        dct : dict
+        Returns:
+            dct (dict): Loaded EventGraph.
+
         """
         with open(path, 'rt', encoding='utf-8', errors='ignore') as f:
             return json.load(f)
@@ -136,14 +148,11 @@ class TestEventGraph(unittest.TestCase):
     def _make_json(path):
         """Loads a file in KNP-format and make a JSON file.
 
-        Parameters
-        ----------
-        path : str
-            The path to a KNP-format file.
+        Args:
+            path (str): Path to a file storing KNP results.
 
-        Returns
-        -------
-        dct : dict
+        Returns:
+            dct (dict): Constructed EventGraph.
+
         """
         return EventGraph.build(read_knp_result_file(path)).to_dict()
-
