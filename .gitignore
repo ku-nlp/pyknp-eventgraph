@@ -112,3 +112,7 @@ dmypy.json
 
 # pycharm
 .idea/
+
+# Pipfile
+Pipfile
+Pipfile.lock
