@@ -9,7 +9,8 @@ from pyknp_eventgraph.base import Base
 from pyknp_eventgraph.basic_phrase import (
     BasicPhrase,
     convert_basic_phrases_to_string,
-    convert_basic_phrases_to_content_rep_list
+    convert_basic_phrases_to_content_rep_list,
+    iterate_basic_phrases
 )
 from pyknp_eventgraph.features import Features
 from pyknp_eventgraph.pas import PAS
@@ -271,3 +272,7 @@ class Event(Base):
 
         """
         return convert_basic_phrases_to_content_rep_list(bps)
+
+    def __iter__(self):
+        """Iterate this instance."""
+        return iterate_basic_phrases(self._to_basic_phrases())

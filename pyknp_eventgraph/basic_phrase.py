@@ -392,6 +392,21 @@ def convert_basic_phrases_to_content_rep_list(bps):
     return content_reps
 
 
+def iterate_basic_phrases(bps):
+    """Iterate a list of basic phrases.
+
+    Args:
+        bps (List[BasicPhrase]): A list of basic phrases.
+
+    Yields:
+        BasicPhrase: A basic phrase.
+
+    """
+    for bnst_bps in group_basic_phrases_by_sbid(bps):
+        for bp in bnst_bps:
+            yield bp
+
+
 def group_basic_phrases_by_sbid(bps):
     """Group basic phrases based on their ssid and bid.
 
