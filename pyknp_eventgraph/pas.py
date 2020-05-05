@@ -467,7 +467,7 @@ class Argument(Base):
 
         if not head_reps:
             head_reps = self.normalized_reps
-        elif head_bp.omitted_case:
+        elif head_bp.is_omitted:
             head_reps = '[{}]'.format(head_reps)
 
         return head_reps

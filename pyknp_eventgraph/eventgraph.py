@@ -29,7 +29,6 @@ class EventGraph(Base):
         Event.reset_serial_id()
         self.sentences = []
         self.events = []
-
         self.__stid_tag_map = {}
         self.__stid_bid_map = {}
         self.__evid_event_map = {}
@@ -212,8 +211,6 @@ class EventGraph(Base):
                 end = tag
                 if head:
                     events.append(Event.build(sentence.sid, sentence.ssid, start, head, end))
-                else:
-                    pass
                 start, end, head = None, None, None
         return events
 
@@ -304,32 +301,22 @@ class EventGraph(Base):
                 arg_tid = arg.tid
                 arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tid), -1)
                 arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid), None)
-
-                if arg.flag == 'E':
-                    # assigns the base phrase of an argument (exophpra)
-                    event.add_argument_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, omitted_case=case), case=case)
-                elif arg.flag == 'O' and arg_tag:
-                    # assigns the base phrase of an argument (zero anaphora; omission)
-                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, omitted_case=case), case=case)
-                elif arg_tag:
-                    # assigns the base phrase of an argument
-                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid), case=case)
-
-                    # assigns the base phrase of the next of the argument
+                if arg.flag == 'E':  # exophora (omission)
+                    event.add_argument_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, is_omitted=True, case=case))
+                elif arg.flag == 'O' and arg_tag:  # zero anaphora (omission)
+                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, is_omitted=True, case=case))
+                elif arg_tag:  # anaphora
+                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=case))
                     next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
                     if next_arg_tag and '複合辞' in next_arg_tag.features:
-                        event.add_argument_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid), case=case)
-
-                    # assigns the base phrases of the argument children
+                        event.add_argument_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
                     for tag in self._get_children(arg_tag):
-                        event.add_argument_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True), case=case)
+                        event.add_argument_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
 
         # assigns the base phrases of the predicate
         for tag in {event.head, event.end}:
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
             event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid))
-
-        # assigns the base phrases of the predicate children
         for tag in set(self._get_children(event.head) + self._get_children(event.end)):
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
             event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid, is_child=True))

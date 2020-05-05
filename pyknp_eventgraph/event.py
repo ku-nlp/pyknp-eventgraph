@@ -156,7 +156,7 @@ class Event(Base):
         argument_bps = []
         last_tid = max(bp.tid for bp in predicate_bps)
         for argument in filter(lambda x: not x.event_head, self.pas.arguments.values()):
-            for bp in filter(lambda x: x.omitted_case or x.tid < last_tid, argument.bps):
+            for bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bps):
                 argument_bps.append(bp)
 
         # make the is_child flag of argument_bps True
@@ -228,17 +228,20 @@ class Event(Base):
             bp (BasicPhrase): A basic phrase.
 
         """
-        if bp.index() not in set(bp.index() for argument in self.pas.arguments.values() for bp in argument.bps):
+        def get_index(bp_):
+            """Return the index of a basic phrase based on its position."""
+            return bp_.ssid, bp_.tid, bp_.case if bp_.is_omitted else ''
+
+        if get_index(bp) not in set(get_index(bp) for argument in self.pas.arguments.values() for bp in argument.bps):
             bp.assign_modifier_evids(self.incoming_relations)
             self.pas.predicate.bps.append(bp)
 
-    def add_argument_bp(self, bp, case):
+    def add_argument_bp(self, bp):
         """Add a basic phrase belonging to this event.
 
         Args:
             bp (BasicPhrase): A basic phrase belonging to this instance.
-            case (str): The case of the argument.
 
         """
         bp.assign_modifier_evids(self.incoming_relations)
-        self.pas.arguments[case].bps.append(bp)
+        self.pas.arguments[bp.case].bps.append(bp)

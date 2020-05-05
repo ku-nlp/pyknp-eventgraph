@@ -23,14 +23,15 @@ class BasicPhrase:
         is_modifier (bool): Whether this basic phrase is a modifier or not.
         is_possessive (bool): Whether this basic phrase is a possessive or not.
         is_child (bool): Whether this basic phrase is a child of another one or not.
-        omitted_case (str): An omitted case.
+        is_omitted (bool): Whether this basic phrase is omitted or not.
+        case (str): A case.
         adnominal_evids (List[int]): A list of adnominal event IDs.
         sentential_complement_evids (List[int]): A list of sentential complement event IDs.
         exophora (str): The type of exophora.
 
     """
 
-    def __init__(self, tag_or_midasi, ssid=-1, bid=-1, is_child=False, omitted_case=''):
+    def __init__(self, tag_or_midasi, ssid=-1, bid=-1, is_child=False, is_omitted=False, case=''):
         """Initialize a BasicPhrase instance.
 
         Args:
@@ -38,7 +39,8 @@ class BasicPhrase:
             ssid (int): A serial sentence ID.
             bid (int): A serial bunsetsu ID.
             is_child (bool): Whether this basic phrase is a child of another one or not.
-            omitted_case (str): An omitted case.
+            is_omitted (bool): Whether this basic phrase is omitted or not.
+            case (str): A case.
 
         """
         self.tag = None
@@ -49,7 +51,8 @@ class BasicPhrase:
         self.is_modifier = False
         self.is_possessive = False
         self.is_child = is_child
-        self.omitted_case = omitted_case
+        self.is_omitted = is_omitted
+        self.case = case
         self.adnominal_evids = []
         self.sentential_complement_evids = []
 
@@ -70,7 +73,7 @@ class BasicPhrase:
             incoming_relations (List[Relation]): A list of relations, where the heads are in this event.
 
         """
-        if not self.omitted_case:
+        if self.is_omitted is False:
             for r in incoming_relations:
                 if r.label == '連体修飾' and r.head_tid == self.tid:
                     self.adnominal_evids.append(r.modifier_evid)
@@ -95,23 +98,15 @@ class BasicPhrase:
         assert normalize in {'predicate', 'argument', 'none'}, '`normalize` must be either predicate, argument, or none'
 
         def _normalize_none():
-            _content_strings = []
-            _adjunct_strings = []
-            _is_after_normalization = False
-
             if type_ == 'midasi':
                 _content_strings = convert_mrphs_to_midasi_list(self.tag.mrph_list())
             else:
                 _content_strings = convert_mrphs_to_repname_list(self.tag.mrph_list())
             _adjunct_strings = []
-
+            _is_after_normalization = False
             return _content_strings, _adjunct_strings, _is_after_normalization
 
         def _normalize_predicate(_truncate):
-            _content_strings = []
-            _adjunct_strings = []
-            _is_after_normalization = False
-
             mrphs = self.tag.mrph_list()
 
             # find the position of the morpheme to be normalized
@@ -140,12 +135,14 @@ class BasicPhrase:
                 normalization_type = 'midasi'
 
             # do a normalization process
+            _content_strings = []
+            _adjunct_strings = []
+            _is_after_normalization = False
             if slicer == -1:
                 if type_ == 'midasi':
                     _content_strings = convert_mrphs_to_midasi_list(mrphs)
                 else:
                     _content_strings = convert_mrphs_to_repname_list(mrphs)
-                _adjunct_strings = []
             else:
                 if type_ == 'midasi':
                     _content_strings = convert_mrphs_to_midasi_list(mrphs[:slicer - 1])
@@ -156,14 +153,9 @@ class BasicPhrase:
                     _content_strings = convert_mrphs_to_repname_list(mrphs[:slicer])
                     _adjunct_strings = convert_mrphs_to_repname_list(mrphs[slicer:])
                 _is_after_normalization = True
-
             return _content_strings, _adjunct_strings, _is_after_normalization
 
         def _normalize_argument(_truncate):
-            _content_strings = []
-            _adjunct_strings = []
-            _is_after_normalization = False
-
             mrphs = self.tag.mrph_list()
 
             # find the position of the morpheme to be normalized
@@ -179,6 +171,9 @@ class BasicPhrase:
                     break
 
             # do a normalization process
+            _content_strings = []
+            _adjunct_strings = []
+            _is_after_normalization = False
             if slicer == -1:
                 if type_ == 'midasi':
                     _content_strings = convert_mrphs_to_midasi_list(mrphs[:-1])
@@ -198,28 +193,25 @@ class BasicPhrase:
                     _content_strings = convert_mrphs_to_repname_list(mrphs[:slicer])
                     _adjunct_strings = convert_mrphs_to_repname_list(mrphs[slicer:])
                 _is_after_normalization = True
-
             return _content_strings, _adjunct_strings, _is_after_normalization
 
         content_strings = []
         adjunct_strings = []
         is_after_normalization = False
-
-        if self.omitted_case:
+        if self.is_omitted:
             if self.exophora:
                 content_strings = [self.exophora]
             else:
                 content_strings, _, _ = _normalize_argument(_truncate=True)
 
-            omission = self.convert_katakana_to_hiragana(self.omitted_case)
-            omission = omission if type_ == 'midasi' else '{}/{}'.format(omission, omission)
+            omitted_case = self.convert_katakana_to_hiragana(self.case)
+            omitted_case = omitted_case if type_ == 'midasi' else '{}/{}'.format(omitted_case, omitted_case)
 
             if normalize == 'argument':
-                adjunct_strings = [omission]
+                adjunct_strings = [omitted_case]
                 is_after_normalization = True
             else:
-                content_strings.append(omission)
-                adjunct_strings = []
+                content_strings.append(omitted_case)
         else:
             if normalize == 'none' or (self.is_child is True and normalizes_child_bp is False):
                 content_strings, adjunct_strings, is_after_normalization = _normalize_none()
@@ -227,7 +219,6 @@ class BasicPhrase:
                 content_strings, adjunct_strings, is_after_normalization = _normalize_predicate(_truncate=truncate)
             elif normalize == 'argument':
                 content_strings, adjunct_strings, is_after_normalization = _normalize_argument(_truncate=truncate)
-
         return content_strings, adjunct_strings, is_after_normalization
 
     def __repr__(self):
@@ -237,19 +228,9 @@ class BasicPhrase:
             str: A string which represents this instance.
 
         """
-        content_strings, _, _ = self.to_string('midasi', normalize='none', truncate=False)
-        content_string = ' '.join(content_strings)
-        omission = self.omitted_case if self.omitted_case else 'none'
-        return 'BP({}, ssid={}, bid={}, omission={})'.format(content_string, self.ssid, self.bid, omission)
-
-    def index(self):
-        """Return the index.
-
-        Returns:
-            Tuple[int, int, str]: A tuple of ssid, tid, and omitted_case.
-
-        """
-        return self.ssid, self.tid, self.omitted_case
+        content_string_tokens, _, _ = self.to_string('midasi', normalize='none', truncate=False)
+        content_string = ' '.join(content_string_tokens)
+        return 'BP({}, ssid={}, bid={}, case={})'.format(content_string, self.ssid, self.bid, self.case)
 
     @staticmethod
     def convert_katakana_to_hiragana(in_str):
@@ -283,9 +264,9 @@ def convert_basic_phrases_to_string(bps, type_='midasi', mark=False, space=True,
         str: A string converted from the given basic phrases.
 
     """
-    omitted_string_fragments = []
-    content_string_fragments = []
-    adjunct_string_fragments = []
+    omitted_string_tokens = []
+    content_string_tokens = []
+    adjunct_string_tokens = []
 
     joiner = ' ' if space else ''
 
@@ -298,8 +279,9 @@ def convert_basic_phrases_to_string(bps, type_='midasi', mark=False, space=True,
         needs_adnominal = False
         needs_sentential_complement = False
         for bp in bnst_bps:
-            exophora = exophora or bp.exophora
-            omitted_case = omitted_case or bp.omitted_case
+            if bp.is_omitted:
+                exophora = bp.exophora
+                omitted_case = bp.case
             if mark and bp.adnominal_evids:
                 needs_adnominal = True
             if mark and bp.sentential_complement_evids:
@@ -316,7 +298,7 @@ def convert_basic_phrases_to_string(bps, type_='midasi', mark=False, space=True,
                 # 0. the current base phrase skips some units
                 cond0 = prev_bp.ssid == bp.ssid and prev_bp.tid + 1 < bp.tid
                 # 1. the previous base phrase is not omitted (to avoid "[...] | ...")
-                cond1 = not prev_bp.omitted_case
+                cond1 = not prev_bp.is_omitted
                 # 2. there is no other marks (to avoid "▼ | ..." and "■ | ...")
                 cond2 = not needs_adnominal and not needs_sentential_complement
                 needs_separator = mark and all((cond0, cond1, cond2))
@@ -363,21 +345,21 @@ def convert_basic_phrases_to_string(bps, type_='midasi', mark=False, space=True,
         if content_bps:
             content_bnst_string = joiner.join(content_bps)
             if omitted_case:
-                omitted_string_fragments.append('[{}]'.format(content_bnst_string))
+                omitted_string_tokens.append('[{}]'.format(content_bnst_string))
             elif needs_adnominal:
-                content_string_fragments.append('▼ {}'.format(content_bnst_string))
+                content_string_tokens.append('▼ {}'.format(content_bnst_string))
             elif needs_sentential_complement:
-                content_string_fragments.append('■ {}'.format(content_bnst_string))
+                content_string_tokens.append('■ {}'.format(content_bnst_string))
             else:
-                content_string_fragments.append(content_bnst_string)
+                content_string_tokens.append(content_bnst_string)
 
         if adjunct_bps:
             adjunct_bnst_string = joiner.join(adjunct_bps)
-            adjunct_string_fragments.append(adjunct_bnst_string)
+            adjunct_string_tokens.append(adjunct_bnst_string)
 
-    omitted_string = ''.join(omitted_string_fragments)
-    content_string = joiner.join(content_string_fragments)
-    adjunct_string = joiner.join(adjunct_string_fragments)
+    omitted_string = ''.join(omitted_string_tokens)
+    content_string = joiner.join(content_string_tokens)
+    adjunct_string = joiner.join(adjunct_string_tokens)
 
     if omitted_string:
         content_string = '{} {}'.format(omitted_string, content_string) if content_string else omitted_string
@@ -422,7 +404,7 @@ def group_basic_phrases_by_sbid(bps):
     """
     sbid_bps_map = collections.defaultdict(list)
     for bp in bps:
-        sbid_bps_map[(bp.ssid, bp.bid, bp.omitted_case)].append(bp)
+        sbid_bps_map[(bp.ssid, bp.bid, bp.case if bp.is_omitted else '')].append(bp)
 
     bunsetsu_bps_list = []
     for sbid in sorted(sbid_bps_map, key=lambda x: (PAS_ORDER.get(x[2], 99), x[0], x[1])):
