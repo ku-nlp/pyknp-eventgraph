@@ -1,12 +1,20 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.1]
+
+### Added
+- Introduced `__iter__()` into the class `Event`. This function yields constituent basic phrases in order.
+
+### Changed
+- Removed the attribute `omitted_case` from `BasicPhrase`. Instead, introduced the attributes `case` and `is_omitted`.
+
 ## [0.4.0]
 
 ### Added
 - Introduced the class `BasicPhrase`, which is a wrapper of `pyknp.Tag`. With this change, removed the class `Content`.
 - Introduced the parameters `logging_level` and `logger` to `EventGraph.build()`, `EventGraph.load()`, and `EventGraphVisualizer.make_image()`. According to this change, removed the attribute `verbose` from them.
-- Introduced a function  to save EventGraph as a binary file. According to this change, removed `EventGraph.output_json()`.
+- Introduced a function to save EventGraph as a binary file. According to this change, removed `EventGraph.output_json()`.
 
 ### Changed
 - Improved normalization rules for an event surface
