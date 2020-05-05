@@ -17,7 +17,7 @@ from pyknp_eventgraph.sentence import Sentence
 
 
 class EventGraph(Base):
-    """A class to manage EventGraph information.
+    """A class to manage an EventGraph.
 
     Attributes:
         sentences (List[Sentence]): A list of sentences.
@@ -45,7 +45,7 @@ class EventGraph(Base):
             logging_level (str): A logging level.
 
         Returns:
-            EventGraph: EventGraph.
+            EventGraph: An EventGraph.
 
         """
         evg = EventGraph()
@@ -101,12 +101,12 @@ class EventGraph(Base):
 
         Args:
             f (IO): A file.
-            binary (bool): A flag that indicates whether the file is binary or not.
+            binary (bool): Whether the file is binary.
             logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
             logging_level (str): A logging level.
 
         Returns:
-            EventGraph: EventGraph.
+            EventGraph: An EventGraph.
 
         """
         evg = EventGraph()
@@ -163,11 +163,11 @@ class EventGraph(Base):
         ])
 
     def save(self, filename, binary=False, indent=8):
-        """Output this instance as a series of bytes.
+        """Output this instance.
 
         Args:
             filename (str): Path to output.
-            binary (bool): binary (bool): Whether to output this instance as a binary file or not.
+            binary (bool): binary (bool): Whether to output this instance as a binary file.
             indent (int): The number of indent (the default is 8).
 
         """

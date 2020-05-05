@@ -9,7 +9,7 @@ from pyknp_eventgraph.base import Base
 
 
 class Features(Base):
-    """A class to manage feature information.
+    """A class to manage features.
 
     Attributes:
         modality (List[str]): A list of modality.

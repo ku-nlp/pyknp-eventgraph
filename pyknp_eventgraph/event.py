@@ -17,7 +17,7 @@ from pyknp_eventgraph.relation import Relation
 
 
 class Event(Base):
-    """A class to manage event information.
+    """A class to manage an event.
 
     Attributes:
         evid (int): A serial event ID.

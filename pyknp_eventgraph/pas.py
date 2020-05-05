@@ -15,7 +15,7 @@ from pyknp_eventgraph.helper import (
 
 
 class PAS(Base):
-    """A class to manage PAS information.
+    """A class to manage a PAS.
 
     Attributes:
         predicate (Predicate): A predicate.

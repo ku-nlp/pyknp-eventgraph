@@ -13,17 +13,17 @@ from pyknp_eventgraph.relation import Relation
 
 
 class BasicPhrase:
-    """A class to manage basic phrase information.
+    """A class to manage a basic phrase.
 
     Attributes:
         tag (Tag): A tag.
         ssid (int): A serial sentence ID.
         bid (int): A serial bunsetsu ID.
         tid (int): A serial tag ID.
-        is_modifier (bool): Whether this basic phrase is a modifier or not.
-        is_possessive (bool): Whether this basic phrase is a possessive or not.
-        is_child (bool): Whether this basic phrase is a child of another one or not.
-        is_omitted (bool): Whether this basic phrase is omitted or not.
+        is_modifier (bool): Whether this basic phrase is a modifier.
+        is_possessive (bool): Whether this basic phrase is a possessive.
+        is_child (bool): Whether this basic phrase is a child of another one.
+        is_omitted (bool): Whether this basic phrase is omitted.
         case (str): A case.
         adnominal_evids (List[int]): A list of adnominal event IDs.
         sentential_complement_evids (List[int]): A list of sentential complement event IDs.
@@ -38,8 +38,8 @@ class BasicPhrase:
             tag_or_midasi (Union[Tag, str]): A tag or the midasi (surface string).
             ssid (int): A serial sentence ID.
             bid (int): A serial bunsetsu ID.
-            is_child (bool): Whether this basic phrase is a child of another one or not.
-            is_omitted (bool): Whether this basic phrase is omitted or not.
+            is_child (bool): Whether this basic phrase is a child of another one.
+            is_omitted (bool): Whether this basic phrase is omitted.
             case (str): A case.
 
         """
@@ -86,12 +86,12 @@ class BasicPhrase:
         Args:
             type_ (str): A type of string, which can take either `midasi` or `repname`.
             normalize (str): A normalization target, which can take either `predicate`, `argument`, or `none`.
-            truncate (bool): Whether to truncate adjunct strings or not.
-            normalizes_child_bp (bool): Whether to normalize child basic phrases or not.
+            truncate (bool): Whether to truncate adjunct strings.
+            normalizes_child_bp (bool): Whether to normalize child basic phrases.
 
         Returns:
             Tuple[List[str], List[str], bool]: Content strings, adjunct strings, and a flag which indicates that
-                a normalization process has been performed or not
+                a normalization process has been performed
 
         """
         assert type_ in {'midasi', 'repname'}, '`type_` must be either midasi or repname'
@@ -253,12 +253,12 @@ def convert_basic_phrases_to_string(bps, type_='midasi', mark=False, space=True,
     Args:
         bps (List[BasicPhrase]): A list of basic phrases.
         type_ (str): A type of string, which can take either `midasi` or `repname`.
-        mark (bool): Whether to include special marks or not.
-        space (bool): Whether to include white spaces between morphemes or not.
+        mark (bool): Whether to include special marks.
+        space (bool): Whether to include white spaces between morphemes.
         normalize (str): A normalization target, which can take either `predicate` or `argument`.
-        truncate (bool): Whether to truncate the latter of the normalized token or not.
-        needs_exophora (bool): Whether to include exophora or not.
-        normalizes_child_bps (bool): Whether to normalize child basic phrases or not.
+        truncate (bool): Whether to truncate the latter of the normalized token.
+        needs_exophora (bool): Whether to include exophora.
+        normalizes_child_bps (bool): Whether to normalize child basic phrases.
 
     Returns:
         str: A string converted from the given basic phrases.
