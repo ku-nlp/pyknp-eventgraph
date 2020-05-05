@@ -1,6 +1,6 @@
 """A class to manage PAS information."""
 import collections
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from pyknp import Argument as PyknpArgument
 from pyknp import Tag
@@ -165,17 +165,6 @@ class Predicate(Base):
 
     def finalize(self):
         """Finalize this instance."""
-        def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=True):
-            bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
-            return convert_basic_phrases_to_string(
-                bps=bps,
-                type_=type_,
-                space=space,
-                normalize='predicate',
-                truncate=truncate,
-                normalizes_child_bps=normalizes_child_bps
-            )
-
         head_bps = list(filter(lambda x: not x.is_child, self.bps))
         self.mrphs = self._get_mrphs()
         self.normalized_mrphs = self.mrphs
@@ -190,12 +179,12 @@ class Predicate(Base):
 
         child_bps = sorted(list(filter(lambda x: x.is_child, self.bps)), key=lambda x: -x.tid)
         self.children = [collections.OrderedDict([
-            ('surf', to_string(bp, type_='midasi', space=False, normalizes_child_bps=True)),
-            ('normalized_surf', to_string(bp, type_='midasi', space=False, truncate=True, normalizes_child_bps=True)),
-            ('mrphs', to_string(bp, type_='midasi', normalizes_child_bps=True)),
-            ('normalized_mrphs', to_string(bp, type_='midasi', truncate=True, normalizes_child_bps=True)),
-            ('reps', to_string(bp, type_='repname', normalizes_child_bps=True)),
-            ('normalized_reps', to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
+            ('surf', self.to_string(bp, space=False, normalizes_child_bps=True)),
+            ('normalized_surf', self.to_string(bp, space=False, truncate=True, normalizes_child_bps=True)),
+            ('mrphs', self.to_string(bp, normalizes_child_bps=True)),
+            ('normalized_mrphs', self.to_string(bp, truncate=True, normalizes_child_bps=True)),
+            ('reps', self.to_string(bp, type_='repname', normalizes_child_bps=True)),
+            ('normalized_reps', self.to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
             ('adnominal_event_ids', bp.adnominal_evids),
             ('sentential_complement_event_ids', bp.sentential_complement_evids),
             ('modifier', bp.is_modifier),
@@ -284,6 +273,30 @@ class Predicate(Base):
                 return tag.features['標準用言代表表記']
         else:
             return self.reps
+
+    @staticmethod
+    def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=True):
+        """Convert this instance into a string.
+
+        Args:
+            bp_or_bps (Union[BasicPhrase, List[BasicPhrase]]): A basic phrase or a list of basic phrases.
+            type_ (str): A type of string, which can take either `midasi` or `repname`.
+            space (bool): Whether to include white spaces between morphemes.
+            truncate (bool): Whether to truncate the latter of the normalized token.
+            normalizes_child_bps (bool): Whether to normalize child basic phrases.
+
+        Returns:
+
+        """
+        bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
+        return convert_basic_phrases_to_string(
+            bps=bps,
+            type_=type_,
+            space=space,
+            normalize='predicate',
+            truncate=truncate,
+            normalizes_child_bps=normalizes_child_bps
+        )
 
 
 class Argument(Base):
@@ -378,24 +391,13 @@ class Argument(Base):
 
     def finalize(self):
         """Finalize this instance."""
-        def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=False):
-            bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
-            return convert_basic_phrases_to_string(
-                bps=bps,
-                type_=type_,
-                space=space,
-                normalize='argument',
-                truncate=truncate,
-                normalizes_child_bps=normalizes_child_bps
-            )
-
         head_bps = list(filter(lambda x: not x.is_child, self.bps))
-        self.surf = to_string(head_bps, space=False)
-        self.normalized_surf = to_string(head_bps, space=False, truncate=True)
-        self.mrphs = to_string(head_bps)
-        self.normalized_mrphs = to_string(head_bps, truncate=True)
-        self.reps = to_string(head_bps, type_='repname')
-        self.normalized_reps = to_string(head_bps, type_='repname', truncate=True)
+        self.surf = self.to_string(head_bps, space=False)
+        self.normalized_surf = self.to_string(head_bps, space=False, truncate=True)
+        self.mrphs = self.to_string(head_bps)
+        self.normalized_mrphs = self.to_string(head_bps, truncate=True)
+        self.reps = self.to_string(head_bps, type_='repname')
+        self.normalized_reps = self.to_string(head_bps, type_='repname', truncate=True)
         self.head_reps = self._get_head_reps()
         self.eid = self.arg.eid
         self.flag = self.arg.flag
@@ -405,20 +407,20 @@ class Argument(Base):
 
         child_bps = sorted(list(filter(lambda x: x.is_child, self.bps)), key=lambda x: -x.tid)
         self.children = [collections.OrderedDict([
-            ('surf', to_string(bp, type_='midasi', space=False, normalizes_child_bps=True)),
-            ('normalized_surf', to_string(bp, type_='midasi', space=False, truncate=True, normalizes_child_bps=True)),
-            ('mrphs', to_string(bp, type_='midasi', normalizes_child_bps=True)),
-            ('normalized_mrphs', to_string(bp, type_='midasi', truncate=True, normalizes_child_bps=True)),
-            ('reps', to_string(bp, type_='repname', normalizes_child_bps=True)),
-            ('normalized_reps', to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
+            ('surf', self.to_string(bp, space=False, normalizes_child_bps=True)),
+            ('normalized_surf', self.to_string(bp, space=False, truncate=True, normalizes_child_bps=True)),
+            ('mrphs', self.to_string(bp, normalizes_child_bps=True)),
+            ('normalized_mrphs', self.to_string(bp, truncate=True, normalizes_child_bps=True)),
+            ('reps', self.to_string(bp, type_='repname', normalizes_child_bps=True)),
+            ('normalized_reps', self.to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
             ('adnominal_event_ids', bp.adnominal_evids),
             ('sentential_complement_event_ids', bp.sentential_complement_evids),
             ('modifier', bp.is_modifier),
             ('possessive', bp.is_possessive)
         ]) for bp in child_bps]
 
-        self.event_head = any(feature in bp.tag.features for feature in {'節-主辞', '節-区切'}
-                              for bp in head_bps if bp.tag)
+        for bp in filter(lambda bp: bp.tag, head_bps):
+            self.event_head = self.event_head or any(feature in bp.tag.features for feature in {'節-主辞', '節-区切'})
 
     def to_dict(self):
         """Convert this instance into a dictionary.
@@ -471,3 +473,25 @@ class Argument(Base):
             head_reps = '[{}]'.format(head_reps)
 
         return head_reps
+
+    @staticmethod
+    def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=False):
+        """Convert this instance into a string.
+
+        Args:
+            bp_or_bps (Union[BasicPhrase, List[BasicPhrase]]): A basic phrase or a list of basic phrases.
+            type_ (str): A type of string, which can take either `midasi` or `repname`.
+            space (bool): Whether to include white spaces between morphemes.
+            truncate (bool): Whether to truncate the latter of the normalized token.
+            normalizes_child_bps (bool): Whether to normalize child basic phrases.
+
+        """
+        bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
+        return convert_basic_phrases_to_string(
+            bps=bps,
+            type_=type_,
+            space=space,
+            normalize='argument',
+            truncate=truncate,
+            normalizes_child_bps=normalizes_child_bps
+        )
