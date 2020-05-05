@@ -6,7 +6,7 @@ from pyknp_eventgraph.base import Base
 
 
 class Sentence(Base):
-    """A class to manage sentence information.
+    """A class to manage a sentence.
 
     Attributes:
         sid (str): A original sentence ID.

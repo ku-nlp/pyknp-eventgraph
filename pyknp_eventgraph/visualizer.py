@@ -19,8 +19,8 @@ def make_image(evg, output, with_detail=True, with_original_text=True, logging_l
     Args:
         evg (EventGraph): EventGraph.
         output (str): Path to the output. This path should end with '.svg'.
-        with_detail (bool): Whether to include the detail information or not.
-        with_original_text (bool): Whether to include the original text or not.
+        with_detail (bool): Whether to include the detail information.
+        with_original_text (bool): Whether to include the original text.
         logging_level (str): A logging level.
         logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
 
@@ -45,8 +45,8 @@ class EventGraphVisualizer(object):
         Args:
             evg (EventGraph): EventGraph.
             output (str): Path to the output. This path should end with '.svg'.
-            with_detail (bool): Whether to include the detail information or not.
-            with_original_text (bool): Whether to include the original text or not.
+            with_detail (bool): Whether to include the detail information.
+            with_original_text (bool): Whether to include the original text.
             logging_level (str): A logging level.
             logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
 
@@ -183,7 +183,7 @@ class EventGraphVisualizer(object):
 
         Args:
             event (Event): An event.
-            with_detail (bool): Whether to include the detail information or not.
+            with_detail (bool): Whether to include the detail information.
 
         Returns:
             str: The string of a given event.

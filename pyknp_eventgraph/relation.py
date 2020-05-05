@@ -14,7 +14,7 @@ class Relation(Base):
             A negative value implies that the modifier event does not modify a specific token.
         label (str): A label.
         surf (str): An explicit marker.
-        reliable (bool): Whether a syntactic dependency is ambiguous or not.
+        reliable (bool): Whether a syntactic dependency is ambiguous.
 
     """
 
@@ -37,7 +37,7 @@ class Relation(Base):
                 A negative value implies that the modifier event does not modify a specific token.
             label (str): A label.
             surf (str): An explicit marker.
-            reliable (bool): Whether a syntactic dependency is ambiguous or not.
+            reliable (bool): Whether a syntactic dependency is ambiguous.
 
         Returns:
             Relation: A relation.
