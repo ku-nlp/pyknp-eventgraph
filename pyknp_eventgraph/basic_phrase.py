@@ -228,9 +228,22 @@ class BasicPhrase:
             str: A string which represents this instance.
 
         """
-        content_string_tokens, _, _ = self.to_string('midasi', normalize='none', truncate=False)
-        content_string = ' '.join(content_string_tokens)
-        return 'BP({}, ssid={}, bid={}, case={})'.format(content_string, self.ssid, self.bid, self.case)
+        return 'BP({}, ssid={}, bid={}, case={})'.format(self.surf, self.ssid, self.bid, self.case)
+
+    @property
+    def surf(self):
+        content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
+        return ''.join(content_string_tokens)
+
+    @property
+    def mrphs(self):
+        content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
+        return ' '.join(content_string_tokens)
+
+    @property
+    def reps(self):
+        content_string_tokens, _, _ = self.to_string(type_='repname', normalize='none', truncate=False)
+        return ' '.join(content_string_tokens)
 
     @staticmethod
     def convert_katakana_to_hiragana(in_str):
