@@ -1,6 +1,5 @@
 """A class to manage event information."""
 import collections
-import copy
 from typing import List
 
 from pyknp import Tag
@@ -8,9 +7,7 @@ from pyknp import Tag
 from pyknp_eventgraph.base import Base
 from pyknp_eventgraph.basic_phrase import (
     BasicPhrase,
-    convert_basic_phrases_to_string,
-    convert_basic_phrases_to_content_rep_list,
-    iterate_basic_phrases
+    BasicPhraseList
 )
 from pyknp_eventgraph.features import Features
 from pyknp_eventgraph.pas import PAS
@@ -144,6 +141,27 @@ class Event(Base):
         Event.__evid = event.evid
         return event
 
+    def add_predicate_bp(self, bp):
+        """Add a basic phrase belonging to this event.
+
+        Args:
+            bp (BasicPhrase): A basic phrase.
+
+        """
+        if all(bp not in argument.bpl for argument in self.pas.arguments.values()):
+            bp.assign_modifier_evids(self.incoming_relations)
+            self.pas.predicate.push_bp(bp)
+
+    def add_argument_bp(self, bp):
+        """Add a basic phrase belonging to this event.
+
+        Args:
+            bp (BasicPhrase): A basic phrase belonging to this instance.
+
+        """
+        bp.assign_modifier_evids(self.incoming_relations)
+        self.pas.arguments[bp.case].push_bp(bp)
+
     def finalize(self):
         """Finalize this instance."""
         self.pas.finalize()
@@ -151,20 +169,20 @@ class Event(Base):
         for relation in self.outgoing_relations:
             relation.finalize()
 
-        bps = self._to_basic_phrases()
-        self.surf = self.to_string(bps, space=False)
-        self.surf_with_mark = self.to_string(bps, mark=True, space=False)
-        self.mrphs = self.to_string(bps)
-        self.mrphs_with_mark = self.to_string(bps, mark=True)
-        self.normalized_mrphs = self.to_string(bps, truncate=True)
-        self.normalized_mrphs_with_mark = self.to_string(bps, mark=True, truncate=True)
-        self.normalized_mrphs_without_exophora = self.to_string(bps, truncate=True, exophora=False)
-        self.normalized_mrphs_with_mark_without_exophora = self.to_string(bps, mark=True, truncate=True, exophora=False)
-        self.reps = self.to_string(bps, 'repname', mark=False, truncate=False)
-        self.reps_with_mark = self.to_string(bps, 'repname', mark=True, truncate=False)
-        self.normalized_reps = self.to_string(bps, 'repname', mark=False, truncate=True)
-        self.normalized_reps_with_mark = self.to_string(bps, 'repname', mark=True, truncate=True)
-        self.content_rep_list = self.to_content_rep_list(bps)
+        bpl = self.to_basic_phrase_list()
+        self.surf = bpl.to_string(space=False)
+        self.surf_with_mark = bpl.to_string(mark=True, space=False)
+        self.mrphs = bpl.to_string()
+        self.mrphs_with_mark = bpl.to_string(mark=True)
+        self.normalized_mrphs = bpl.to_string(truncate=True)
+        self.normalized_mrphs_with_mark = bpl.to_string(mark=True, truncate=True)
+        self.normalized_mrphs_without_exophora = bpl.to_string(truncate=True, needs_exophora=False)
+        self.normalized_mrphs_with_mark_without_exophora = bpl.to_string(mark=True, truncate=True, needs_exophora=False)
+        self.reps = bpl.to_string('repname', mark=False, truncate=False)
+        self.reps_with_mark = bpl.to_string('repname', mark=True, truncate=False)
+        self.normalized_reps = bpl.to_string('repname', mark=False, truncate=True)
+        self.normalized_reps_with_mark = bpl.to_string('repname', mark=True, truncate=True)
+        self.content_rep_list = bpl.to_content_rep_list()
 
     def to_dict(self):
         """Convert this instance into a dictionary.
@@ -195,84 +213,19 @@ class Event(Base):
             ('features', self.features.to_dict())
         ])
 
-    def add_predicate_bp(self, bp):
-        """Add a basic phrase belonging to this event.
+    def to_basic_phrase_list(self):
+        """Convert this instance into a basic phrase list.
 
-        Args:
-            bp (BasicPhrase): A basic phrase.
-
-        """
-        def get_index(bp_):
-            """Return the index of a basic phrase based on its position."""
-            return bp_.ssid, bp_.tid, bp_.case if bp_.is_omitted else ''
-
-        if get_index(bp) not in set(get_index(bp) for argument in self.pas.arguments.values() for bp in argument.bps):
-            bp.assign_modifier_evids(self.incoming_relations)
-            self.pas.predicate.bps.append(bp)
-
-    def add_argument_bp(self, bp):
-        """Add a basic phrase belonging to this event.
-
-        Args:
-            bp (BasicPhrase): A basic phrase belonging to this instance.
+        Returns:
+            BasicPhraseList: A basic phrase list.
 
         """
-        bp.assign_modifier_evids(self.incoming_relations)
-        self.pas.arguments[bp.case].bps.append(bp)
-
-    def _to_basic_phrases(self):
-        """Convert this instance into a list of basic phrases."""
-        # collect basic phrases to use
-        predicate_bps = self.pas.predicate.bps
+        predicate_bpl = self.pas.predicate.bpl
         argument_bps = []
-        last_tid = max(bp.tid for bp in predicate_bps)
+        last_tid = max(bp.tid for bp in predicate_bpl)
         for argument in filter(lambda x: not x.event_head, self.pas.arguments.values()):
-            for bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bps):
+            for bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bpl):
+                bp.is_child = True  # treated as a child of the predicate
                 argument_bps.append(bp)
-
-        # make the is_child flag of argument_bps True
-        argument_bps = copy.deepcopy(argument_bps)
-        for argument_bp in argument_bps:
-            argument_bp.is_child = True
-
-        # concatenate all bps
-        bps = predicate_bps + argument_bps
-
-        return bps
-
-    @staticmethod
-    def to_string(bps, type_='midasi', mark=False, space=True, truncate=False, exophora=True):
-        """Convert this instance into a string.
-
-        Args:
-            bps (List[BasicPhrase]): A list of basic phrases.
-            type_ (str): A type of string, which can take either `midasi` or `repname`.
-            mark (bool): Whether to include special marks.
-            space (bool): Whether to include white spaces between morphemes.
-            truncate (bool): Whether to truncate the latter of the normalized token.
-            exophora (bool): Whether to include exophora.
-
-        """
-        return convert_basic_phrases_to_string(
-            bps=bps,
-            type_=type_,
-            mark=mark,
-            space=space,
-            normalize='predicate',
-            truncate=truncate,
-            needs_exophora=exophora
-        )
-
-    @staticmethod
-    def to_content_rep_list(bps):
-        """Convert this instance into a list of representative strings of content words.
-
-        Args:
-            bps (List[BasicPhrase]): A list of basic phrases.
-
-        """
-        return convert_basic_phrases_to_content_rep_list(bps)
-
-    def __iter__(self):
-        """Iterate this instance."""
-        return iterate_basic_phrases(self._to_basic_phrases())
+        argument_bpl = BasicPhraseList(argument_bps)
+        return predicate_bpl + argument_bpl

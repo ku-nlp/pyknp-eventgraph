@@ -35,3 +35,16 @@ def convert_mrphs_to_repname_list(mrphs):
 
     """
     return [m.repname if m.repname else '{}/{}'.format(m.midasi, m.midasi) for m in mrphs]
+
+
+def convert_katakana_to_hiragana(in_str):
+    """Convert katakana characters in a given string to their corresponding hiragana characters.
+
+    Args:
+        in_str (str): A string.
+
+    Returns:
+        str: A string, where katakana characters have been converted into hiragana.
+
+    """
+    return "".join(chr(ord(ch) - 96) if ("ァ" <= ch <= "ン") else ch for ch in in_str)

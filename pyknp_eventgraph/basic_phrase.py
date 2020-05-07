@@ -1,13 +1,14 @@
 """A wrapper class of pyknp.Tag."""
 import collections
-from typing import List, Tuple, Union
+from typing import List, Tuple, Optional, Union
 
 from pyknp import Tag
 
 from pyknp_eventgraph.helper import (
     PAS_ORDER,
     convert_mrphs_to_midasi_list,
-    convert_mrphs_to_repname_list
+    convert_mrphs_to_repname_list,
+    convert_katakana_to_hiragana
 )
 from pyknp_eventgraph.relation import Relation
 
@@ -66,6 +67,35 @@ class BasicPhrase:
         else:
             raise NotImplementedError
 
+    def __repr__(self):
+        return 'BasicPhrase({}, ssid={}, bid={}, case={})'.format(self.surf, self.ssid, self.bid, self.case)
+
+    @property
+    def surf(self):
+        content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
+        return ''.join(content_string_tokens)
+
+    @property
+    def mrphs(self):
+        content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
+        return ' '.join(content_string_tokens)
+
+    @property
+    def reps(self):
+        content_string_tokens, _, _ = self.to_string(type_='repname', normalize='none', truncate=False)
+        return ' '.join(content_string_tokens)
+
+    @property
+    def position(self):
+        """Return the position of this basic phrase.
+
+        Notes:
+            To distinguish basic phrases extracted by exophora resolution, it is necessary to include case information.
+            On the other hand, to distinguish basic phrases that appear in text, case information is not used.
+
+        """
+        return self.ssid, self.tid, self.case if self.is_omitted else ''
+
     def assign_modifier_evids(self, incoming_relations):
         """Assign modifier event IDs.
 
@@ -79,6 +109,15 @@ class BasicPhrase:
                     self.adnominal_evids.append(r.modifier_evid)
                 if r.label == '補文' and r.head_tid == self.tid:
                     self.sentential_complement_evids.append(r.modifier_evid)
+
+    def to_singleton(self):
+        """Return this instance as a singleton.
+
+        Returns:
+            BasicPhraseList: A basic phrase list that just includes this basic phrase.
+
+        """
+        return BasicPhraseList([self])
 
     def to_string(self, type_, normalize, truncate, normalizes_child_bp=False):
         """Convert this instance into a string based on given parameters.
@@ -204,7 +243,7 @@ class BasicPhrase:
             else:
                 content_strings, _, _ = _normalize_argument(_truncate=True)
 
-            omitted_case = self.convert_katakana_to_hiragana(self.case)
+            omitted_case = convert_katakana_to_hiragana(self.case)
             omitted_case = omitted_case if type_ == 'midasi' else '{}/{}'.format(omitted_case, omitted_case)
 
             if normalize == 'argument':
@@ -221,220 +260,263 @@ class BasicPhrase:
                 content_strings, adjunct_strings, is_after_normalization = _normalize_argument(_truncate=truncate)
         return content_strings, adjunct_strings, is_after_normalization
 
-    def __repr__(self):
-        """Print this instance.
 
-        Returns:
-            str: A string which represents this instance.
+class BasicPhraseList:
+    """A class to manage a list of basic phrases."""
 
-        """
-        return 'BP({}, ssid={}, bid={}, case={})'.format(self.surf, self.ssid, self.bid, self.case)
-
-    @property
-    def surf(self):
-        content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
-        return ''.join(content_string_tokens)
-
-    @property
-    def mrphs(self):
-        content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
-        return ' '.join(content_string_tokens)
-
-    @property
-    def reps(self):
-        content_string_tokens, _, _ = self.to_string(type_='repname', normalize='none', truncate=False)
-        return ' '.join(content_string_tokens)
-
-    @staticmethod
-    def convert_katakana_to_hiragana(in_str):
-        """Convert katakana characters in a given string to their corresponding hiragana characters.
+    def __init__(self, bps=None):
+        """Initialize a basic phrase list.
 
         Args:
-            in_str (str): A string.
-
-        Returns:
-            str: A string, where katakana characters have been converted into hiragana.
+            bps (Optional[List[BasicPhrase]]): A list of basic phrases.
 
         """
-        return "".join(chr(ord(ch) - 96) if ("ァ" <= ch <= "ン") else ch for ch in in_str)
+        self.__bps = []
+        if bps:
+            assert isinstance(bps, list) and all((isinstance(bp, BasicPhrase) for bp in bps))
+            self.__bps = bps
 
+    def __len__(self):
+        return len(self.__bps)
 
-def convert_basic_phrases_to_string(bps, type_='midasi', mark=False, space=True, normalize='predicate', truncate=False,
-                                    needs_exophora=True, normalizes_child_bps=False):
-    """Convert basic phrases into a string.
+    def __getitem__(self, key):
+        assert isinstance(key, int)
+        return self.__bps[key]
 
-    Args:
-        bps (List[BasicPhrase]): A list of basic phrases.
-        type_ (str): A type of string, which can take either `midasi` or `repname`.
-        mark (bool): Whether to include special marks.
-        space (bool): Whether to include white spaces between morphemes.
-        normalize (str): A normalization target, which can take either `predicate` or `argument`.
-        truncate (bool): Whether to truncate the latter of the normalized token.
-        needs_exophora (bool): Whether to include exophora.
-        normalizes_child_bps (bool): Whether to normalize child basic phrases.
-
-    Returns:
-        str: A string converted from the given basic phrases.
-
-    """
-    omitted_string_tokens = []
-    content_string_tokens = []
-    adjunct_string_tokens = []
-
-    joiner = ' ' if space else ''
-
-    is_after_normalization = False
-    prev_bp = None
-
-    for bnst_bps in group_basic_phrases_by_sbid(bps):
-        exophora = ''
-        omitted_case = ''
-        needs_adnominal = False
-        needs_sentential_complement = False
-        for bp in bnst_bps:
-            if bp.is_omitted:
-                exophora = bp.exophora
-                omitted_case = bp.case
-            if mark and bp.adnominal_evids:
-                needs_adnominal = True
-            if mark and bp.sentential_complement_evids:
-                needs_sentential_complement = True
-
-        if needs_exophora is False and exophora:
-            continue
-
-        content_bps = []
-        adjunct_bps = []
-        for bp in bnst_bps:
-            if prev_bp:
-                # add a separator mark (|) when the following conditions are satisfied
-                # 0. the current base phrase skips some units
-                cond0 = prev_bp.ssid == bp.ssid and prev_bp.tid + 1 < bp.tid
-                # 1. the previous base phrase is not omitted (to avoid "[...] | ...")
-                cond1 = not prev_bp.is_omitted
-                # 2. there is no other marks (to avoid "▼ | ..." and "■ | ...")
-                cond2 = not needs_adnominal and not needs_sentential_complement
-                needs_separator = mark and all((cond0, cond1, cond2))
-            else:
-                needs_separator = False
-
-            # convert bps into content strings and adjunct strings
-            if is_after_normalization:
-                content_mrphs = []
-                adjunct_mrphs, _, _ = bp.to_string(
-                    type_,
-                    normalize='none',
-                    truncate=truncate,
-                    normalizes_child_bp=normalizes_child_bps
-                )
-            else:
-                content_mrphs, adjunct_mrphs, is_after_normalization_ = bp.to_string(
-                    type_,
-                    normalize=normalize,
-                    truncate=truncate,
-                    normalizes_child_bp=normalizes_child_bps
-                )
-
-                # check the normalization process has been performed
-                is_after_normalization = is_after_normalization or is_after_normalization_
-
-                # add a separator mark
-                if needs_separator:
-                    content_mrphs.insert(0, '|' if space else ' | ')
-
-            # overwrite the result in a special case
-            if omitted_case and normalize == 'argument' and not truncate:
-                content_mrphs.extend(adjunct_mrphs)
-                adjunct_mrphs = []
-                is_after_normalization = False
-
-            if content_mrphs:
-                content_bps.extend(content_mrphs)
-            if adjunct_mrphs:
-                adjunct_bps.extend(adjunct_mrphs)
-
-            prev_bp = bp
-
-        if content_bps:
-            content_bnst_string = joiner.join(content_bps)
-            if omitted_case:
-                omitted_string_tokens.append('[{}]'.format(content_bnst_string))
-            elif needs_adnominal:
-                content_string_tokens.append('▼ {}'.format(content_bnst_string))
-            elif needs_sentential_complement:
-                content_string_tokens.append('■ {}'.format(content_bnst_string))
-            else:
-                content_string_tokens.append(content_bnst_string)
-
-        if adjunct_bps:
-            adjunct_bnst_string = joiner.join(adjunct_bps)
-            adjunct_string_tokens.append(adjunct_bnst_string)
-
-    omitted_string = ''.join(omitted_string_tokens)
-    content_string = joiner.join(content_string_tokens)
-    adjunct_string = joiner.join(adjunct_string_tokens)
-
-    if omitted_string:
-        content_string = '{} {}'.format(omitted_string, content_string) if content_string else omitted_string
-
-    if truncate or not adjunct_string:
-        return content_string
-    else:
-        if mark:
-            return '{} ({})'.format(content_string, adjunct_string)
-        else:
-            return joiner.join((content_string, adjunct_string))
-
-
-def convert_basic_phrases_to_content_rep_list(bps):
-    """Convert basic phrases into a list of the representative strings of content words.
-
-    Args:
-        bps (List[BasicPhrase]): A list of basic phrases.
-
-    Returns:
-        List[str]: A list of the representative strings of content words.
-
-    """
-    content_reps = []
-    for bnst_bps in group_basic_phrases_by_sbid(bps):
-        for bp in filter(lambda x: x.tag, bnst_bps):
-            for m in bp.tag.mrph_list():
-                if any(feature in m.fstring for feature in ('<内容語>', '<準内容語>')):
-                    content_reps.extend(convert_mrphs_to_repname_list([m]))
-    return content_reps
-
-
-def iterate_basic_phrases(bps):
-    """Iterate a list of basic phrases.
-
-    Args:
-        bps (List[BasicPhrase]): A list of basic phrases.
-
-    Yields:
-        BasicPhrase: A basic phrase.
-
-    """
-    for bnst_bps in group_basic_phrases_by_sbid(bps):
-        for bp in bnst_bps:
+    def __iter__(self):
+        for bp in self.__bps:
             yield bp
 
+    def __contains__(self, bp):
+        assert isinstance(bp, BasicPhrase)
+        return bp.position in set(bp_.position for bp_ in self.__bps)
 
-def group_basic_phrases_by_sbid(bps):
-    """Group basic phrases based on their ssid and bid.
+    def __add__(self, other):
+        assert isinstance(other, BasicPhraseList)
+        bpl = BasicPhraseList(self.to_list() + other.to_list())
+        bpl.sort()
+        return bpl
 
-    Args:
-        bps (List[BasicPhrase]): A list of basic phrases.
+    @property
+    def head(self):
+        """Return the head part.
 
-    Returns:
-        List[List[BasicPhrase]]: A list of lists of basic phrases.
+        Returns:
+            BasicPhraseList: A basic phrase list that include the head part of this list.
 
-    """
-    sbid_bps_map = collections.defaultdict(list)
-    for bp in bps:
-        sbid_bps_map[(bp.ssid, bp.bid, bp.case if bp.is_omitted else '')].append(bp)
+        """
+        return BasicPhraseList(list(filter(lambda x: not x.is_child, self.to_list())))
 
-    bunsetsu_bps_list = []
-    for sbid in sorted(sbid_bps_map, key=lambda x: (PAS_ORDER.get(x[2], 99), x[0], x[1])):
-        bunsetsu_bps_list.append(sorted(sbid_bps_map[sbid], key=lambda x: x.tid))
-    return bunsetsu_bps_list
+    @property
+    def child(self):
+        """Return the child part.
+
+        Returns:
+            BasicPhraseList: A basic phrase list that include the child part of this list.
+
+        """
+        return BasicPhraseList(list(filter(lambda x: x.is_child, self.to_list())))
+
+    @property
+    def adnominal_evids(self):
+        """Return the list of adnominal event IDs.
+
+        Returns:
+            List[int]: A list of adnominal event IDs.
+
+        """
+        return [evid for bp in self.__bps for evid in bp.adnominal_evids]
+
+    @property
+    def sentential_complement_evids(self):
+        """Return the list of sentential complement event IDs.
+
+        Returns:
+            List[int]: A list of sentential complement event IDs.
+
+        """
+        return [evid for bp in self.__bps for evid in bp.sentential_complement_evids]
+
+    def push(self, bp):
+        """Push a basic phrase to this instance.
+
+        Args:
+            bp (BasicPhrase): A basic phrase.
+
+        """
+        assert isinstance(bp, BasicPhrase)
+        self.__bps.append(bp)
+
+    def sort(self, reverse=False):
+        """Sort this list.
+
+        Args:
+            reverse (bool): Whether to reverse the order.
+
+        """
+        self.__bps.sort(key=lambda bp: bp.position, reverse=reverse)
+
+    def to_list(self):
+        """Return this instance as a Python list object.
+
+        Returns:
+            List[BasicPhrase]: A list of basic phrases.
+
+        """
+        return self.__bps[:]
+
+    def to_bunsetsu_group_list(self):
+        """Return this instance as a series of basic phrase lists grouped by their bunsetsu IDs.
+
+        Returns:
+            List[BasicPhraseList]: A list of basic phrase lists.
+
+        """
+        sbid_bps_map = collections.defaultdict(list)
+        for bp in self.__bps:
+            sbid_bps_map[(bp.ssid, bp.bid, bp.case if bp.is_omitted else '')].append(bp)
+
+        bunsetsu_bpl_list = []
+        for sbid in sorted(sbid_bps_map, key=lambda x: (PAS_ORDER.get(x[2], 99), x[0], x[1])):
+            bunsetsu_bpl = BasicPhraseList(sbid_bps_map[sbid])
+            bunsetsu_bpl.sort()
+            bunsetsu_bpl_list.append(bunsetsu_bpl)
+        return bunsetsu_bpl_list
+
+    def to_tags(self):
+        """Return this instance as a list of pyknp.Tag objects."""
+        return sorted(set(bp.tag for bp in self.__bps if bp.tag is not None), key=lambda x: x.tag_id)
+
+    def to_string(self, type_='midasi', mark=False, space=True, normalize='predicate', truncate=False,
+                  needs_exophora=True, normalizes_child_bps=False):
+        """Return this instance as a string.
+
+        Args:
+            type_ (str): A type of string, which can take either `midasi` or `repname`.
+            mark (bool): Whether to include special marks.
+            space (bool): Whether to include white spaces between morphemes.
+            normalize (str): A normalization target, which can take either `predicate` or `argument`.
+            truncate (bool): Whether to truncate the latter of the normalized token.
+            needs_exophora (bool): Whether to include exophora.
+            normalizes_child_bps (bool): Whether to normalize child basic phrases.
+
+        Returns:
+            str: A string.
+
+        """
+        omitted_string_tokens, content_string_tokens, adjunct_string_tokens = [], [], []
+
+        joiner = ' ' if space else ''
+
+        is_after_normalization = False
+        prev_bp = None
+        for bnst_bpl in self.to_bunsetsu_group_list():
+            exophora, omitted_case = '', ''
+            needs_adnominal, needs_sentential_complement = False, False
+            for bp in bnst_bpl:
+                if bp.is_omitted:
+                    exophora = bp.exophora
+                    omitted_case = bp.case
+                if mark and bp.adnominal_evids:
+                    needs_adnominal = True
+                if mark and bp.sentential_complement_evids:
+                    needs_sentential_complement = True
+
+            if needs_exophora is False and exophora:
+                continue
+
+            content_bnst_tokens, adjunct_bnst_tokens = [], []
+            for bp in bnst_bpl:
+                if prev_bp:
+                    # add a separator mark (|) when the following conditions are satisfied
+                    # 0. the current base phrase skips some units
+                    cond0 = prev_bp.ssid == bp.ssid and prev_bp.tid + 1 < bp.tid
+                    # 1. the previous base phrase is not omitted (to avoid "[...] | ...")
+                    cond1 = not prev_bp.is_omitted
+                    # 2. there is no other marks (to avoid "▼ | ..." and "■ | ...")
+                    cond2 = not needs_adnominal and not needs_sentential_complement
+                    needs_separator = mark and all((cond0, cond1, cond2))
+                else:
+                    needs_separator = False
+
+                # convert bps into content strings and adjunct strings
+                if is_after_normalization:
+                    content_mrphs = []
+                    adjunct_mrphs, _, _ = bp.to_string(
+                        type_,
+                        normalize='none',
+                        truncate=truncate,
+                        normalizes_child_bp=normalizes_child_bps
+                    )
+                else:
+                    content_mrphs, adjunct_mrphs, is_after_normalization_ = bp.to_string(
+                        type_,
+                        normalize=normalize,
+                        truncate=truncate,
+                        normalizes_child_bp=normalizes_child_bps
+                    )
+
+                    # check the normalization process has been performed
+                    is_after_normalization = is_after_normalization or is_after_normalization_
+
+                    # add a separator mark
+                    if needs_separator:
+                        content_mrphs.insert(0, '|' if space else ' | ')
+
+                # overwrite the result in a special case
+                if omitted_case and normalize == 'argument' and not truncate:
+                    content_mrphs.extend(adjunct_mrphs)
+                    adjunct_mrphs = []
+                    is_after_normalization = False
+
+                if content_mrphs:
+                    content_bnst_tokens.extend(content_mrphs)
+                if adjunct_mrphs:
+                    adjunct_bnst_tokens.extend(adjunct_mrphs)
+
+                prev_bp = bp
+
+            if content_bnst_tokens:
+                content_bnst_string = joiner.join(content_bnst_tokens)
+                if omitted_case:
+                    omitted_string_tokens.append('[{}]'.format(content_bnst_string))
+                elif needs_adnominal:
+                    content_string_tokens.append('▼ {}'.format(content_bnst_string))
+                elif needs_sentential_complement:
+                    content_string_tokens.append('■ {}'.format(content_bnst_string))
+                else:
+                    content_string_tokens.append(content_bnst_string)
+
+            if adjunct_bnst_tokens:
+                adjunct_bnst_string = joiner.join(adjunct_bnst_tokens)
+                adjunct_string_tokens.append(adjunct_bnst_string)
+
+        omitted_string = ''.join(omitted_string_tokens)
+        content_string = joiner.join(content_string_tokens)
+        adjunct_string = joiner.join(adjunct_string_tokens)
+
+        if omitted_string:
+            content_string = '{} {}'.format(omitted_string, content_string) if content_string else omitted_string
+
+        if truncate or not adjunct_string:
+            return content_string
+        else:
+            if mark:
+                return '{} ({})'.format(content_string, adjunct_string)
+            else:
+                return joiner.join((content_string, adjunct_string))
+
+    def to_content_rep_list(self):
+        """Return this instance as a list of the representative strings of content words.
+
+        Returns:
+            List[str]: A list of the representative strings of content words.
+
+        """
+        content_reps = []
+        for bnst_bpl in self.to_bunsetsu_group_list():
+            for bp in filter(lambda x: x.tag, bnst_bpl):
+                for m in bp.tag.mrph_list():
+                    if any(feature in m.fstring for feature in ('<内容語>', '<準内容語>')):
+                        content_reps.extend(convert_mrphs_to_repname_list([m]))
+        return content_reps
