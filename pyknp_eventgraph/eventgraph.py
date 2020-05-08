@@ -132,10 +132,16 @@ class EventGraph(Base):
             for event_dct in dct['events']:
                 evg.events.append(Event.load(event_dct))
 
+            logger.debug('Construct hash tables')
+            for event in evg.events:
+                evg.__evid_event_map[event.evid] = event
+
             logger.debug('Load relations between events')
             for event_dct in dct['events']:
                 for relation_dct in event_dct['rel']:
-                    relation = Relation.load(event_dct['event_id'], relation_dct)
+                    modifier = evg.__evid_event_map[event_dct['event_id']]
+                    head = evg.__evid_event_map[relation_dct['event_id']]
+                    relation = Relation.load(modifier, head, relation_dct)
                     evg.events[relation.modifier_evid].outgoing_relations.append(relation)
                     evg.events[relation.head_evid].incoming_relations.append(relation)
 
@@ -248,12 +254,12 @@ class EventGraph(Base):
         # checks if it has an adnominal relation
         if parent_event and event.end.features['節-区切'] == '連体修飾':
             parent_tid = event.end.parent_id
-            relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, '連体修飾', '', reliable))
+            relations.append(Relation.build(event, parent_event, parent_tid, '連体修飾', '', reliable))
 
         # checks if it is a sentential complement
         if parent_event and event.end.features['節-区切'] == '補文':
             parent_tid = event.end.parent_id
-            relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, '補文', '', reliable))
+            relations.append(Relation.build(event, parent_event, parent_tid, '補文', '', reliable))
 
         # checks if it has a discourse relation
         if not relations:
@@ -262,7 +268,7 @@ class EventGraph(Base):
                 sdist, tid, sid = tmp.split('/')
                 head_event = self.__stid_event_map.get((event.ssid + int(sdist), int(tid)), None)
                 if head_event:
-                    relations.append(Relation.build(event.evid, head_event.evid, -1, '談話関係:' + label, '', False))
+                    relations.append(Relation.build(event, head_event, -1, '談話関係:' + label, '', False))
 
         # checks if it has a clausal function
         if not relations and parent_event:
@@ -272,16 +278,16 @@ class EventGraph(Base):
                 else:
                     label, surf = clause_function, ''
                 parent_tid = event.end.parent_id
-                relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, label, surf, reliable))
+                relations.append(Relation.build(event, parent_event, parent_tid, label, surf, reliable))
 
         # checks if it has a clausal parallel relation
         if not relations and parent_event:
             if event.end.dpndtype == 'P':
-                relations.append(Relation.build(event.evid, parent_event.evid, -1, '並列', '', reliable))
+                relations.append(Relation.build(event, parent_event, -1, '並列', '', reliable))
 
         # checks if it has a clausal dependency
         if not relations and parent_event:
-            relations.append(Relation.build(event.evid, parent_event.evid, -1, '係り受け', '', reliable))
+            relations.append(Relation.build(event, parent_event, -1, '係り受け', '', reliable))
 
         return relations
 

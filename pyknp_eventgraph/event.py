@@ -247,6 +247,8 @@ class Relation(Base):
     """A class to manage relation information.
 
     Attributes:
+        modifier (Event): A modifier event.
+        head (Event): A head event.
         modifier_evid (int): The serial event ID of a modifier event.
         head_evid (int): The serial event ID of a head event.
         head_tid (int): The serial tag ID of a head event's head tag.
@@ -258,6 +260,8 @@ class Relation(Base):
     """
 
     def __init__(self):
+        self.modifier = None
+        self.head = None
         self.modifier_evid = -1
         self.head_evid = -1
         self.head_tid = -1
@@ -266,12 +270,12 @@ class Relation(Base):
         self.reliable = False
 
     @classmethod
-    def build(cls, modifier_evid, head_evid, head_tid, label, surf, reliable):
+    def build(cls, modifier, head, head_tid, label, surf, reliable):
         """Create an instance from language analysis.
 
         Args:
-            modifier_evid (int): The serial event ID of the modifier event.
-            head_evid (int): The serial event ID of the head event.
+            modifier (Event): A modifier event.
+            head (Event): A head event.
             head_tid (int): The serial tag ID of a head event's head tag.
                 A negative value implies that the modifier event does not modify a specific token.
             label (str): A label.
@@ -283,8 +287,10 @@ class Relation(Base):
 
         """
         relation = Relation()
-        relation.modifier_evid = modifier_evid
-        relation.head_evid = head_evid
+        relation.modifier = modifier
+        relation.head = head
+        relation.modifier_evid = modifier.evid
+        relation.head_evid = head.evid
         relation.head_tid = head_tid
         relation.label = label
         relation.surf = surf
@@ -292,11 +298,12 @@ class Relation(Base):
         return relation
 
     @classmethod
-    def load(cls, modifier_evid, dct):
+    def load(cls, modifier, head, dct):
         """Create an instance from a dictionary.
 
         Args:
-            modifier_evid (int): A modifier event ID.
+            modifier (Event): A modifier event.
+            head (Event): A head event.
             dct (dict): A dictionary storing relation information.
 
         Returns:
@@ -304,7 +311,9 @@ class Relation(Base):
 
         """
         relation = Relation()
-        relation.modifier_evid = modifier_evid
+        relation.modifier = modifier
+        relation.head = head
+        relation.modifier_evid = modifier.evid
         relation.head_evid = dct['event_id']
         relation.label = dct['label']
         relation.surf = dct['surf']
