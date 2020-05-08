@@ -91,6 +91,14 @@ class Event(Base):
     def sentential_complement_events(self):
         return list(map(lambda r: r.modifier, self.sentential_complement_relations))
 
+    @property
+    def is_adnominal(self):
+        return '連体修飾' in {r.label for r in self.outgoing_relations}
+
+    @property
+    def is_sentential_complement(self):
+        return '補文' in {r.label for r in self.outgoing_relations}
+
     @classmethod
     def reset_serial_id(cls):
         """Reset the serial event ID."""
