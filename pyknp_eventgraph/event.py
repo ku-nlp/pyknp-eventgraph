@@ -247,9 +247,10 @@ class Event(Base):
             BasicPhraseList: A basic phrase list.
 
         """
-        predicate_bpl = self.pas.predicate.bpl
-        if include_modifiers:
-            for predicate_bp in predicate_bpl:
+        predicate_bpl = BasicPhraseList()
+        for predicate_bp in self.pas.predicate.bpl:
+            predicate_bpl.push(predicate_bp)
+            if include_modifiers:
                 for modifier_bp in self._get_modifier_basic_phrase_list(predicate_bp):
                     modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
                     modifier_bp.is_child = True
