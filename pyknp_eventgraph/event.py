@@ -250,7 +250,7 @@ class Event(Base):
         predicate_bpl = self.pas.predicate.bpl
         if include_modifiers:
             for predicate_bp in predicate_bpl:
-                for modifier_bp in self.get_modifier_basic_phrase_list(predicate_bp):
+                for modifier_bp in self._get_modifier_basic_phrase_list(predicate_bp):
                     modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
                     modifier_bp.is_child = True
                     predicate_bpl.push(modifier_bp)
@@ -261,29 +261,38 @@ class Event(Base):
                 argument_bp.is_child = True
                 argument_bpl.push(argument_bp)
                 if include_modifiers:
-                    for modifier_bp in self.get_modifier_basic_phrase_list(argument_bp):
+                    for modifier_bp in self._get_modifier_basic_phrase_list(argument_bp):
                         modifier_bp.case = argument_bp.case  # treat this as a part of the argument
                         modifier_bp.is_child = True
                         argument_bpl.push(modifier_bp)
         return predicate_bpl + argument_bpl
 
-    def get_modifier_basic_phrase_list(self, bp):
+    def _get_modifier_basic_phrase_list(self, bp):
+        """Get a basic phrase list by collecting basic phrases of modifiers.
+
+        Args:
+            bp (BasicPhrase): A basic phrase.
+
+        Returns:
+            BasicPhraseList: A basic phrase list.
+
+        """
         def get_modifier_events_from_event(event):
             modifier_events = event.adnominal_events + event.sentential_complement_events
             for modifier_event in modifier_events:
                 modifier_events.extend(get_modifier_events_from_event(modifier_event))
             return modifier_events
 
-        modifier_bps = BasicPhraseList()
+        modifier_bpl = BasicPhraseList()
         seed_events = list(map(
             lambda r: r.modifier,
             filter(lambda r: r.head_tid == bp.tid, self.adnominal_relations + self.sentential_complement_relations)
         ))
         for seed_event in seed_events:
-            modifier_bps += seed_event.to_basic_phrase_list()
+            modifier_bpl += seed_event.to_basic_phrase_list()
             for child_event in get_modifier_events_from_event(seed_event):
-                modifier_bps += child_event.to_basic_phrase_list()
-        return modifier_bps
+                modifier_bpl += child_event.to_basic_phrase_list()
+        return modifier_bpl
 
 
 class Relation(Base):

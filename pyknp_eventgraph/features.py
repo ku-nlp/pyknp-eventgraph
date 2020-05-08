@@ -43,7 +43,7 @@ class Features(Base):
         features = Features()
 
         # set tense, negation, state, complement, and level
-        tgt_tag = features.get_functional_tag(head)
+        tgt_tag = features._get_functional_tag(head)
         if '<時制' in tgt_tag.fstring:
             features.tense = re.search('<時制[-:](.+?)>', tgt_tag.fstring).group(1)
         features.negation = tgt_tag.features.get('否定表現', features.negation)
@@ -102,7 +102,7 @@ class Features(Base):
         ])
 
     @staticmethod
-    def get_functional_tag(tag):
+    def _get_functional_tag(tag):
         """Return a tag which functionally plays a central role.
 
         Args:
