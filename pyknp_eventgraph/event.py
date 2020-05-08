@@ -149,7 +149,8 @@ class Event(Base):
 
         """
         if all(bp not in argument.bpl for argument in self.pas.arguments.values()):
-            bp.assign_modifier_evids(self.incoming_relations)
+            bp.set_adnominal_evids(self.get_modifier_evids(bp, label='連体修飾'))
+            bp.set_sentential_complement_evids(self.get_modifier_evids(bp, label='補文'))
             self.pas.predicate.push_bp(bp)
 
     def add_argument_bp(self, bp):
@@ -159,8 +160,28 @@ class Event(Base):
             bp (BasicPhrase): A basic phrase belonging to this instance.
 
         """
-        bp.assign_modifier_evids(self.incoming_relations)
+        bp.set_adnominal_evids(self.get_modifier_evids(bp, '連体修飾'))
+        bp.set_sentential_complement_evids(self.get_modifier_evids(bp, '補文'))
         self.pas.arguments[bp.case].push_bp(bp)
+
+    def get_modifier_evids(self, bp, label):
+        """Get modifier event IDs of a given basic phrase.
+
+        Args:
+            bp (BasicPhrase): A basic phrase.
+            label (str): A relation label.
+
+        Returns:
+            List[int]: A list of modifier event IDs.
+
+        """
+        if bp.is_omitted:
+            return []
+        else:
+            return list(map(
+                lambda r: r.modifier_evid,
+                list(filter(lambda r: r.label == label and r.head_tid == bp.tid, self.incoming_relations))
+            ))
 
     def finalize(self):
         """Finalize this instance."""

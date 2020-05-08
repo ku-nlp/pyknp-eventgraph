@@ -10,7 +10,6 @@ from pyknp_eventgraph.helper import (
     convert_mrphs_to_repname_list,
     convert_katakana_to_hiragana
 )
-from pyknp_eventgraph.relation import Relation
 
 
 class BasicPhrase:
@@ -96,19 +95,23 @@ class BasicPhrase:
         """
         return self.ssid, self.tid, self.case if self.is_omitted else ''
 
-    def assign_modifier_evids(self, incoming_relations):
-        """Assign modifier event IDs.
+    def set_adnominal_evids(self, adnominal_evids):
+        """Set adnominal event IDs.
 
         Args:
-            incoming_relations (List[Relation]): A list of relations, where the heads are in this event.
+            adnominal_evids (List[int]): A list of adnominal event IDs.
 
         """
-        if self.is_omitted is False:
-            for r in incoming_relations:
-                if r.label == '連体修飾' and r.head_tid == self.tid:
-                    self.adnominal_evids.append(r.modifier_evid)
-                if r.label == '補文' and r.head_tid == self.tid:
-                    self.sentential_complement_evids.append(r.modifier_evid)
+        self.adnominal_evids = adnominal_evids
+
+    def set_sentential_complement_evids(self, sentential_complement_evids):
+        """Set sentential complement IDs.
+
+        Args:
+            sentential_complement_evids (List[int]): A list of sentential complement IDs.
+
+        """
+        self.sentential_complement_evids = sentential_complement_evids
 
     def to_singleton(self):
         """Return this instance as a singleton.
