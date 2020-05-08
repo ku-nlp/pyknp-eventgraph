@@ -2,7 +2,6 @@
 import collections
 import json
 import pickle
-import queue
 import re
 from logging import getLogger, StreamHandler, Formatter, Logger
 from typing import List, IO
@@ -12,6 +11,7 @@ from pyknp import BList
 from pyknp_eventgraph.base import Base
 from pyknp_eventgraph.basic_phrase import BasicPhrase
 from pyknp_eventgraph.event import Event
+from pyknp_eventgraph.helper import get_child_tags
 from pyknp_eventgraph.relation import Relation
 from pyknp_eventgraph.sentence import Sentence
 
@@ -310,44 +310,13 @@ class EventGraph(Base):
                     next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
                     if next_arg_tag and '複合辞' in next_arg_tag.features:
                         event.push_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
-                    for tag in self._get_children(arg_tag):
+                    for tag in get_child_tags(arg_tag):
                         event.push_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
 
         # assigns the base phrases of the predicate
         for tag in {event.head, event.end}:
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
             event.push_bp(BasicPhrase(tag, event.ssid, bid))
-        for tag in set(self._get_children(event.head) + self._get_children(event.end)):
+        for tag in set(get_child_tags(event.head) + get_child_tags(event.end)):
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
             event.push_bp(BasicPhrase(tag, event.ssid, bid, is_child=True))
-
-    @staticmethod
-    def _get_children(tag):
-        """Return child tags of a given tag.
-
-        Notes:
-            This function recursively searches child tags of a given tag.
-            This search stops when it encounters a clause-head or clause-end.
-
-        Args:
-            tag (Tag): A tag.
-
-        Returns:
-            List[Tag]: A list of child tags.
-
-        """
-        if tag.tag_id < 0:
-            return []
-
-        children = []
-        q = queue.Queue()
-        q.put(tag)
-        while not q.empty():
-            tag_ = q.get()
-            for child_tag in tag_.children:
-                if '節-主辞' in child_tag.features or '節-区切' in child_tag.features:
-                    continue
-                if child_tag not in children:
-                    children.append(child_tag)
-                    q.put(child_tag)
-        return sorted(children, key=lambda x: x.tag_id)

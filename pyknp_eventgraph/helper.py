@@ -1,7 +1,8 @@
 """A collection of helper functions."""
+import queue
 from typing import List
 
-from pyknp import Morpheme
+from pyknp import Tag, Morpheme
 
 PAS_ORDER = {
     'ガ２': 0,
@@ -9,6 +10,37 @@ PAS_ORDER = {
     'ヲ': 2,
     'ニ': 3
 }
+
+
+def get_child_tags(tag):
+    """Return child tags of a given tag.
+
+    Notes:
+        This function recursively searches child tags of a given tag.
+        This search stops when it encounters a clause-head or clause-end.
+
+    Args:
+        tag (Tag): A tag.
+
+    Returns:
+        List[Tag]: A list of child tags.
+
+    """
+    if tag.tag_id < 0:
+        return []
+
+    children = []
+    q = queue.Queue()
+    q.put(tag)
+    while not q.empty():
+        tag_ = q.get()
+        for child_tag in tag_.children:
+            if '節-主辞' in child_tag.features or '節-区切' in child_tag.features:
+                continue
+            if child_tag not in children:
+                children.append(child_tag)
+                q.put(child_tag)
+    return sorted(children, key=lambda x: x.tag_id)
 
 
 def convert_mrphs_to_midasi_list(mrphs):
