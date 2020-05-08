@@ -10,9 +10,8 @@ from pyknp import BList
 
 from pyknp_eventgraph.base import Base
 from pyknp_eventgraph.basic_phrase import BasicPhrase
-from pyknp_eventgraph.event import Event
+from pyknp_eventgraph.event import Event, Relation
 from pyknp_eventgraph.helper import get_child_tags
-from pyknp_eventgraph.relation import Relation
 from pyknp_eventgraph.sentence import Sentence
 
 
