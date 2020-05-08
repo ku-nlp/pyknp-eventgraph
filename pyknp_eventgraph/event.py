@@ -75,6 +75,22 @@ class Event(Base):
         self.pas = None
         self.features = None
 
+    @property
+    def adnominal_relations(self):
+        return list(filter(lambda r: r.label == '連体修飾', self.incoming_relations))
+
+    @property
+    def sentential_complement_relations(self):
+        return list(filter(lambda r: r.label == '補文', self.incoming_relations))
+
+    @property
+    def adnominal_events(self):
+        return list(map(lambda r: r.modifier, self.adnominal_relations))
+
+    @property
+    def sentential_complement_events(self):
+        return list(map(lambda r: r.modifier, self.sentential_complement_relations))
+
     @classmethod
     def reset_serial_id(cls):
         """Reset the serial event ID."""
@@ -147,32 +163,20 @@ class Event(Base):
             bp (BasicPhrase): A basic phrase.
 
         """
-        bp.set_adnominal_evids(self.get_modifier_evids(bp, label='連体修飾'))
-        bp.set_sentential_complement_evids(self.get_modifier_evids(bp, label='補文'))
+        if not bp.is_omitted:
+            bp.set_adnominal_evids(list(map(
+                lambda r: r.modifier_evid,
+                filter(lambda r: r.head_tid == bp.tid, self.adnominal_relations)
+            )))
+            bp.set_sentential_complement_evids(list(map(
+                lambda r: r.modifier_evid,
+                filter(lambda r: r.head_tid == bp.tid, self.sentential_complement_relations)
+            )))
         if bp.case:  # argument
             self.pas.arguments[bp.case].push_bp(bp)
         else:  # predicate
             if all(bp not in argument.bpl for argument in self.pas.arguments.values()):
                 self.pas.predicate.push_bp(bp)
-
-    def get_modifier_evids(self, bp, label):
-        """Get modifier event IDs of a given basic phrase.
-
-        Args:
-            bp (BasicPhrase): A basic phrase.
-            label (str): A relation label.
-
-        Returns:
-            List[int]: A list of modifier event IDs.
-
-        """
-        if bp.is_omitted:
-            return []
-        else:
-            return list(map(
-                lambda r: r.modifier_evid,
-                list(filter(lambda r: r.label == label and r.head_tid == bp.tid, self.incoming_relations))
-            ))
 
     def finalize(self):
         """Finalize this instance."""
