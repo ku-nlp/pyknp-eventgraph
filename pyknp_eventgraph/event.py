@@ -229,22 +229,53 @@ class Event(Base):
             ('features', self.features.to_dict())
         ])
 
-    def to_basic_phrase_list(self):
+    def to_basic_phrase_list(self, include_modifiers=False):
         """Convert this instance into a basic phrase list.
+
+        Args:
+            include_modifiers (bool): Whether to include modifiers' basic phrases.
 
         Returns:
             BasicPhraseList: A basic phrase list.
 
         """
         predicate_bpl = self.pas.predicate.bpl
-        argument_bps = []
+        if include_modifiers:
+            for predicate_bp in predicate_bpl:
+                for modifier_bp in self.get_modifier_basic_phrase_list(predicate_bp):
+                    modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
+                    modifier_bp.is_child = True
+                    predicate_bpl.push(modifier_bp)
+        argument_bpl = BasicPhraseList()
         last_tid = max(bp.tid for bp in predicate_bpl)
         for argument in filter(lambda x: not x.event_head, self.pas.arguments.values()):
-            for bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bpl):
-                bp.is_child = True  # treated as a child of the predicate
-                argument_bps.append(bp)
-        argument_bpl = BasicPhraseList(argument_bps)
+            for argument_bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bpl):
+                argument_bp.is_child = True
+                argument_bpl.push(argument_bp)
+                if include_modifiers:
+                    for modifier_bp in self.get_modifier_basic_phrase_list(argument_bp):
+                        modifier_bp.case = argument_bp.case  # treat this as a part of the argument
+                        modifier_bp.is_child = True
+                        argument_bpl.push(modifier_bp)
         return predicate_bpl + argument_bpl
+
+    def get_modifier_basic_phrase_list(self, bp):
+        def get_modifier_events_from_event(event):
+            modifier_events = event.adnominal_events + event.sentential_complement_events
+            for modifier_event in modifier_events:
+                modifier_events.extend(get_modifier_events_from_event(modifier_event))
+            return modifier_events
+
+        modifier_bps = BasicPhraseList()
+        seed_events = list(map(
+            lambda r: r.modifier,
+            filter(lambda r: r.head_tid == bp.tid, self.adnominal_relations + self.sentential_complement_relations)
+        ))
+        for seed_event in seed_events:
+            modifier_bps += seed_event.to_basic_phrase_list()
+            for child_event in get_modifier_events_from_event(seed_event):
+                modifier_bps += child_event.to_basic_phrase_list()
+        return modifier_bps
 
 
 class Relation(Base):

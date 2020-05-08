@@ -93,7 +93,11 @@ class BasicPhrase:
             On the other hand, to distinguish basic phrases that appear in text, case information is not used.
 
         """
-        return self.ssid, self.tid, self.case if self.is_omitted else ''
+        return self.ssid, self.bid, self.tid, self.case if self.is_omitted else ''
+
+    @property
+    def sort_key(self):
+        return PAS_ORDER.get(self.case if self.is_omitted else '', 99), self.ssid, self.bid, self.tid
 
     def set_adnominal_evids(self, adnominal_evids):
         """Set adnominal event IDs.
@@ -278,6 +282,7 @@ class BasicPhraseList:
         if bps:
             assert isinstance(bps, list) and all((isinstance(bp, BasicPhrase) for bp in bps))
             self.__bps = bps
+        self.sort()
 
     def __len__(self):
         return len(self.__bps)
@@ -297,7 +302,6 @@ class BasicPhraseList:
     def __add__(self, other):
         assert isinstance(other, BasicPhraseList)
         bpl = BasicPhraseList(self.to_list() + other.to_list())
-        bpl.sort()
         return bpl
 
     @property
@@ -349,6 +353,7 @@ class BasicPhraseList:
         """
         assert isinstance(bp, BasicPhrase)
         self.__bps.append(bp)
+        self.sort()
 
     def sort(self, reverse=False):
         """Sort this list.
@@ -357,7 +362,7 @@ class BasicPhraseList:
             reverse (bool): Whether to reverse the order.
 
         """
-        self.__bps.sort(key=lambda bp: bp.position, reverse=reverse)
+        self.__bps.sort(key=lambda bp: bp.sort_key, reverse=reverse)
 
     def to_list(self):
         """Return this instance as a Python list object.
@@ -377,13 +382,11 @@ class BasicPhraseList:
         """
         sbid_bps_map = collections.defaultdict(list)
         for bp in self.__bps:
-            sbid_bps_map[(bp.ssid, bp.bid, bp.case if bp.is_omitted else '')].append(bp)
+            sbid_bps_map[bp.sort_key[:-1]].append(bp)  # [:-1] ignores tag IDs
 
         bunsetsu_bpl_list = []
-        for sbid in sorted(sbid_bps_map, key=lambda x: (PAS_ORDER.get(x[2], 99), x[0], x[1])):
-            bunsetsu_bpl = BasicPhraseList(sbid_bps_map[sbid])
-            bunsetsu_bpl.sort()
-            bunsetsu_bpl_list.append(bunsetsu_bpl)
+        for sbid in sorted(sbid_bps_map):
+            bunsetsu_bpl_list.append(BasicPhraseList(sbid_bps_map[sbid]))
         return bunsetsu_bpl_list
 
     def to_tags(self):
