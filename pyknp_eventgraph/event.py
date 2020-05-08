@@ -141,28 +141,20 @@ class Event(Base):
         Event.__evid = event.evid
         return event
 
-    def add_predicate_bp(self, bp):
-        """Add a basic phrase belonging to this event.
+    def push_bp(self, bp):
+        """Push a basic phrase.
 
         Args:
             bp (BasicPhrase): A basic phrase.
 
         """
-        if all(bp not in argument.bpl for argument in self.pas.arguments.values()):
-            bp.set_adnominal_evids(self.get_modifier_evids(bp, label='連体修飾'))
-            bp.set_sentential_complement_evids(self.get_modifier_evids(bp, label='補文'))
-            self.pas.predicate.push_bp(bp)
-
-    def add_argument_bp(self, bp):
-        """Add a basic phrase belonging to this event.
-
-        Args:
-            bp (BasicPhrase): A basic phrase belonging to this instance.
-
-        """
-        bp.set_adnominal_evids(self.get_modifier_evids(bp, '連体修飾'))
-        bp.set_sentential_complement_evids(self.get_modifier_evids(bp, '補文'))
-        self.pas.arguments[bp.case].push_bp(bp)
+        bp.set_adnominal_evids(self.get_modifier_evids(bp, label='連体修飾'))
+        bp.set_sentential_complement_evids(self.get_modifier_evids(bp, label='補文'))
+        if bp.case:  # argument
+            self.pas.arguments[bp.case].push_bp(bp)
+        else:  # predicate
+            if all(bp not in argument.bpl for argument in self.pas.arguments.values()):
+                self.pas.predicate.push_bp(bp)
 
     def get_modifier_evids(self, bp, label):
         """Get modifier event IDs of a given basic phrase.

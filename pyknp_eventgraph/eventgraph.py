@@ -302,24 +302,24 @@ class EventGraph(Base):
                 arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tid), -1)
                 arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid), None)
                 if arg.flag == 'E':  # exophora (omission)
-                    event.add_argument_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, is_omitted=True, case=case))
+                    event.push_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, is_omitted=True, case=case))
                 elif arg.flag == 'O' and arg_tag:  # zero anaphora (omission)
-                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, is_omitted=True, case=case))
+                    event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, is_omitted=True, case=case))
                 elif arg_tag:  # anaphora
-                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=case))
+                    event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=case))
                     next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
                     if next_arg_tag and '複合辞' in next_arg_tag.features:
-                        event.add_argument_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
+                        event.push_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
                     for tag in self._get_children(arg_tag):
-                        event.add_argument_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
+                        event.push_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
 
         # assigns the base phrases of the predicate
         for tag in {event.head, event.end}:
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
-            event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid))
+            event.push_bp(BasicPhrase(tag, event.ssid, bid))
         for tag in set(self._get_children(event.head) + self._get_children(event.end)):
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
-            event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid, is_child=True))
+            event.push_bp(BasicPhrase(tag, event.ssid, bid, is_child=True))
 
     @staticmethod
     def _get_children(tag):
