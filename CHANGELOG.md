@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.2]
+
+### Changed
+- Improved efficiency and readability of codes.
+
 ## [0.4.1]
 
 ### Added
