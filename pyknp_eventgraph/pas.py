@@ -6,8 +6,7 @@ from pyknp import Argument as PyknpArgument
 from pyknp import Tag
 
 from pyknp_eventgraph.base import Base
-from pyknp_eventgraph.basic_phrase import BasicPhrase
-from pyknp_eventgraph.basic_phrase import convert_basic_phrases_to_string
+from pyknp_eventgraph.basic_phrase import BasicPhrase, BasicPhraseList
 from pyknp_eventgraph.helper import (
     PAS_ORDER,
     convert_mrphs_to_repname_list
@@ -88,7 +87,7 @@ class Predicate(Base):
     """A class to manage predicate information.
 
     Attributes:
-        bps (List[BasicPhrase]): A list of basic phrases.
+        bpl (BasicPhraseList): A list of basic phrases.
         surf (str): A surface string.
         normalized_surf (str): A normalized version of `surf`.
         mrphs (str): `surf` with white spaces between morphemes.
@@ -106,7 +105,7 @@ class Predicate(Base):
     def __init__(self):
         self.head = None
 
-        self.bps = []
+        self.bpl = BasicPhraseList()
 
         self.surf = ''
         self.normalized_surf = ''
@@ -163,36 +162,50 @@ class Predicate(Base):
         predicate.children = dct['children']
         return predicate
 
+    def push_bp(self, bp):
+        """Push a basic phrase.
+
+        Args:
+            bp (BasicPhrase): A basic phrase.
+
+        """
+        self.bpl.push(bp)
+
     def finalize(self):
         """Finalize this instance."""
-        head_bps = list(filter(lambda x: not x.is_child, self.bps))
-        self.mrphs = self._get_mrphs()
+        self.mrphs = self.to_mrphs()
         self.normalized_mrphs = self.mrphs
         self.surf = self.mrphs.replace(' ', '')  # remove white spaces
         self.normalized_surf = self.surf
-        self.reps = self._get_reps()
+        self.reps = self.to_reps()
         self.normalized_reps = self.reps
-        self.standard_reps = self._get_standard_reps()
+        self.standard_reps = self.to_standard_reps()
         self.type_ = self.head.features.get('用言', '')
-        self.adnominal_evids = [evid for bp in head_bps for evid in bp.adnominal_evids]
-        self.sentential_complement_evids = [evid for bp in head_bps for evid in bp.sentential_complement_evids]
 
-        child_bps = sorted(list(filter(lambda x: x.is_child, self.bps)), key=lambda x: -x.tid)
-        self.children = [collections.OrderedDict([
-            ('surf', self.to_string(bp, space=False, normalizes_child_bps=True)),
-            ('normalized_surf', self.to_string(bp, space=False, truncate=True, normalizes_child_bps=True)),
-            ('mrphs', self.to_string(bp, normalizes_child_bps=True)),
-            ('normalized_mrphs', self.to_string(bp, truncate=True, normalizes_child_bps=True)),
-            ('reps', self.to_string(bp, type_='repname', normalizes_child_bps=True)),
-            ('normalized_reps', self.to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
-            ('adnominal_event_ids', bp.adnominal_evids),
-            ('sentential_complement_event_ids', bp.sentential_complement_evids),
-            ('modifier', bp.is_modifier),
-            ('possessive', bp.is_possessive)
-        ]) for bp in child_bps]
+        head_bpl = self.bpl.head
+        self.adnominal_evids = head_bpl.adnominal_evids
+        self.sentential_complement_evids = head_bpl.sentential_complement_evids
+
+        child_bpl = self.bpl.child
+        child_bpl.sort(reverse=True)
+        common_kwargs = {'normalize': 'predicate', 'normalizes_child_bps': True}
+        self.children = []
+        for bp in child_bpl:
+            self.children.append(collections.OrderedDict([
+                ('surf', bp.to_singleton().to_string(space=False, **common_kwargs)),
+                ('normalized_surf', bp.to_singleton().to_string(space=False, truncate=True, **common_kwargs)),
+                ('mrphs', bp.to_singleton().to_string(**common_kwargs)),
+                ('normalized_mrphs', bp.to_singleton().to_string(truncate=True, **common_kwargs)),
+                ('reps', bp.to_singleton().to_string(type_='repname', **common_kwargs)),
+                ('normalized_reps', bp.to_singleton().to_string(type_='repname', truncate=True, **common_kwargs)),
+                ('adnominal_event_ids', bp.adnominal_evids),
+                ('sentential_complement_event_ids', bp.sentential_complement_evids),
+                ('modifier', bp.is_modifier),
+                ('possessive', bp.is_possessive)
+            ]))
 
     def to_dict(self):
-        """Convert this instance into a dictionary.
+        """Return this instance as a dictionary.
 
         Returns:
             dict: A dictionary storing this predicate information.
@@ -212,21 +225,16 @@ class Predicate(Base):
             ('children', self.children)
         ])
 
-    def _get_mrphs(self):
-        """Return a surface string with white spaces between morphemes.
+    def to_mrphs(self):
+        """Return this instance as a surface string with white spaces between morphemes.
 
         Returns:
             str: A surface string.
 
         """
-        head_tags = sorted(
-            list(set(bp.tag for bp in list(filter(lambda x: not x.is_child, self.bps)))),
-            key=lambda x: x.tag_id
-        )
-
         mrphs = []
         is_within_standard_repname = False
-        for tag in head_tags:
+        for tag in self.bpl.head.to_tags():
             for m in tag.mrph_list():
                 if '用言表記先頭' in m.fstring:
                     is_within_standard_repname = True
@@ -235,68 +243,33 @@ class Predicate(Base):
                     return ' '.join(mrphs)
                 if is_within_standard_repname:
                     mrphs.append(m.midasi)
-
         return ' '.join(mrphs)
 
-    def _get_reps(self):
-        """Return a representative string.
+    def to_reps(self):
+        """Return this instance as a representative string.
 
         Returns:
             str: A representative string.
 
         """
-        head_tags = sorted(
-            list(set(bp.tag for bp in filter(lambda x: not x.is_child, self.bps))),
-            key=lambda x: x.tag_id
-        )
-
-        for tag in head_tags:
+        for tag in self.bpl.head.to_tags():
             if '用言代表表記' in tag.features:
                 return tag.features['用言代表表記']
         else:
             return ' '.join(convert_mrphs_to_repname_list(self.head.mrph_list()))
 
-    def _get_standard_reps(self):
-        """Return a standard representative string.
+    def to_standard_reps(self):
+        """Return this instance as a standard representative string.
 
         Returns:
             str: A standard representative string.
 
         """
-        head_tags = sorted(
-            list(set(bp.tag for bp in filter(lambda x: not x.is_child, self.bps))),
-            key=lambda x: x.tag_id
-        )
-
-        for tag in head_tags:
+        for tag in self.bpl.head.to_tags():
             if '標準用言代表表記' in tag.features:
                 return tag.features['標準用言代表表記']
         else:
             return self.reps
-
-    @staticmethod
-    def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=True):
-        """Convert this instance into a string.
-
-        Args:
-            bp_or_bps (Union[BasicPhrase, List[BasicPhrase]]): A basic phrase or a list of basic phrases.
-            type_ (str): A type of string, which can take either `midasi` or `repname`.
-            space (bool): Whether to include white spaces between morphemes.
-            truncate (bool): Whether to truncate the latter of the normalized token.
-            normalizes_child_bps (bool): Whether to normalize child basic phrases.
-
-        Returns:
-
-        """
-        bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
-        return convert_basic_phrases_to_string(
-            bps=bps,
-            type_=type_,
-            space=space,
-            normalize='predicate',
-            truncate=truncate,
-            normalizes_child_bps=normalizes_child_bps
-        )
 
 
 class Argument(Base):
@@ -304,7 +277,7 @@ class Argument(Base):
 
     Attributes:
         arg (PyknpArgument): An argument.
-        bps (List[BasicPhrase]): A list of basic phrases.
+        bpl (BasicPhraseList): A list of basic phrases.
         surf (str): A surface string.
         normalized_surf (str): A normalized version of `surf`.
         mrphs (str): `surf` with white spaces between morphemes.
@@ -325,7 +298,7 @@ class Argument(Base):
     def __init__(self):
         self.arg = None
 
-        self.bps = []
+        self.bpl = BasicPhraseList()
 
         self.surf = ''
         self.normalized_surf = ''
@@ -389,41 +362,55 @@ class Argument(Base):
         argument.event_head = dct['event_head']
         return argument
 
+    def push_bp(self, bp):
+        """Push a basic phrase.
+
+        Args:
+            bp (BasicPhrase): A basic phrase.
+
+        """
+        self.bpl.push(bp)
+
     def finalize(self):
         """Finalize this instance."""
-        head_bps = list(filter(lambda x: not x.is_child, self.bps))
-        self.surf = self.to_string(head_bps, space=False)
-        self.normalized_surf = self.to_string(head_bps, space=False, truncate=True)
-        self.mrphs = self.to_string(head_bps)
-        self.normalized_mrphs = self.to_string(head_bps, truncate=True)
-        self.reps = self.to_string(head_bps, type_='repname')
-        self.normalized_reps = self.to_string(head_bps, type_='repname', truncate=True)
-        self.head_reps = self._get_head_reps()
+        head_bpl = self.bpl.head
+        common_args = {'normalize': 'argument'}
+        self.surf = head_bpl.to_string(space=False, **common_args)
+        self.normalized_surf = head_bpl.to_string(space=False, truncate=True, **common_args)
+        self.mrphs = head_bpl.to_string(**common_args)
+        self.normalized_mrphs = head_bpl.to_string(truncate=True, **common_args)
+        self.reps = head_bpl.to_string(type_='repname', **common_args)
+        self.normalized_reps = head_bpl.to_string(type_='repname', truncate=True, **common_args)
+        self.head_reps = self.to_head_reps()
         self.eid = self.arg.eid
         self.flag = self.arg.flag
         self.sdist = self.arg.sdist
-        self.adnominal_evids = [evid for bp in head_bps for evid in bp.adnominal_evids]
-        self.sentential_complement_evids = [evid for bp in head_bps for evid in bp.sentential_complement_evids]
+        self.adnominal_evids = head_bpl.adnominal_evids
+        self.sentential_complement_evids = head_bpl.sentential_complement_evids
 
-        child_bps = sorted(list(filter(lambda x: x.is_child, self.bps)), key=lambda x: -x.tid)
-        self.children = [collections.OrderedDict([
-            ('surf', self.to_string(bp, space=False, normalizes_child_bps=True)),
-            ('normalized_surf', self.to_string(bp, space=False, truncate=True, normalizes_child_bps=True)),
-            ('mrphs', self.to_string(bp, normalizes_child_bps=True)),
-            ('normalized_mrphs', self.to_string(bp, truncate=True, normalizes_child_bps=True)),
-            ('reps', self.to_string(bp, type_='repname', normalizes_child_bps=True)),
-            ('normalized_reps', self.to_string(bp, type_='repname', truncate=True, normalizes_child_bps=True)),
-            ('adnominal_event_ids', bp.adnominal_evids),
-            ('sentential_complement_event_ids', bp.sentential_complement_evids),
-            ('modifier', bp.is_modifier),
-            ('possessive', bp.is_possessive)
-        ]) for bp in child_bps]
+        child_bpl = self.bpl.child
+        child_bpl.sort(reverse=True)
+        common_args = {'normalize': 'argument', 'normalizes_child_bps': True}
+        self.children = []
+        for bp in child_bpl:
+            self.children.append(collections.OrderedDict([
+                ('surf', bp.to_singleton().to_string(space=False, **common_args)),
+                ('normalized_surf', bp.to_singleton().to_string(space=False, truncate=True, **common_args)),
+                ('mrphs', bp.to_singleton().to_string(**common_args)),
+                ('normalized_mrphs', bp.to_singleton().to_string(truncate=True, **common_args)),
+                ('reps', bp.to_singleton().to_string(type_='repname', **common_args)),
+                ('normalized_reps', bp.to_singleton().to_string(type_='repname', truncate=True, **common_args)),
+                ('adnominal_event_ids', bp.adnominal_evids),
+                ('sentential_complement_event_ids', bp.sentential_complement_evids),
+                ('modifier', bp.is_modifier),
+                ('possessive', bp.is_possessive)
+            ]))
 
-        for bp in filter(lambda bp: bp.tag, head_bps):
+        for bp in filter(lambda bp: bp.tag, head_bpl):
             self.event_head = self.event_head or any(feature in bp.tag.features for feature in {'節-主辞', '節-区切'})
 
     def to_dict(self):
-        """Convert this instance into a dictionary.
+        """Return this instance as a dictionary.
 
         Returns:
             dict: A dictionary storing this argument information.
@@ -449,17 +436,18 @@ class Argument(Base):
                 ('event_head', self.event_head)
             ])
 
-    def _get_head_reps(self):
-        """Return a head representative string.
+    def to_head_reps(self):
+        """Return this instance as a head representative string.
 
         Returns:
             str: A head representative string.
 
         """
-        head_bp = sorted(list(filter(lambda x: not x.is_child, self.bps)), key=lambda x: x.tid)[0]
+        head_bpl = self.bpl.head
+        head_bpl.sort()
+        head_bp = head_bpl[0]
 
         head_reps = None
-
         if head_bp.tag:
             arg_tag = head_bp.tag
             if arg_tag.head_prime_repname:
@@ -468,30 +456,8 @@ class Argument(Base):
                 head_reps = arg_tag.head_repname
 
         if not head_reps:
-            head_reps = self.normalized_reps
+            return self.normalized_reps
         elif head_bp.is_omitted:
-            head_reps = '[{}]'.format(head_reps)
-
-        return head_reps
-
-    @staticmethod
-    def to_string(bp_or_bps, type_='midasi', space=True, truncate=False, normalizes_child_bps=False):
-        """Convert this instance into a string.
-
-        Args:
-            bp_or_bps (Union[BasicPhrase, List[BasicPhrase]]): A basic phrase or a list of basic phrases.
-            type_ (str): A type of string, which can take either `midasi` or `repname`.
-            space (bool): Whether to include white spaces between morphemes.
-            truncate (bool): Whether to truncate the latter of the normalized token.
-            normalizes_child_bps (bool): Whether to normalize child basic phrases.
-
-        """
-        bps = bp_or_bps if isinstance(bp_or_bps, list) else [bp_or_bps]
-        return convert_basic_phrases_to_string(
-            bps=bps,
-            type_=type_,
-            space=space,
-            normalize='argument',
-            truncate=truncate,
-            normalizes_child_bps=normalizes_child_bps
-        )
+            return '[{}]'.format(head_reps)
+        else:
+            return head_reps

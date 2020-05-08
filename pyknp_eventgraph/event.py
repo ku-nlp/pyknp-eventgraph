@@ -1,6 +1,5 @@
 """A class to manage event information."""
 import collections
-import copy
 from typing import List
 
 from pyknp import Tag
@@ -8,13 +7,10 @@ from pyknp import Tag
 from pyknp_eventgraph.base import Base
 from pyknp_eventgraph.basic_phrase import (
     BasicPhrase,
-    convert_basic_phrases_to_string,
-    convert_basic_phrases_to_content_rep_list,
-    iterate_basic_phrases
+    BasicPhraseList
 )
 from pyknp_eventgraph.features import Features
 from pyknp_eventgraph.pas import PAS
-from pyknp_eventgraph.relation import Relation
 
 
 class Event(Base):
@@ -78,6 +74,30 @@ class Event(Base):
         self.incoming_relations = []
         self.pas = None
         self.features = None
+
+    @property
+    def adnominal_relations(self):
+        return list(filter(lambda r: r.label == '連体修飾', self.incoming_relations))
+
+    @property
+    def sentential_complement_relations(self):
+        return list(filter(lambda r: r.label == '補文', self.incoming_relations))
+
+    @property
+    def adnominal_events(self):
+        return list(map(lambda r: r.modifier, self.adnominal_relations))
+
+    @property
+    def sentential_complement_events(self):
+        return list(map(lambda r: r.modifier, self.sentential_complement_relations))
+
+    @property
+    def is_adnominal(self):
+        return '連体修飾' in {r.label for r in self.outgoing_relations}
+
+    @property
+    def is_sentential_complement(self):
+        return '補文' in {r.label for r in self.outgoing_relations}
 
     @classmethod
     def reset_serial_id(cls):
@@ -144,6 +164,28 @@ class Event(Base):
         Event.__evid = event.evid
         return event
 
+    def push_bp(self, bp):
+        """Push a basic phrase.
+
+        Args:
+            bp (BasicPhrase): A basic phrase.
+
+        """
+        if not bp.is_omitted:
+            bp.set_adnominal_evids(list(map(
+                lambda r: r.modifier_evid,
+                filter(lambda r: r.head_tid == bp.tid, self.adnominal_relations)
+            )))
+            bp.set_sentential_complement_evids(list(map(
+                lambda r: r.modifier_evid,
+                filter(lambda r: r.head_tid == bp.tid, self.sentential_complement_relations)
+            )))
+        if bp.case:  # argument
+            self.pas.arguments[bp.case].push_bp(bp)
+        else:  # predicate
+            if all(bp not in argument.bpl for argument in self.pas.arguments.values()):
+                self.pas.predicate.push_bp(bp)
+
     def finalize(self):
         """Finalize this instance."""
         self.pas.finalize()
@@ -151,20 +193,20 @@ class Event(Base):
         for relation in self.outgoing_relations:
             relation.finalize()
 
-        bps = self._to_basic_phrases()
-        self.surf = self.to_string(bps, space=False)
-        self.surf_with_mark = self.to_string(bps, mark=True, space=False)
-        self.mrphs = self.to_string(bps)
-        self.mrphs_with_mark = self.to_string(bps, mark=True)
-        self.normalized_mrphs = self.to_string(bps, truncate=True)
-        self.normalized_mrphs_with_mark = self.to_string(bps, mark=True, truncate=True)
-        self.normalized_mrphs_without_exophora = self.to_string(bps, truncate=True, exophora=False)
-        self.normalized_mrphs_with_mark_without_exophora = self.to_string(bps, mark=True, truncate=True, exophora=False)
-        self.reps = self.to_string(bps, 'repname', mark=False, truncate=False)
-        self.reps_with_mark = self.to_string(bps, 'repname', mark=True, truncate=False)
-        self.normalized_reps = self.to_string(bps, 'repname', mark=False, truncate=True)
-        self.normalized_reps_with_mark = self.to_string(bps, 'repname', mark=True, truncate=True)
-        self.content_rep_list = self.to_content_rep_list(bps)
+        bpl = self.to_basic_phrase_list()
+        self.surf = bpl.to_string(space=False)
+        self.surf_with_mark = bpl.to_string(mark=True, space=False)
+        self.mrphs = bpl.to_string()
+        self.mrphs_with_mark = bpl.to_string(mark=True)
+        self.normalized_mrphs = bpl.to_string(truncate=True)
+        self.normalized_mrphs_with_mark = bpl.to_string(mark=True, truncate=True)
+        self.normalized_mrphs_without_exophora = bpl.to_string(truncate=True, needs_exophora=False)
+        self.normalized_mrphs_with_mark_without_exophora = bpl.to_string(mark=True, truncate=True, needs_exophora=False)
+        self.reps = bpl.to_string('repname', mark=False, truncate=False)
+        self.reps_with_mark = bpl.to_string('repname', mark=True, truncate=False)
+        self.normalized_reps = bpl.to_string('repname', mark=False, truncate=True)
+        self.normalized_reps_with_mark = bpl.to_string('repname', mark=True, truncate=True)
+        self.content_rep_list = bpl.to_content_rep_list()
 
     def to_dict(self):
         """Convert this instance into a dictionary.
@@ -195,84 +237,157 @@ class Event(Base):
             ('features', self.features.to_dict())
         ])
 
-    def add_predicate_bp(self, bp):
-        """Add a basic phrase belonging to this event.
+    def to_basic_phrase_list(self, include_modifiers=False):
+        """Convert this instance into a basic phrase list.
+
+        Args:
+            include_modifiers (bool): Whether to include modifiers' basic phrases.
+
+        Returns:
+            BasicPhraseList: A basic phrase list.
+
+        """
+        predicate_bpl = self.pas.predicate.bpl
+        if include_modifiers:
+            for predicate_bp in predicate_bpl:
+                for modifier_bp in self._get_modifier_basic_phrase_list(predicate_bp):
+                    modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
+                    modifier_bp.is_child = True
+                    predicate_bpl.push(modifier_bp)
+        argument_bpl = BasicPhraseList()
+        last_tid = max(bp.tid for bp in predicate_bpl)
+        for argument in filter(lambda x: not x.event_head, self.pas.arguments.values()):
+            for argument_bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bpl):
+                argument_bp.is_child = True
+                argument_bpl.push(argument_bp)
+                if include_modifiers:
+                    for modifier_bp in self._get_modifier_basic_phrase_list(argument_bp):
+                        modifier_bp.case = argument_bp.case  # treat this as a part of the argument
+                        modifier_bp.is_child = True
+                        argument_bpl.push(modifier_bp)
+        return predicate_bpl + argument_bpl
+
+    def _get_modifier_basic_phrase_list(self, bp):
+        """Get a basic phrase list by collecting basic phrases of modifiers.
 
         Args:
             bp (BasicPhrase): A basic phrase.
 
+        Returns:
+            BasicPhraseList: A basic phrase list.
+
         """
-        def get_index(bp_):
-            """Return the index of a basic phrase based on its position."""
-            return bp_.ssid, bp_.tid, bp_.case if bp_.is_omitted else ''
+        def get_modifier_events_from_event(event):
+            modifier_events = event.adnominal_events + event.sentential_complement_events
+            for modifier_event in modifier_events:
+                modifier_events.extend(get_modifier_events_from_event(modifier_event))
+            return modifier_events
 
-        if get_index(bp) not in set(get_index(bp) for argument in self.pas.arguments.values() for bp in argument.bps):
-            bp.assign_modifier_evids(self.incoming_relations)
-            self.pas.predicate.bps.append(bp)
+        modifier_bpl = BasicPhraseList()
+        seed_events = list(map(
+            lambda r: r.modifier,
+            filter(lambda r: r.head_tid == bp.tid, self.adnominal_relations + self.sentential_complement_relations)
+        ))
+        for seed_event in seed_events:
+            modifier_bpl += seed_event.to_basic_phrase_list()
+            for child_event in get_modifier_events_from_event(seed_event):
+                modifier_bpl += child_event.to_basic_phrase_list()
+        return modifier_bpl
 
-    def add_argument_bp(self, bp):
-        """Add a basic phrase belonging to this event.
+
+class Relation(Base):
+    """A class to manage relation information.
+
+    Attributes:
+        modifier (Event): A modifier event.
+        head (Event): A head event.
+        modifier_evid (int): The serial event ID of a modifier event.
+        head_evid (int): The serial event ID of a head event.
+        head_tid (int): The serial tag ID of a head event's head tag.
+            A negative value implies that the modifier event does not modify a specific token.
+        label (str): A label.
+        surf (str): An explicit marker.
+        reliable (bool): Whether a syntactic dependency is ambiguous.
+
+    """
+
+    def __init__(self):
+        self.modifier = None
+        self.head = None
+        self.modifier_evid = -1
+        self.head_evid = -1
+        self.head_tid = -1
+        self.label = ''
+        self.surf = ''
+        self.reliable = False
+
+    @classmethod
+    def build(cls, modifier, head, head_tid, label, surf, reliable):
+        """Create an instance from language analysis.
 
         Args:
-            bp (BasicPhrase): A basic phrase belonging to this instance.
+            modifier (Event): A modifier event.
+            head (Event): A head event.
+            head_tid (int): The serial tag ID of a head event's head tag.
+                A negative value implies that the modifier event does not modify a specific token.
+            label (str): A label.
+            surf (str): An explicit marker.
+            reliable (bool): Whether a syntactic dependency is ambiguous.
+
+        Returns:
+            Relation: A relation.
 
         """
-        bp.assign_modifier_evids(self.incoming_relations)
-        self.pas.arguments[bp.case].bps.append(bp)
+        relation = Relation()
+        relation.modifier = modifier
+        relation.head = head
+        relation.modifier_evid = modifier.evid
+        relation.head_evid = head.evid
+        relation.head_tid = head_tid
+        relation.label = label
+        relation.surf = surf
+        relation.reliable = reliable
+        return relation
 
-    def _to_basic_phrases(self):
-        """Convert this instance into a list of basic phrases."""
-        # collect basic phrases to use
-        predicate_bps = self.pas.predicate.bps
-        argument_bps = []
-        last_tid = max(bp.tid for bp in predicate_bps)
-        for argument in filter(lambda x: not x.event_head, self.pas.arguments.values()):
-            for bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bps):
-                argument_bps.append(bp)
-
-        # make the is_child flag of argument_bps True
-        argument_bps = copy.deepcopy(argument_bps)
-        for argument_bp in argument_bps:
-            argument_bp.is_child = True
-
-        # concatenate all bps
-        bps = predicate_bps + argument_bps
-
-        return bps
-
-    @staticmethod
-    def to_string(bps, type_='midasi', mark=False, space=True, truncate=False, exophora=True):
-        """Convert this instance into a string.
+    @classmethod
+    def load(cls, modifier, head, dct):
+        """Create an instance from a dictionary.
 
         Args:
-            bps (List[BasicPhrase]): A list of basic phrases.
-            type_ (str): A type of string, which can take either `midasi` or `repname`.
-            mark (bool): Whether to include special marks.
-            space (bool): Whether to include white spaces between morphemes.
-            truncate (bool): Whether to truncate the latter of the normalized token.
-            exophora (bool): Whether to include exophora.
+            modifier (Event): A modifier event.
+            head (Event): A head event.
+            dct (dict): A dictionary storing relation information.
+
+        Returns:
+            Relation: A relation.
 
         """
-        return convert_basic_phrases_to_string(
-            bps=bps,
-            type_=type_,
-            mark=mark,
-            space=space,
-            normalize='predicate',
-            truncate=truncate,
-            needs_exophora=exophora
-        )
+        relation = Relation()
+        relation.modifier = modifier
+        relation.head = head
+        relation.modifier_evid = modifier.evid
+        relation.head_evid = dct['event_id']
+        relation.label = dct['label']
+        relation.surf = dct['surf']
+        relation.reliable = dct['reliable']
+        relation.head_tid = dct['head_tid']
+        return relation
 
-    @staticmethod
-    def to_content_rep_list(bps):
-        """Convert this instance into a list of representative strings of content words.
+    def finalize(self):
+        """Finalize this instance."""
+        pass
 
-        Args:
-            bps (List[BasicPhrase]): A list of basic phrases.
+    def to_dict(self):
+        """Convert this instance into a dictionary.
+
+        Returns:
+            dict: A dictionary storing this relation information.
 
         """
-        return convert_basic_phrases_to_content_rep_list(bps)
-
-    def __iter__(self):
-        """Iterate this instance."""
-        return iterate_basic_phrases(self._to_basic_phrases())
+        return collections.OrderedDict([
+            ('event_id', self.head_evid),
+            ('label', self.label),
+            ('surf', self.surf),
+            ('reliable', self.reliable),
+            ('head_tid', self.head_tid)
+        ])

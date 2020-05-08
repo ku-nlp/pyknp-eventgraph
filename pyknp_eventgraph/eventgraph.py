@@ -2,7 +2,6 @@
 import collections
 import json
 import pickle
-import queue
 import re
 from logging import getLogger, StreamHandler, Formatter, Logger
 from typing import List, IO
@@ -11,8 +10,8 @@ from pyknp import BList
 
 from pyknp_eventgraph.base import Base
 from pyknp_eventgraph.basic_phrase import BasicPhrase
-from pyknp_eventgraph.event import Event
-from pyknp_eventgraph.relation import Relation
+from pyknp_eventgraph.event import Event, Relation
+from pyknp_eventgraph.helper import get_child_tags
 from pyknp_eventgraph.sentence import Sentence
 
 
@@ -133,10 +132,16 @@ class EventGraph(Base):
             for event_dct in dct['events']:
                 evg.events.append(Event.load(event_dct))
 
+            logger.debug('Construct hash tables')
+            for event in evg.events:
+                evg.__evid_event_map[event.evid] = event
+
             logger.debug('Load relations between events')
             for event_dct in dct['events']:
                 for relation_dct in event_dct['rel']:
-                    relation = Relation.load(event_dct['event_id'], relation_dct)
+                    modifier = evg.__evid_event_map[event_dct['event_id']]
+                    head = evg.__evid_event_map[relation_dct['event_id']]
+                    relation = Relation.load(modifier, head, relation_dct)
                     evg.events[relation.modifier_evid].outgoing_relations.append(relation)
                     evg.events[relation.head_evid].incoming_relations.append(relation)
 
@@ -249,12 +254,12 @@ class EventGraph(Base):
         # checks if it has an adnominal relation
         if parent_event and event.end.features['節-区切'] == '連体修飾':
             parent_tid = event.end.parent_id
-            relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, '連体修飾', '', reliable))
+            relations.append(Relation.build(event, parent_event, parent_tid, '連体修飾', '', reliable))
 
         # checks if it is a sentential complement
         if parent_event and event.end.features['節-区切'] == '補文':
             parent_tid = event.end.parent_id
-            relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, '補文', '', reliable))
+            relations.append(Relation.build(event, parent_event, parent_tid, '補文', '', reliable))
 
         # checks if it has a discourse relation
         if not relations:
@@ -263,7 +268,7 @@ class EventGraph(Base):
                 sdist, tid, sid = tmp.split('/')
                 head_event = self.__stid_event_map.get((event.ssid + int(sdist), int(tid)), None)
                 if head_event:
-                    relations.append(Relation.build(event.evid, head_event.evid, -1, '談話関係:' + label, '', False))
+                    relations.append(Relation.build(event, head_event, -1, '談話関係:' + label, '', False))
 
         # checks if it has a clausal function
         if not relations and parent_event:
@@ -273,16 +278,16 @@ class EventGraph(Base):
                 else:
                     label, surf = clause_function, ''
                 parent_tid = event.end.parent_id
-                relations.append(Relation.build(event.evid, parent_event.evid, parent_tid, label, surf, reliable))
+                relations.append(Relation.build(event, parent_event, parent_tid, label, surf, reliable))
 
         # checks if it has a clausal parallel relation
         if not relations and parent_event:
             if event.end.dpndtype == 'P':
-                relations.append(Relation.build(event.evid, parent_event.evid, -1, '並列', '', reliable))
+                relations.append(Relation.build(event, parent_event, -1, '並列', '', reliable))
 
         # checks if it has a clausal dependency
         if not relations and parent_event:
-            relations.append(Relation.build(event.evid, parent_event.evid, -1, '係り受け', '', reliable))
+            relations.append(Relation.build(event, parent_event, -1, '係り受け', '', reliable))
 
         return relations
 
@@ -302,52 +307,21 @@ class EventGraph(Base):
                 arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tid), -1)
                 arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid), None)
                 if arg.flag == 'E':  # exophora (omission)
-                    event.add_argument_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, is_omitted=True, case=case))
+                    event.push_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, is_omitted=True, case=case))
                 elif arg.flag == 'O' and arg_tag:  # zero anaphora (omission)
-                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, is_omitted=True, case=case))
+                    event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, is_omitted=True, case=case))
                 elif arg_tag:  # anaphora
-                    event.add_argument_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=case))
+                    event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=case))
                     next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
                     if next_arg_tag and '複合辞' in next_arg_tag.features:
-                        event.add_argument_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
-                    for tag in self._get_children(arg_tag):
-                        event.add_argument_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
+                        event.push_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
+                    for tag in get_child_tags(arg_tag):
+                        event.push_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
 
         # assigns the base phrases of the predicate
         for tag in {event.head, event.end}:
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
-            event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid))
-        for tag in set(self._get_children(event.head) + self._get_children(event.end)):
+            event.push_bp(BasicPhrase(tag, event.ssid, bid))
+        for tag in set(get_child_tags(event.head) + get_child_tags(event.end)):
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
-            event.add_predicate_bp(BasicPhrase(tag, event.ssid, bid, is_child=True))
-
-    @staticmethod
-    def _get_children(tag):
-        """Return child tags of a given tag.
-
-        Notes:
-            This function recursively searches child tags of a given tag.
-            This search stops when it encounters a clause-head or clause-end.
-
-        Args:
-            tag (Tag): A tag.
-
-        Returns:
-            List[Tag]: A list of child tags.
-
-        """
-        if tag.tag_id < 0:
-            return []
-
-        children = []
-        q = queue.Queue()
-        q.put(tag)
-        while not q.empty():
-            tag_ = q.get()
-            for child_tag in tag_.children:
-                if '節-主辞' in child_tag.features or '節-区切' in child_tag.features:
-                    continue
-                if child_tag not in children:
-                    children.append(child_tag)
-                    q.put(child_tag)
-        return sorted(children, key=lambda x: x.tag_id)
+            event.push_bp(BasicPhrase(tag, event.ssid, bid, is_child=True))
