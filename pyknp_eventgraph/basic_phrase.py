@@ -284,6 +284,10 @@ class BasicPhraseList:
             self.__bps = bps
         self.sort()
 
+    def __repr__(self):
+        surf = ''.join(bp.surf for bp in sorted(self.__bps, key=lambda bp: bp.sort_key))
+        return 'BasicPhraseList({}; n_bp={})'.format(surf, len(self))
+
     def __len__(self):
         return len(self.__bps)
 
