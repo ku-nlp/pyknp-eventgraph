@@ -314,8 +314,10 @@ class EventGraph(Base):
                     event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=case))
                     next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
                     if next_arg_tag and '複合辞' in next_arg_tag.features:
+                        arg_bid = self.__stid_bid_map.get((arg_ssid, next_arg_tag.tag_id), -1)
                         event.push_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
                     for tag in get_child_tags(arg_tag):
+                        arg_bid = self.__stid_bid_map.get((arg_ssid, tag.tag_id), -1)
                         event.push_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
 
         # assigns the base phrases of the predicate
