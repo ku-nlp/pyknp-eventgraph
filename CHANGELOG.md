@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.0]
+
+### Changed
+- Represented arguments by a dictionary of **list** of argument information.
+- Removed the attribute `event_head` from `Argument`. 
+
 ## [0.4.2]
 
 ### Changed
