@@ -200,7 +200,8 @@ class EventGraphVisualizer(object):
             if event.pas.predicate.type_:
                 pred += ':{}'.format(event.pas.predicate.type_)
             arg_list = []
-            for case, arg in sorted(event.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
+            for case, args in sorted(event.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
+                arg = args[0]
                 if '外の関係' not in case:
                     arg_list.append('{}:{}'.format(arg.head_reps, case))
             pas = '[pas] {}'.format(pred)

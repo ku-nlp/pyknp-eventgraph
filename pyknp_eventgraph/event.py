@@ -171,6 +171,9 @@ class Event(Base):
             bp (BasicPhrase): A basic phrase.
 
         """
+        if any(bp in argument.bpl for argument_list in self.pas.arguments.values() for argument in argument_list):
+            return  # the given basic phrase has been already taken by an argument
+
         if not bp.is_omitted:
             bp.set_adnominal_evids(list(map(
                 lambda r: r.modifier_evid,
@@ -180,11 +183,11 @@ class Event(Base):
                 lambda r: r.modifier_evid,
                 filter(lambda r: r.head_tid == bp.tid, self.sentential_complement_relations)
             )))
-        if bp.case:  # argument
-            self.pas.arguments[bp.case].push_bp(bp)
-        else:  # predicate
-            if all(bp not in argument.bpl for argument in self.pas.arguments.values()):
-                self.pas.predicate.push_bp(bp)
+
+        if bp.case:
+            self.pas.arguments[bp.case][bp.arg_index].push_bp(bp)
+        else:
+            self.pas.predicate.push_bp(bp)
 
     def finalize(self):
         """Finalize this instance."""
@@ -247,6 +250,31 @@ class Event(Base):
             BasicPhraseList: A basic phrase list.
 
         """
+        def is_valid_basic_phrase_list(bpl):
+            """Return True if the given basic phrase is used to show this event.
+
+            Args:
+                bpl (BasicPhraseList): A basic phrase.
+
+            Returns:
+                bool: Whether this basic phrase is valid.
+
+            """
+            def is_valid_basic_phrase(bp):
+                if bp.is_omitted:
+                    # always include omitted tokens (extracted by inter-sentential anaphora and exophora resolution)
+                    return True
+                elif bp.tid < self.head.tag_id and (bp.is_event_head or bp.is_event_end):
+                    # filter out clause-head or an clause-end tokens that appears before this clause-head token
+                    return False
+                elif self.end.tag_id < bp.tid:
+                    # filter out tokens that appears after this clause-end token
+                    return False
+                else:
+                    return True
+
+            return all(is_valid_basic_phrase(bp) for bp in bpl)
+
         predicate_bpl = BasicPhraseList()
         for predicate_bp in self.pas.predicate.bpl:
             predicate_bpl.push(predicate_bp)
@@ -255,17 +283,20 @@ class Event(Base):
                     modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
                     modifier_bp.is_child = True
                     predicate_bpl.push(modifier_bp)
+
         argument_bpl = BasicPhraseList()
-        last_tid = max(bp.tid for bp in predicate_bpl)
-        for argument in filter(lambda x: not x.event_head, self.pas.arguments.values()):
-            for argument_bp in filter(lambda x: x.is_omitted or x.tid < last_tid, argument.bpl):
-                argument_bp.is_child = True
-                argument_bpl.push(argument_bp)
-                if include_modifiers:
-                    for modifier_bp in self._get_modifier_basic_phrase_list(argument_bp):
-                        modifier_bp.case = argument_bp.case  # treat this as a part of the argument
-                        modifier_bp.is_child = True
-                        argument_bpl.push(modifier_bp)
+        for argument_list in self.pas.arguments.values():
+            for argument in argument_list:
+                if not is_valid_basic_phrase_list(argument.bpl.head):
+                    continue
+                for argument_bp in argument.bpl:
+                    argument_bp.is_child = True
+                    argument_bpl.push(argument_bp)
+                    if include_modifiers:
+                        for modifier_bp in self._get_modifier_basic_phrase_list(argument_bp):
+                            modifier_bp.case = argument_bp.case  # treat this as a part of the argument
+                            modifier_bp.is_child = True
+                            argument_bpl.push(modifier_bp)
         return predicate_bpl + argument_bpl
 
     def _get_modifier_basic_phrase_list(self, bp):

@@ -1,6 +1,6 @@
 """A class to manage PAS information."""
 import collections
-from typing import List, Dict, Union
+from typing import List, Dict
 
 from pyknp import Argument as PyknpArgument
 from pyknp import Tag
@@ -18,7 +18,7 @@ class PAS(Base):
 
     Attributes:
         predicate (Predicate): A predicate.
-        arguments (Dict[str, Argument]): Arguments.
+        arguments (Dict[str, List[Argument]]): Arguments.
 
     """
 
@@ -41,7 +41,7 @@ class PAS(Base):
         pas.predicate = Predicate.build(head)
         if head.pas:
             for case, args in head.pas.arguments.items():
-                pas.arguments[case] = Argument.build(args[0])
+                pas.arguments[case] = [Argument.build(arg) for arg in args]
         return pas
 
     @classmethod
@@ -57,15 +57,16 @@ class PAS(Base):
         """
         pas = PAS()
         pas.predicate = Predicate.load(dct['predicate'])
-        for case, argument in dct['argument'].items():
-            pas.arguments[case] = Argument.load(argument)
+        for case, argument_list in dct['argument'].items():
+            pas.arguments[case] = [Argument.load(argument) for argument in argument_list]
         return pas
 
     def finalize(self):
         """Finalize this instance."""
         self.predicate.finalize()
-        for argument in self.arguments.values():
-            argument.finalize()
+        for argument_list in self.arguments.values():
+            for argument in argument_list:
+                argument.finalize()
 
     def to_dict(self):
         """Convert this instance into a dictionary.
@@ -77,8 +78,9 @@ class PAS(Base):
         return collections.OrderedDict([
             ('predicate', self.predicate.to_dict()),
             ('argument', {
-                case: argument.to_dict() for case, argument in
-                sorted(self.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)) if argument.to_dict()
+                case: [argument.to_dict() for argument in argument_list if argument.to_dict()]
+                for case, argument_list in sorted(self.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99))
+                if any(argument.to_dict() for argument in argument_list)
             })
         ])
 
@@ -291,7 +293,6 @@ class Argument(Base):
         eid (int): An entity ID.
         flag (str): A flag.
         sdist (int): The sentence distance between this argument and the predicate.
-        event_head (bool): Whether this argument is an event head or not.
 
     """
 
@@ -316,8 +317,6 @@ class Argument(Base):
         self.eid = -1
         self.flag = ''
         self.sdist = -1
-
-        self.event_head = False
 
     @classmethod
     def build(cls, arg):
@@ -359,7 +358,6 @@ class Argument(Base):
         argument.adnominal_evids = dct['adnominal_event_ids']
         argument.sentential_complement_evids = dct['sentential_complement_event_ids']
         argument.children = dct['children']
-        argument.event_head = dct['event_head']
         return argument
 
     def push_bp(self, bp):
@@ -406,9 +404,6 @@ class Argument(Base):
                 ('possessive', bp.is_possessive)
             ]))
 
-        for bp in filter(lambda bp: bp.tag, head_bpl):
-            self.event_head = self.event_head or any(feature in bp.tag.features for feature in {'節-主辞', '節-区切'})
-
     def to_dict(self):
         """Return this instance as a dictionary.
 
@@ -432,8 +427,7 @@ class Argument(Base):
                 ('sdist', self.sdist),
                 ('adnominal_event_ids', self.adnominal_evids),
                 ('sentential_complement_event_ids', self.sentential_complement_evids),
-                ('children', self.children),
-                ('event_head', self.event_head)
+                ('children', self.children)
             ])
 
     def to_head_reps(self):

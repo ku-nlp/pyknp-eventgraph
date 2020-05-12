@@ -8,7 +8,8 @@ from pyknp_eventgraph.helper import (
     PAS_ORDER,
     convert_mrphs_to_midasi_list,
     convert_mrphs_to_repname_list,
-    convert_katakana_to_hiragana
+    convert_katakana_to_hiragana,
+    get_parallel_tags
 )
 
 
@@ -24,14 +25,14 @@ class BasicPhrase:
         is_possessive (bool): Whether this basic phrase is a possessive.
         is_child (bool): Whether this basic phrase is a child of another one.
         is_omitted (bool): Whether this basic phrase is omitted.
-        case (str): A case.
+        case (Tuple[str, int]): A case.
         adnominal_evids (List[int]): A list of adnominal event IDs.
         sentential_complement_evids (List[int]): A list of sentential complement event IDs.
         exophora (str): The type of exophora.
 
     """
 
-    def __init__(self, tag_or_midasi, ssid=-1, bid=-1, is_child=False, is_omitted=False, case=''):
+    def __init__(self, tag_or_midasi, ssid=-1, bid=-1, is_child=False, is_omitted=False, case=None):
         """Initialize a BasicPhrase instance.
 
         Args:
@@ -40,7 +41,7 @@ class BasicPhrase:
             bid (int): A serial bunsetsu ID.
             is_child (bool): Whether this basic phrase is a child of another one.
             is_omitted (bool): Whether this basic phrase is omitted.
-            case (str): A case.
+            case (Tuple[str, int]): A case.
 
         """
         self.tag = None
@@ -52,7 +53,10 @@ class BasicPhrase:
         self.is_possessive = False
         self.is_child = is_child
         self.is_omitted = is_omitted
-        self.case = case
+        if case:
+            self.case, self.arg_index = case
+        else:
+            self.case, self.arg_index = '', -1
         self.adnominal_evids = []
         self.sentential_complement_evids = []
 
@@ -98,6 +102,24 @@ class BasicPhrase:
     @property
     def sort_key(self):
         return PAS_ORDER.get(self.case if self.is_omitted else '', 99), self.ssid, self.bid, self.tid
+
+    @property
+    def is_event_head(self):
+        if isinstance(self.tag, Tag):
+            if '節-主辞' in self.tag.features:
+                return True
+            if any('節-主辞' in tag.features for tag in get_parallel_tags(self.tag)):
+                return True
+        return False
+
+    @property
+    def is_event_end(self):
+        if isinstance(self.tag, Tag):
+            if '節-区切' in self.tag.features:
+                return True
+            if any('節-区切' in tag.features for tag in get_parallel_tags(self.tag)):
+                return True
+        return False
 
     def set_adnominal_evids(self, adnominal_evids):
         """Set adnominal event IDs.
