@@ -314,7 +314,7 @@ class EventGraph(Base):
                     elif arg_tag:
                         arg_tags = [arg_tag]
                         next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
-                        if next_arg_tag and '複合辞' in next_arg_tag.features:
+                        if next_arg_tag and '複合辞' in next_arg_tag.features and '補文ト' not in next_arg_tag.features:
                             arg_tags.append(next_arg_tag)
                         for arg_tag in arg_tags:
                             arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tag.tag_id), -1)
