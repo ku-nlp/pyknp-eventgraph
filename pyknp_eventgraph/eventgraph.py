@@ -301,6 +301,7 @@ class EventGraph(Base):
         # assign the base phrases of the arguments
         if event.head.pas:
             for case, args in event.head.pas.arguments.items():
+                args = sorted(args, key=lambda arg: (event.ssid - arg.sdist, arg.tid))
                 for arg_index, arg in enumerate(args):
                     arg_ssid = event.ssid - arg.sdist
                     arg_tid = arg.tid
