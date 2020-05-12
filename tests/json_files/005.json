@@ -1,0 +1,243 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "ユーザビリティやユニバーサルデザインの教育は、初等教育から始める必要があると思う。",
+                        "mrphs": "ユーザビリティ や ユニバーサル デザイン の 教育 は 、 初等 教育 から 始める 必要 が ある と 思う 。",
+                        "reps": "ユーザビリティ/ユーザビリティ や/や ユニバーサル/ユニバーサル デザイン/でざいん の/の 教育/きょういく は/は 、/、 初等/しょとう 教育/きょういく から/から 始める/はじめる 必要/ひつようa が/が 有る/ある と/と 思う/おもう 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "連体修飾",
+                                        "surf": "",
+                                        "reliable": true,
+                                        "head_tid": 7
+                                }
+                        ],
+                        "surf": "ユーザビリティやユニバーサルデザインの教育は、初等教育から始める",
+                        "surf_with_mark": "ユーザビリティやユニバーサルデザインの教育は、初等教育から始める",
+                        "mrphs": "ユーザビリティ や ユニバーサル デザイン の 教育 は 、 初等 教育 から 始める",
+                        "mrphs_with_mark": "ユーザビリティ や ユニバーサル デザイン の 教育 は 、 初等 教育 から 始める",
+                        "normalized_mrphs": "ユーザビリティ や ユニバーサル デザイン の 教育 は 、 初等 教育 から 始める",
+                        "normalized_mrphs_with_mark": "ユーザビリティ や ユニバーサル デザイン の 教育 は 、 初等 教育 から 始める",
+                        "normalized_mrphs_without_exophora": "ユーザビリティ や ユニバーサル デザイン の 教育 は 、 初等 教育 から 始める",
+                        "normalized_mrphs_with_mark_without_exophora": "ユーザビリティ や ユニバーサル デザイン の 教育 は 、 初等 教育 から 始める",
+                        "reps": "ユーザビリティ/ユーザビリティ や/や ユニバーサル/ユニバーサル デザイン/でざいん の/の 教育/きょういく は/は 、/、 初等/しょとう 教育/きょういく から/から 始める/はじめる",
+                        "reps_with_mark": "ユーザビリティ/ユーザビリティ や/や ユニバーサル/ユニバーサル デザイン/でざいん の/の 教育/きょういく は/は 、/、 初等/しょとう 教育/きょういく から/から 始める/はじめる",
+                        "normalized_reps": "ユーザビリティ/ユーザビリティ や/や ユニバーサル/ユニバーサル デザイン/でざいん の/の 教育/きょういく は/は 、/、 初等/しょとう 教育/きょういく から/から 始める/はじめる",
+                        "normalized_reps_with_mark": "ユーザビリティ/ユーザビリティ や/や ユニバーサル/ユニバーサル デザイン/でざいん の/の 教育/きょういく は/は 、/、 初等/しょとう 教育/きょういく から/から 始める/はじめる",
+                        "content_rep_list": [
+                                "ユーザビリティ/ユーザビリティ",
+                                "ユニバーサル/ユニバーサル",
+                                "デザイン/でざいん",
+                                "教育/きょういく",
+                                "初等/しょとう",
+                                "教育/きょういく",
+                                "始める/はじめる"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "始める",
+                                        "normalized_surf": "始める",
+                                        "mrphs": "始める",
+                                        "normalized_mrphs": "始める",
+                                        "reps": "始める/はじめる",
+                                        "normalized_reps": "始める/はじめる",
+                                        "standard_reps": "始める/はじめる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "必要が",
+                                                        "normalized_surf": "必要だ",
+                                                        "mrphs": "必要 が",
+                                                        "normalized_mrphs": "必要だ",
+                                                        "reps": "必要/ひつようa が/が",
+                                                        "normalized_reps": "必要/ひつようa",
+                                                        "head_reps": "必要/ひつようa",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "ヲ": [
+                                                {
+                                                        "surf": "教育は、",
+                                                        "normalized_surf": "教育",
+                                                        "mrphs": "教育 は 、",
+                                                        "normalized_mrphs": "教育",
+                                                        "reps": "教育/きょういく は/は 、/、",
+                                                        "normalized_reps": "教育/きょういく",
+                                                        "head_reps": "教育/きょういく",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "デザインの",
+                                                                        "normalized_surf": "デザイン",
+                                                                        "mrphs": "デザイン の",
+                                                                        "normalized_mrphs": "デザイン",
+                                                                        "reps": "デザイン/でざいん の/の",
+                                                                        "normalized_reps": "デザイン/でざいん",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": true
+                                                                },
+                                                                {
+                                                                        "surf": "ユニバーサル",
+                                                                        "normalized_surf": "ユニバーサル",
+                                                                        "mrphs": "ユニバーサル",
+                                                                        "normalized_mrphs": "ユニバーサル",
+                                                                        "reps": "ユニバーサル/ユニバーサル",
+                                                                        "normalized_reps": "ユニバーサル/ユニバーサル",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                },
+                                                                {
+                                                                        "surf": "ユーザビリティや",
+                                                                        "normalized_surf": "ユーザビリティ",
+                                                                        "mrphs": "ユーザビリティ や",
+                                                                        "normalized_mrphs": "ユーザビリティ",
+                                                                        "reps": "ユーザビリティ/ユーザビリティ や/や",
+                                                                        "normalized_reps": "ユーザビリティ/ユーザビリティ",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "カラ": [
+                                                {
+                                                        "surf": "教育から",
+                                                        "normalized_surf": "教育",
+                                                        "mrphs": "教育 から",
+                                                        "normalized_mrphs": "教育",
+                                                        "reps": "教育/きょういく から/から",
+                                                        "normalized_reps": "教育/きょういく",
+                                                        "head_reps": "教育/きょういく",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "初等",
+                                                                        "normalized_surf": "初等",
+                                                                        "mrphs": "初等",
+                                                                        "normalized_mrphs": "初等",
+                                                                        "reps": "初等/しょとう",
+                                                                        "normalized_reps": "初等/しょとう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [
+                                        "評価:強"
+                                ],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "必要があると思う。",
+                        "surf_with_mark": "▼ 必要がある (と思う。)",
+                        "mrphs": "必要 が ある と 思う 。",
+                        "mrphs_with_mark": "▼ 必要 が ある (と 思う 。)",
+                        "normalized_mrphs": "必要 が ある",
+                        "normalized_mrphs_with_mark": "▼ 必要 が ある",
+                        "normalized_mrphs_without_exophora": "必要 が ある",
+                        "normalized_mrphs_with_mark_without_exophora": "▼ 必要 が ある",
+                        "reps": "必要/ひつようa が/が 有る/ある と/と 思う/おもう 。/。",
+                        "reps_with_mark": "▼ 必要/ひつようa が/が 有る/ある (と/と 思う/おもう 。/。)",
+                        "normalized_reps": "必要/ひつようa が/が 有る/ある",
+                        "normalized_reps_with_mark": "▼ 必要/ひつようa が/が 有る/ある",
+                        "content_rep_list": [
+                                "必要/ひつようa",
+                                "有る/ある",
+                                "思う/おもう"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "ある",
+                                        "normalized_surf": "ある",
+                                        "mrphs": "ある",
+                                        "normalized_mrphs": "ある",
+                                        "reps": "有る/ある",
+                                        "normalized_reps": "有る/ある",
+                                        "standard_reps": "有る/ある",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "必要が",
+                                                        "normalized_surf": "必要だ",
+                                                        "mrphs": "必要 が",
+                                                        "normalized_mrphs": "必要だ",
+                                                        "reps": "必要/ひつようa が/が",
+                                                        "normalized_reps": "必要/ひつようa",
+                                                        "head_reps": "必要/ひつようa",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [
+                                                                0
+                                                        ],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [
+                                        "推量・伝聞"
+                                ],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": true
+                        }
+                }
+        ]
+}

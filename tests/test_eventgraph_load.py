@@ -100,8 +100,7 @@ class TestEventGraph(unittest.TestCase):
             'sdist',
             'adnominal_event_ids',
             'sentential_complement_event_ids',
-            'children',
-            'event_head'
+            'children'
     ))
     def test_event_pas_argument(self, param):
         for hyp, ref in zip(self.hypotheses, self.references):
@@ -110,7 +109,10 @@ class TestEventGraph(unittest.TestCase):
                     set(list(hyp_event['pas']['argument'].keys()) + list(ref_event['pas']['argument'].keys()))
                 )
                 for case in cases:
-                    assert hyp_event['pas']['argument'][case][param] == ref_event['pas']['argument'][case][param]
+                    num_args = len(ref_event['pas']['argument'][case])
+                    for arg_index in range(num_args):
+                        assert hyp_event['pas']['argument'][case][arg_index][param] == \
+                               ref_event['pas']['argument'][case][arg_index][param]
 
     @parameterized.expand((
             'modality',

@@ -53,38 +53,40 @@
                                         "children": []
                                 },
                                 "argument": {
-                                        "ガ": {
-                                                "surf": "[著者が]",
-                                                "normalized_surf": "[著者]",
-                                                "mrphs": "[著者 が]",
-                                                "normalized_mrphs": "[著者]",
-                                                "reps": "[著者 が/が]",
-                                                "normalized_reps": "[著者]",
-                                                "head_reps": "[著者]",
-                                                "eid": 0,
-                                                "flag": "E",
-                                                "sdist": -1,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        },
-                                        "ニ": {
-                                                "surf": "子供に",
-                                                "normalized_surf": "子供",
-                                                "mrphs": "子供 に",
-                                                "normalized_mrphs": "子供",
-                                                "reps": "子供/こども に/に",
-                                                "normalized_reps": "子供/こども",
-                                                "head_reps": "子供/こども",
-                                                "eid": 3,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        }
+                                        "ガ": [
+                                                {
+                                                        "surf": "[著者が]",
+                                                        "normalized_surf": "[著者]",
+                                                        "mrphs": "[著者 が]",
+                                                        "normalized_mrphs": "[著者]",
+                                                        "reps": "[著者 が/が]",
+                                                        "normalized_reps": "[著者]",
+                                                        "head_reps": "[著者]",
+                                                        "eid": 0,
+                                                        "flag": "E",
+                                                        "sdist": -1,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "ニ": [
+                                                {
+                                                        "surf": "子供に",
+                                                        "normalized_surf": "子供",
+                                                        "mrphs": "子供 に",
+                                                        "normalized_mrphs": "子供",
+                                                        "reps": "子供/こども に/に",
+                                                        "normalized_reps": "子供/こども",
+                                                        "head_reps": "子供/こども",
+                                                        "eid": 3,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
                                 }
                         },
                         "features": {
@@ -140,67 +142,70 @@
                                         "children": []
                                 },
                                 "argument": {
-                                        "ガ": {
-                                                "surf": "とろみが",
-                                                "normalized_surf": "とろみ",
-                                                "mrphs": "とろみ が",
-                                                "normalized_mrphs": "とろみ",
-                                                "reps": "とろみ/とろみ が/が",
-                                                "normalized_reps": "とろみ/とろみ",
-                                                "head_reps": "とろみ/とろみ",
-                                                "eid": 4,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        },
-                                        "時間": {
-                                                "surf": "方を",
-                                                "normalized_surf": "方",
-                                                "mrphs": "方 を",
-                                                "normalized_mrphs": "方",
-                                                "reps": "方/かた を/を",
-                                                "normalized_reps": "方/かた",
-                                                "head_reps": "作り/つくりv+方/かた",
-                                                "eid": 6,
-                                                "flag": "N",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [
-                                                        {
-                                                                "surf": "作り",
-                                                                "normalized_surf": "作り",
-                                                                "mrphs": "作り",
-                                                                "normalized_mrphs": "作り",
-                                                                "reps": "作り/つくりv",
-                                                                "normalized_reps": "作り/つくりv",
-                                                                "adnominal_event_ids": [],
-                                                                "sentential_complement_event_ids": [],
-                                                                "modifier": false,
-                                                                "possessive": false
-                                                        }
-                                                ],
-                                                "event_head": false
-                                        },
-                                        "修飾": {
-                                                "surf": "もっと",
-                                                "normalized_surf": "もっと",
-                                                "mrphs": "もっと",
-                                                "normalized_mrphs": "もっと",
-                                                "reps": "もっと/もっと",
-                                                "normalized_reps": "もっと/もっと",
-                                                "head_reps": "もっと/もっと",
-                                                "eid": -1,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        }
+                                        "ガ": [
+                                                {
+                                                        "surf": "とろみが",
+                                                        "normalized_surf": "とろみ",
+                                                        "mrphs": "とろみ が",
+                                                        "normalized_mrphs": "とろみ",
+                                                        "reps": "とろみ/とろみ が/が",
+                                                        "normalized_reps": "とろみ/とろみ",
+                                                        "head_reps": "とろみ/とろみ",
+                                                        "eid": 4,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "時間": [
+                                                {
+                                                        "surf": "方を",
+                                                        "normalized_surf": "方",
+                                                        "mrphs": "方 を",
+                                                        "normalized_mrphs": "方",
+                                                        "reps": "方/かた を/を",
+                                                        "normalized_reps": "方/かた",
+                                                        "head_reps": "作り/つくりv+方/かた",
+                                                        "eid": 6,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "作り",
+                                                                        "normalized_surf": "作り",
+                                                                        "mrphs": "作り",
+                                                                        "normalized_mrphs": "作り",
+                                                                        "reps": "作り/つくりv",
+                                                                        "normalized_reps": "作り/つくりv",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "修飾": [
+                                                {
+                                                        "surf": "もっと",
+                                                        "normalized_surf": "もっと",
+                                                        "mrphs": "もっと",
+                                                        "normalized_mrphs": "もっと",
+                                                        "reps": "もっと/もっと",
+                                                        "normalized_reps": "もっと/もっと",
+                                                        "head_reps": "もっと/もっと",
+                                                        "eid": -1,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
                                 }
                         },
                         "features": {
@@ -248,53 +253,55 @@
                                         "children": []
                                 },
                                 "argument": {
-                                        "ガ": {
-                                                "surf": "[著者が]",
-                                                "normalized_surf": "[著者]",
-                                                "mrphs": "[著者 が]",
-                                                "normalized_mrphs": "[著者]",
-                                                "reps": "[著者 が/が]",
-                                                "normalized_reps": "[著者]",
-                                                "head_reps": "[著者]",
-                                                "eid": 0,
-                                                "flag": "E",
-                                                "sdist": -1,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        },
-                                        "ヲ": {
-                                                "surf": "方を",
-                                                "normalized_surf": "方",
-                                                "mrphs": "方 を",
-                                                "normalized_mrphs": "方",
-                                                "reps": "方/かた を/を",
-                                                "normalized_reps": "方/かた",
-                                                "head_reps": "作り/つくりv+方/かた",
-                                                "eid": 6,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [
-                                                        1
-                                                ],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [
-                                                        {
-                                                                "surf": "作り",
-                                                                "normalized_surf": "作り",
-                                                                "mrphs": "作り",
-                                                                "normalized_mrphs": "作り",
-                                                                "reps": "作り/つくりv",
-                                                                "normalized_reps": "作り/つくりv",
-                                                                "adnominal_event_ids": [],
-                                                                "sentential_complement_event_ids": [],
-                                                                "modifier": false,
-                                                                "possessive": false
-                                                        }
-                                                ],
-                                                "event_head": false
-                                        }
+                                        "ガ": [
+                                                {
+                                                        "surf": "[著者が]",
+                                                        "normalized_surf": "[著者]",
+                                                        "mrphs": "[著者 が]",
+                                                        "normalized_mrphs": "[著者]",
+                                                        "reps": "[著者 が/が]",
+                                                        "normalized_reps": "[著者]",
+                                                        "head_reps": "[著者]",
+                                                        "eid": 0,
+                                                        "flag": "E",
+                                                        "sdist": -1,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "ヲ": [
+                                                {
+                                                        "surf": "方を",
+                                                        "normalized_surf": "方",
+                                                        "mrphs": "方 を",
+                                                        "normalized_mrphs": "方",
+                                                        "reps": "方/かた を/を",
+                                                        "normalized_reps": "方/かた",
+                                                        "head_reps": "作り/つくりv+方/かた",
+                                                        "eid": 6,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [
+                                                                1
+                                                        ],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "作り",
+                                                                        "normalized_surf": "作り",
+                                                                        "mrphs": "作り",
+                                                                        "normalized_mrphs": "作り",
+                                                                        "reps": "作り/つくりv",
+                                                                        "normalized_reps": "作り/つくりv",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ]
                                 }
                         },
                         "features": {

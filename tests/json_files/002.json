@@ -55,51 +55,53 @@
                                         "children": []
                                 },
                                 "argument": {
-                                        "ガ２": {
-                                                "surf": "彼女は",
-                                                "normalized_surf": "彼女",
-                                                "mrphs": "彼女 は",
-                                                "normalized_mrphs": "彼女",
-                                                "reps": "彼女/かのじょ は/は",
-                                                "normalized_reps": "彼女/かのじょ",
-                                                "head_reps": "彼女/かのじょ",
-                                                "eid": 3,
-                                                "flag": "N",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        },
-                                        "ガ": {
-                                                "surf": "経験が",
-                                                "normalized_surf": "経験",
-                                                "mrphs": "経験 が",
-                                                "normalized_mrphs": "経験",
-                                                "reps": "経験/けいけん が/が",
-                                                "normalized_reps": "経験/けいけん",
-                                                "head_reps": "経験/けいけん",
-                                                "eid": 5,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [
-                                                        {
-                                                                "surf": "海外",
-                                                                "normalized_surf": "海外",
-                                                                "mrphs": "海外",
-                                                                "normalized_mrphs": "海外",
-                                                                "reps": "海外/かいがい",
-                                                                "normalized_reps": "海外/かいがい",
-                                                                "adnominal_event_ids": [],
-                                                                "sentential_complement_event_ids": [],
-                                                                "modifier": false,
-                                                                "possessive": false
-                                                        }
-                                                ],
-                                                "event_head": false
-                                        }
+                                        "ガ２": [
+                                                {
+                                                        "surf": "彼女は",
+                                                        "normalized_surf": "彼女",
+                                                        "mrphs": "彼女 は",
+                                                        "normalized_mrphs": "彼女",
+                                                        "reps": "彼女/かのじょ は/は",
+                                                        "normalized_reps": "彼女/かのじょ",
+                                                        "head_reps": "彼女/かのじょ",
+                                                        "eid": 3,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "ガ": [
+                                                {
+                                                        "surf": "経験が",
+                                                        "normalized_surf": "経験",
+                                                        "mrphs": "経験 が",
+                                                        "normalized_mrphs": "経験",
+                                                        "reps": "経験/けいけん が/が",
+                                                        "normalized_reps": "経験/けいけん",
+                                                        "head_reps": "経験/けいけん",
+                                                        "eid": 5,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "海外",
+                                                                        "normalized_surf": "海外",
+                                                                        "mrphs": "海外",
+                                                                        "normalized_mrphs": "海外",
+                                                                        "reps": "海外/かいがい",
+                                                                        "normalized_reps": "海外/かいがい",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ]
                                 }
                         },
                         "features": {
@@ -147,38 +149,40 @@
                                         "children": []
                                 },
                                 "argument": {
-                                        "ガ２": {
-                                                "surf": "[彼女が２]",
-                                                "normalized_surf": "[彼女]",
-                                                "mrphs": "[彼女 が２]",
-                                                "normalized_mrphs": "[彼女]",
-                                                "reps": "[彼女/かのじょ が２/が２]",
-                                                "normalized_reps": "[彼女/かのじょ]",
-                                                "head_reps": "[彼女/かのじょ]",
-                                                "eid": 3,
-                                                "flag": "O",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        },
-                                        "ガ": {
-                                                "surf": "英語が",
-                                                "normalized_surf": "英語",
-                                                "mrphs": "英語 が",
-                                                "normalized_mrphs": "英語",
-                                                "reps": "英語/えいご が/が",
-                                                "normalized_reps": "英語/えいご",
-                                                "head_reps": "英語/えいご",
-                                                "eid": 6,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        }
+                                        "ガ２": [
+                                                {
+                                                        "surf": "[彼女が２]",
+                                                        "normalized_surf": "[彼女]",
+                                                        "mrphs": "[彼女 が２]",
+                                                        "normalized_mrphs": "[彼女]",
+                                                        "reps": "[彼女/かのじょ が２/が２]",
+                                                        "normalized_reps": "[彼女/かのじょ]",
+                                                        "head_reps": "[彼女/かのじょ]",
+                                                        "eid": 3,
+                                                        "flag": "O",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "ガ": [
+                                                {
+                                                        "surf": "英語が",
+                                                        "normalized_surf": "英語",
+                                                        "mrphs": "英語 が",
+                                                        "normalized_mrphs": "英語",
+                                                        "reps": "英語/えいご が/が",
+                                                        "normalized_reps": "英語/えいご",
+                                                        "head_reps": "英語/えいご",
+                                                        "eid": 6,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
                                 }
                         },
                         "features": {
