@@ -25,7 +25,8 @@ class BasicPhrase:
         is_possessive (bool): Whether this basic phrase is a possessive.
         is_child (bool): Whether this basic phrase is a child of another one.
         is_omitted (bool): Whether this basic phrase is omitted.
-        case (Tuple[str, int]): A case.
+        case (int): A case.
+        arg_index (int): An argument index.
         adnominal_evids (List[int]): A list of adnominal event IDs.
         sentential_complement_evids (List[int]): A list of sentential complement event IDs.
         exophora (str): The type of exophora.

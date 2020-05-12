@@ -275,29 +275,30 @@ class Event(Base):
 
             return all(is_valid_basic_phrase(bp) for bp in bpl)
 
-        predicate_bpl = BasicPhraseList()
-        for predicate_bp in self.pas.predicate.bpl:
-            predicate_bpl.push(predicate_bp)
-            if include_modifiers:
-                for modifier_bp in self._get_modifier_basic_phrase_list(predicate_bp):
-                    modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
-                    modifier_bp.is_child = True
-                    predicate_bpl.push(modifier_bp)
-
-        argument_bpl = BasicPhraseList()
+        bpl = BasicPhraseList()
         for argument_list in self.pas.arguments.values():
             for argument in argument_list:
                 if not is_valid_basic_phrase_list(argument.bpl.head):
                     continue
                 for argument_bp in argument.bpl:
                     argument_bp.is_child = True
-                    argument_bpl.push(argument_bp)
+                    bpl.push(argument_bp)
                     if include_modifiers:
                         for modifier_bp in self._get_modifier_basic_phrase_list(argument_bp):
                             modifier_bp.case = argument_bp.case  # treat this as a part of the argument
+                            modifier_bp.arg_index = argument_bp.arg_index
                             modifier_bp.is_child = True
-                            argument_bpl.push(modifier_bp)
-        return predicate_bpl + argument_bpl
+                            if modifier_bp not in bpl:
+                                bpl.push(modifier_bp)
+        for predicate_bp in self.pas.predicate.bpl:
+            bpl.push(predicate_bp)
+            if include_modifiers:
+                for modifier_bp in self._get_modifier_basic_phrase_list(predicate_bp):
+                    modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
+                    modifier_bp.is_child = True
+                    if modifier_bp not in bpl:
+                        bpl.push(modifier_bp)
+        return bpl
 
     def _get_modifier_basic_phrase_list(self, bp):
         """Get a basic phrase list by collecting basic phrases of modifiers.
