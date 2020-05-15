@@ -1,4 +1,5 @@
 import argparse
+from logging import basicConfig
 
 from pyknp_eventgraph import EventGraph
 from pyknp_eventgraph.utils import read_knp_result_file
@@ -11,8 +12,12 @@ def main():
     parser.add_argument('--binary', action='store_true', help='whether to save EventGraph as a binary file')
     args = parser.parse_args()
 
+    format_ = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level = 'DEBUG'
+    basicConfig(format=format_, level=level)
+
     blists = read_knp_result_file(args.IN)
-    evg = EventGraph.build(blists, logging_level='DEBUG')
+    evg = EventGraph.build(blists)
     evg.save(args.OUT, binary=args.binary)
 
 

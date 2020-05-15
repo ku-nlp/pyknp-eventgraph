@@ -3,7 +3,7 @@ import collections
 import json
 import pickle
 import re
-from logging import getLogger, StreamHandler, Formatter, Logger
+from logging import getLogger
 from typing import List, IO
 
 from pyknp import BList
@@ -11,8 +11,10 @@ from pyknp import BList
 from pyknp_eventgraph.base import Base
 from pyknp_eventgraph.basic_phrase import BasicPhrase
 from pyknp_eventgraph.event import Event, Relation
-from pyknp_eventgraph.helper import get_child_tags, get_parallel_tags
+from pyknp_eventgraph.helper import get_child_tags
 from pyknp_eventgraph.sentence import Sentence
+
+logger = getLogger(__name__)
 
 
 class EventGraph(Base):
@@ -35,27 +37,17 @@ class EventGraph(Base):
         self.__ssid_events_map = collections.defaultdict(list)
 
     @classmethod
-    def build(cls, blists, logger=None, logging_level='INFO'):
+    def build(cls, blists):
         """Create an instance from language analysis.
 
         Args:
             blists (List[BList]): A list of KNP outputs.
-            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
-            logging_level (str): A logging level.
 
         Returns:
             EventGraph: An EventGraph.
 
         """
         evg = EventGraph()
-
-        if logger is None:
-            logger = getLogger(__name__)
-            handler = StreamHandler()
-            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            logger.addHandler(handler)
-            logger.propagate = False
-            logger.setLevel(logging_level)
 
         logger.debug('Construct hash tables')
         for ssid, blist in enumerate(blists):
@@ -95,28 +87,18 @@ class EventGraph(Base):
         return evg
 
     @classmethod
-    def load(cls, f, binary=False, logger=None, logging_level='INFO'):
+    def load(cls, f, binary=False):
         """Create an instance from a dictionary.
 
         Args:
             f (IO): A file.
             binary (bool): Whether the file is binary.
-            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
-            logging_level (str): A logging level.
 
         Returns:
             EventGraph: An EventGraph.
 
         """
         evg = EventGraph()
-
-        if logger is None:
-            logger = getLogger(__name__)
-            handler = StreamHandler()
-            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            logger.addHandler(handler)
-            logger.propagate = False
-            logger.setLevel(logging_level)
 
         if binary:
             logger.debug('Load EventGraph')

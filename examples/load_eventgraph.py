@@ -1,4 +1,5 @@
 import argparse
+from logging import basicConfig
 
 from pyknp_eventgraph import EventGraph
 
@@ -9,12 +10,16 @@ def main():
     parser.add_argument('--binary', action='store_true', help='whether the input is binary')
     args = parser.parse_args()
 
+    format_ = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level = 'DEBUG'
+    basicConfig(format=format_, level=level)
+
     if args.binary:
         f = open(args.IN, 'rb')
     else:
         f = open(args.IN, 'r', encoding='utf-8', errors='ignore')
 
-    evg = EventGraph.load(f, binary=args.binary, logging_level='DEBUG')
+    evg = EventGraph.load(f, binary=args.binary)
 
     print('# events:', len(evg.events))
     for event in evg.events[:5]:

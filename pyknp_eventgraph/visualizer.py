@@ -1,8 +1,8 @@
 import collections
 import itertools
 import os
+from logging import getLogger
 from typing import List
-from logging import getLogger, StreamHandler, Formatter, Logger
 
 import graphviz
 
@@ -10,10 +10,10 @@ from pyknp_eventgraph import EventGraph
 from pyknp_eventgraph.eventgraph import Event, Relation
 from pyknp_eventgraph.helper import PAS_ORDER
 
-NUM_EVENTS_IN_ROW = 4
+logger = getLogger(__name__)
 
 
-def make_image(evg, output, with_detail=True, with_original_text=True, logging_level='INFO', logger=None):
+def make_image(evg, output, with_detail=True, with_original_text=True):
     """Visualize EventGraph.
 
     Args:
@@ -21,8 +21,6 @@ def make_image(evg, output, with_detail=True, with_original_text=True, logging_l
         output (str): Path to output. The extension must be '.svg'.
         with_detail (bool): Whether to include the detail information.
         with_original_text (bool): Whether to include the original text.
-        logging_level (str): A logging level.
-        logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
 
     """
     evgviz = EventGraphVisualizer()
@@ -30,16 +28,14 @@ def make_image(evg, output, with_detail=True, with_original_text=True, logging_l
         evg=evg,
         output=output,
         with_detail=with_detail,
-        with_original_text=with_original_text,
-        logging_level=logging_level,
-        logger=logger
+        with_original_text=with_original_text
     )
 
 
 class EventGraphVisualizer(object):
     """Visualize an EventGraph as an image."""
 
-    def make_image(self, evg, output, with_detail=True, with_original_text=True, logging_level='INFO', logger=None):
+    def make_image(self, evg, output, with_detail=True, with_original_text=True):
         """Visualize EventGraph.
 
         Args:
@@ -47,18 +43,8 @@ class EventGraphVisualizer(object):
             output (str): Path to the output. This path should end with '.svg'.
             with_detail (bool): Whether to include the detail information.
             with_original_text (bool): Whether to include the original text.
-            logging_level (str): A logging level.
-            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
 
         """
-        if logger is None:
-            logger = getLogger(__name__)
-            handler = StreamHandler()
-            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            logger.addHandler(handler)
-            logger.propagate = False
-            logger.setLevel(logging_level)
-
         output, ext = os.path.splitext(output)
         assert ext == '.svg', 'the extension of the output file must end with ".svg"'
 
