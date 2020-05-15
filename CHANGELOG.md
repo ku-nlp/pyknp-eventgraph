@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Represented arguments by a dictionary of **list** of argument information.
+
+### Removed
 - Removed the attribute `event_head` from `Argument`. 
+- Removed the parameters `logging_level` and `logger` to `EventGraph.build()`, `EventGraph.load()`, and `EventGraphVisualizer.make_image()`.
+
+## Fixed
+- Fixed a bug in normalizing event strings
+- Fixed a bug in handling parallel phrases
 
 ## [0.4.2]
 
