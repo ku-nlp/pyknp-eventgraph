@@ -1,6 +1,7 @@
 include README.md
 include LICENSE
-graft tests
-graft examples
+include pyknp_eventgraph/VERSION
+prune tests
+prune examples
 global-exclude __pycache__
 global-exclude *.py[co]
