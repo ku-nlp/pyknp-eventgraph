@@ -438,6 +438,9 @@ class Argument(Base):
 
         """
         head_bpl = self.bpl.head
+        if len(head_bpl) == 0:
+            return self.normalized_reps
+
         head_bpl.sort()
         head_bp = head_bpl[0]
 
