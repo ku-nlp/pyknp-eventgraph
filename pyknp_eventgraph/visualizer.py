@@ -1,7 +1,6 @@
 import collections
 import itertools
 import os
-import unicodedata
 from typing import List
 from logging import getLogger, StreamHandler, Formatter, Logger
 
@@ -105,7 +104,6 @@ class EventGraphVisualizer(object):
                             label=node.to_string(with_detail),
                             shape='box',
                             labelloc='b',
-                            width=node.to_string(with_detail),
                             height='0'
                         )
                     c.node(
@@ -231,40 +229,6 @@ class Node:
                 surf = '{}<font color="gray">{}</font>'.format(main.strip(), adjunct.strip())
             content += '<tr><td align="left">{}</td></tr>'.format(surf)
         return '<<table border="0" cellborder="0" cellspacing="1">{}</table>>'.format(content)
-
-    def to_width(self, with_detail):
-        """Return the necessary width.
-
-        Args:
-            with_detail (bool): Whether to include the detail information.
-
-        Returns:
-            str: The width.
-
-        """
-        def get_str_width(in_str):
-            return sum(2 if unicodedata.east_asian_width(c) in 'FWA' else 1 for c in in_str)
-
-        if with_detail:
-            surf = self.surf
-            surf_width = get_str_width('[surf] ') + get_str_width(surf)
-            if surf.endswith(')'):
-                surf_width -= get_str_width('()')
-            pas = self.pas
-            pas_width = get_str_width('[pas] ') + get_str_width(pas)
-            features = self.features
-            if features:
-                features_width = get_str_width('[features] ') + get_str_width(features)
-            else:
-                features_width = 0
-            width = max(surf_width, pas_width, features_width)
-        else:
-            surf = self.surf
-            surf_width = get_str_width(surf)
-            if surf.endswith(')'):
-                surf_width -= get_str_width('()')
-            width = surf_width
-        return str(width)
 
 
 class Edge:
