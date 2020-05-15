@@ -13,6 +13,12 @@ Events are linked to each other based on their syntactic and semantic relations.
 ## Installation
 
 ```
+$ pip install pyknp-eventgraph
+```
+
+or
+
+```
 $ python setup.py install
 ```
 
