@@ -43,6 +43,23 @@ def get_child_tags(tag):
     return sorted(children, key=lambda x: x.tag_id)
 
 
+def get_parallel_tags(tag):
+    """Return parallel tags of a given tag.
+
+    Args:
+        tag (Tag): A tag.
+
+    Returns:
+        List[Tag]: A list of parallel tags.
+
+    """
+    parallels = []
+    while tag.dpndtype == 'P':
+        parallels.append(tag.parent)
+        tag = tag.parent
+    return parallels
+
+
 def convert_mrphs_to_midasi_list(mrphs):
     """Convert a tag into the midasi list.
 

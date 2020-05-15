@@ -1,0 +1,270 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "北海道のほぼ中央、東西を山地に挟まれた盆地帯にある。",
+                        "mrphs": "北海道 の ほぼ 中央 、 東西 を 山地 に 挟ま れた 盆地 帯 に ある 。",
+                        "reps": "北海道/ほっかいどう の/の ほぼ/ほぼ 中央/ちゅうおう 、/、 東西/とうざい を/を 山地/さんち に/に 挟む/はさむ れる/れる 盆地/ぼんち 帯/おび に/に 有る/ある 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "連体修飾",
+                                        "surf": "",
+                                        "reliable": true,
+                                        "head_tid": 7
+                                }
+                        ],
+                        "surf": "ほぼ中央、東西を山地に挟まれた",
+                        "surf_with_mark": "ほぼ中央、東西を山地に挟まれた",
+                        "mrphs": "ほぼ 中央 、 東西 を 山地 に 挟ま れた",
+                        "mrphs_with_mark": "ほぼ 中央 、 東西 を 山地 に 挟ま れた",
+                        "normalized_mrphs": "ほぼ 中央 、 東西 を 山地 に 挟ま れる",
+                        "normalized_mrphs_with_mark": "ほぼ 中央 、 東西 を 山地 に 挟ま れる",
+                        "normalized_mrphs_without_exophora": "ほぼ 中央 、 東西 を 山地 に 挟ま れる",
+                        "normalized_mrphs_with_mark_without_exophora": "ほぼ 中央 、 東西 を 山地 に 挟ま れる",
+                        "reps": "ほぼ/ほぼ 中央/ちゅうおう 、/、 東西/とうざい を/を 山地/さんち に/に 挟む/はさむ れる/れる",
+                        "reps_with_mark": "ほぼ/ほぼ 中央/ちゅうおう 、/、 東西/とうざい を/を 山地/さんち に/に 挟む/はさむ れる/れる",
+                        "normalized_reps": "ほぼ/ほぼ 中央/ちゅうおう 、/、 東西/とうざい を/を 山地/さんち に/に 挟む/はさむ れる/れる",
+                        "normalized_reps_with_mark": "ほぼ/ほぼ 中央/ちゅうおう 、/、 東西/とうざい を/を 山地/さんち に/に 挟む/はさむ れる/れる",
+                        "content_rep_list": [
+                                "ほぼ/ほぼ",
+                                "中央/ちゅうおう",
+                                "東西/とうざい",
+                                "山地/さんち",
+                                "挟む/はさむ"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "挟まれる",
+                                        "normalized_surf": "挟まれる",
+                                        "mrphs": "挟ま れる",
+                                        "normalized_mrphs": "挟ま れる",
+                                        "reps": "挟む/はさむ+れる/れる",
+                                        "normalized_reps": "挟む/はさむ+れる/れる",
+                                        "standard_reps": "挟む/はさむ+れる/れる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "帯に",
+                                                        "normalized_surf": "帯",
+                                                        "mrphs": "帯 に",
+                                                        "normalized_mrphs": "帯",
+                                                        "reps": "帯/おび に/に",
+                                                        "normalized_reps": "帯/おび",
+                                                        "head_reps": "盆地/ぼんち+帯/たい?帯/おび",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "盆地",
+                                                                        "normalized_surf": "盆地",
+                                                                        "mrphs": "盆地",
+                                                                        "normalized_mrphs": "盆地",
+                                                                        "reps": "盆地/ぼんち",
+                                                                        "normalized_reps": "盆地/ぼんち",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                },
+                                                                {
+                                                                        "surf": "北海道の",
+                                                                        "normalized_surf": "北海道",
+                                                                        "mrphs": "北海道 の",
+                                                                        "normalized_mrphs": "北海道",
+                                                                        "reps": "北海道/ほっかいどう の/の",
+                                                                        "normalized_reps": "北海道/ほっかいどう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": true
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "ヲ": [
+                                                {
+                                                        "surf": "中央、",
+                                                        "normalized_surf": "中央",
+                                                        "mrphs": "中央 、",
+                                                        "normalized_mrphs": "中央",
+                                                        "reps": "中央/ちゅうおう 、/、",
+                                                        "normalized_reps": "中央/ちゅうおう",
+                                                        "head_reps": "中央/ちゅうおう",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                },
+                                                {
+                                                        "surf": "東西を",
+                                                        "normalized_surf": "東西",
+                                                        "mrphs": "東西 を",
+                                                        "normalized_mrphs": "東西",
+                                                        "reps": "東西/とうざい を/を",
+                                                        "normalized_reps": "東西/とうざい",
+                                                        "head_reps": "東西/とうざい",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "ニ": [
+                                                {
+                                                        "surf": "山地に",
+                                                        "normalized_surf": "山地",
+                                                        "mrphs": "山地 に",
+                                                        "normalized_mrphs": "山地",
+                                                        "reps": "山地/さんち に/に",
+                                                        "normalized_reps": "山地/さんち",
+                                                        "head_reps": "山地/さんち",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "修飾": [
+                                                {
+                                                        "surf": "ほぼ",
+                                                        "normalized_surf": "ほぼ",
+                                                        "mrphs": "ほぼ",
+                                                        "normalized_mrphs": "ほぼ",
+                                                        "reps": "ほぼ/ほぼ",
+                                                        "normalized_reps": "ほぼ/ほぼ",
+                                                        "head_reps": "ほぼ/ほぼ",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "北海道の盆地帯にある。",
+                        "surf_with_mark": "北海道の▼ 盆地帯にある (。)",
+                        "mrphs": "北海道 の 盆地 帯 に ある 。",
+                        "mrphs_with_mark": "北海道 の ▼ 盆地 帯 に ある (。)",
+                        "normalized_mrphs": "北海道 の 盆地 帯 に ある",
+                        "normalized_mrphs_with_mark": "北海道 の ▼ 盆地 帯 に ある",
+                        "normalized_mrphs_without_exophora": "北海道 の 盆地 帯 に ある",
+                        "normalized_mrphs_with_mark_without_exophora": "北海道 の ▼ 盆地 帯 に ある",
+                        "reps": "北海道/ほっかいどう の/の 盆地/ぼんち 帯/おび に/に 有る/ある 。/。",
+                        "reps_with_mark": "北海道/ほっかいどう の/の ▼ 盆地/ぼんち 帯/おび に/に 有る/ある (。/。)",
+                        "normalized_reps": "北海道/ほっかいどう の/の 盆地/ぼんち 帯/おび に/に 有る/ある",
+                        "normalized_reps_with_mark": "北海道/ほっかいどう の/の ▼ 盆地/ぼんち 帯/おび に/に 有る/ある",
+                        "content_rep_list": [
+                                "北海道/ほっかいどう",
+                                "盆地/ぼんち",
+                                "帯/おび",
+                                "有る/ある"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "ある",
+                                        "normalized_surf": "ある",
+                                        "mrphs": "ある",
+                                        "normalized_mrphs": "ある",
+                                        "reps": "有る/ある",
+                                        "normalized_reps": "有る/ある",
+                                        "standard_reps": "有る/ある",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ニ": [
+                                                {
+                                                        "surf": "帯に",
+                                                        "normalized_surf": "帯",
+                                                        "mrphs": "帯 に",
+                                                        "normalized_mrphs": "帯",
+                                                        "reps": "帯/おび に/に",
+                                                        "normalized_reps": "帯/おび",
+                                                        "head_reps": "盆地/ぼんち+帯/たい?帯/おび",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [
+                                                                0
+                                                        ],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "盆地",
+                                                                        "normalized_surf": "盆地",
+                                                                        "mrphs": "盆地",
+                                                                        "normalized_mrphs": "盆地",
+                                                                        "reps": "盆地/ぼんち",
+                                                                        "normalized_reps": "盆地/ぼんち",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                },
+                                                                {
+                                                                        "surf": "北海道の",
+                                                                        "normalized_surf": "北海道",
+                                                                        "mrphs": "北海道 の",
+                                                                        "normalized_mrphs": "北海道",
+                                                                        "reps": "北海道/ほっかいどう の/の",
+                                                                        "normalized_reps": "北海道/ほっかいどう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": true
+                                                                }
+                                                        ]
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

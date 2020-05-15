@@ -1,0 +1,181 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "年会費がある場合は入会を断ってください",
+                        "mrphs": "年 会費 が ある 場合 は 入会 を 断って ください",
+                        "reps": "年/ねん 会費/かいひ が/が 有る/ある 場合/ばあい は/は 入会/にゅうかい を/を 断る/ことわる 下さる/くださる"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "係り受け",
+                                        "surf": "",
+                                        "reliable": true,
+                                        "head_tid": -1
+                                }
+                        ],
+                        "surf": "年会費がある場合は",
+                        "surf_with_mark": "年会費がある (場合は)",
+                        "mrphs": "年 会費 が ある 場合 は",
+                        "mrphs_with_mark": "年 会費 が ある (場合 は)",
+                        "normalized_mrphs": "年 会費 が ある",
+                        "normalized_mrphs_with_mark": "年 会費 が ある",
+                        "normalized_mrphs_without_exophora": "年 会費 が ある",
+                        "normalized_mrphs_with_mark_without_exophora": "年 会費 が ある",
+                        "reps": "年/ねん 会費/かいひ が/が 有る/ある 場合/ばあい は/は",
+                        "reps_with_mark": "年/ねん 会費/かいひ が/が 有る/ある (場合/ばあい は/は)",
+                        "normalized_reps": "年/ねん 会費/かいひ が/が 有る/ある",
+                        "normalized_reps_with_mark": "年/ねん 会費/かいひ が/が 有る/ある",
+                        "content_rep_list": [
+                                "年/ねん",
+                                "会費/かいひ",
+                                "有る/ある",
+                                "場合/ばあい"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "ある",
+                                        "normalized_surf": "ある",
+                                        "mrphs": "ある",
+                                        "normalized_mrphs": "ある",
+                                        "reps": "有る/ある",
+                                        "normalized_reps": "有る/ある",
+                                        "standard_reps": "有る/ある",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "会費が",
+                                                        "normalized_surf": "会費",
+                                                        "mrphs": "会費 が",
+                                                        "normalized_mrphs": "会費",
+                                                        "reps": "会費/かいひ が/が",
+                                                        "normalized_reps": "会費/かいひ",
+                                                        "head_reps": "会費/かいひ",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "年",
+                                                                        "normalized_surf": "年",
+                                                                        "mrphs": "年",
+                                                                        "normalized_mrphs": "年",
+                                                                        "reps": "年/ねん",
+                                                                        "normalized_reps": "年/ねん",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "外の関係": [
+                                                {
+                                                        "surf": "場合は",
+                                                        "normalized_surf": "場合",
+                                                        "mrphs": "場合 は",
+                                                        "normalized_mrphs": "場合",
+                                                        "reps": "場合/ばあい は/は",
+                                                        "normalized_reps": "場合/ばあい",
+                                                        "head_reps": "場合/ばあい",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "入会を断ってください",
+                        "surf_with_mark": "入会を断ってください",
+                        "mrphs": "入会 を 断って ください",
+                        "mrphs_with_mark": "入会 を 断って ください",
+                        "normalized_mrphs": "入会 を 断って くださる",
+                        "normalized_mrphs_with_mark": "入会 を 断って くださる",
+                        "normalized_mrphs_without_exophora": "入会 を 断って くださる",
+                        "normalized_mrphs_with_mark_without_exophora": "入会 を 断って くださる",
+                        "reps": "入会/にゅうかい を/を 断る/ことわる 下さる/くださる",
+                        "reps_with_mark": "入会/にゅうかい を/を 断る/ことわる 下さる/くださる",
+                        "normalized_reps": "入会/にゅうかい を/を 断る/ことわる 下さる/くださる",
+                        "normalized_reps_with_mark": "入会/にゅうかい を/を 断る/ことわる 下さる/くださる",
+                        "content_rep_list": [
+                                "入会/にゅうかい",
+                                "断る/ことわる"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "断ってくださる",
+                                        "normalized_surf": "断ってくださる",
+                                        "mrphs": "断って くださる",
+                                        "normalized_mrphs": "断って くださる",
+                                        "reps": "断る/ことわる~テ形+下さる/くださる",
+                                        "normalized_reps": "断る/ことわる~テ形+下さる/くださる",
+                                        "standard_reps": "断る/ことわる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ヲ": [
+                                                {
+                                                        "surf": "入会を",
+                                                        "normalized_surf": "入会",
+                                                        "mrphs": "入会 を",
+                                                        "normalized_mrphs": "入会",
+                                                        "reps": "入会/にゅうかい を/を",
+                                                        "normalized_reps": "入会/にゅうかい",
+                                                        "head_reps": "入会/にゅうかい",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [
+                                        "依頼Ａ"
+                                ],
+                                "tense": "unknown",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

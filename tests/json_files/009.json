@@ -1,0 +1,108 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "水草やミミズ、昆虫などを食べる。",
+                        "mrphs": "水草 や ミミズ 、 昆虫 など を 食べる 。",
+                        "reps": "水草/みずくさ や/や 蚯蚓/みみず 、/、 昆虫/こんちゅう など/など を/を 食べる/たべる 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "水草やミミズ、昆虫などを食べる。",
+                        "surf_with_mark": "水草やミミズ、昆虫などを食べる (。)",
+                        "mrphs": "水草 や ミミズ 、 昆虫 など を 食べる 。",
+                        "mrphs_with_mark": "水草 や ミミズ 、 昆虫 など を 食べる (。)",
+                        "normalized_mrphs": "水草 や ミミズ 、 昆虫 など を 食べる",
+                        "normalized_mrphs_with_mark": "水草 や ミミズ 、 昆虫 など を 食べる",
+                        "normalized_mrphs_without_exophora": "水草 や ミミズ 、 昆虫 など を 食べる",
+                        "normalized_mrphs_with_mark_without_exophora": "水草 や ミミズ 、 昆虫 など を 食べる",
+                        "reps": "水草/みずくさ や/や 蚯蚓/みみず 、/、 昆虫/こんちゅう など/など を/を 食べる/たべる 。/。",
+                        "reps_with_mark": "水草/みずくさ や/や 蚯蚓/みみず 、/、 昆虫/こんちゅう など/など を/を 食べる/たべる (。/。)",
+                        "normalized_reps": "水草/みずくさ や/や 蚯蚓/みみず 、/、 昆虫/こんちゅう など/など を/を 食べる/たべる",
+                        "normalized_reps_with_mark": "水草/みずくさ や/や 蚯蚓/みみず 、/、 昆虫/こんちゅう など/など を/を 食べる/たべる",
+                        "content_rep_list": [
+                                "水草/みずくさ",
+                                "蚯蚓/みみず",
+                                "昆虫/こんちゅう",
+                                "食べる/たべる"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "食べる",
+                                        "normalized_surf": "食べる",
+                                        "mrphs": "食べる",
+                                        "normalized_mrphs": "食べる",
+                                        "reps": "食べる/たべる",
+                                        "normalized_reps": "食べる/たべる",
+                                        "standard_reps": "食べる/たべる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ヲ": [
+                                                {
+                                                        "surf": "水草や",
+                                                        "normalized_surf": "水草",
+                                                        "mrphs": "水草 や",
+                                                        "normalized_mrphs": "水草",
+                                                        "reps": "水草/みずくさ や/や",
+                                                        "normalized_reps": "水草/みずくさ",
+                                                        "head_reps": "水草/みずくさ",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                },
+                                                {
+                                                        "surf": "ミミズ、",
+                                                        "normalized_surf": "ミミズ",
+                                                        "mrphs": "ミミズ 、",
+                                                        "normalized_mrphs": "ミミズ",
+                                                        "reps": "蚯蚓/みみず 、/、",
+                                                        "normalized_reps": "蚯蚓/みみず",
+                                                        "head_reps": "蚯蚓/みみず",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                },
+                                                {
+                                                        "surf": "昆虫などを",
+                                                        "normalized_surf": "昆虫",
+                                                        "mrphs": "昆虫 など を",
+                                                        "normalized_mrphs": "昆虫",
+                                                        "reps": "昆虫/こんちゅう など/など を/を",
+                                                        "normalized_reps": "昆虫/こんちゅう",
+                                                        "head_reps": "昆虫/こんちゅう",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

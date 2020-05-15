@@ -1,0 +1,181 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "仕事に使うものだからという言い訳がきくわけですね。",
+                        "mrphs": "仕事 に 使う もの だ から と いう 言い訳 が きく わけです ね 。",
+                        "reps": "仕事/しごと に/に 使う/つかう もの/もの だ/だ から/から と/と 言う/いう 言い訳/いいわけ が/が 効く/きく わけです/わけです ね/ね 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "補文",
+                                        "surf": "",
+                                        "reliable": true,
+                                        "head_tid": 3
+                                }
+                        ],
+                        "surf": "仕事に使うものだからと",
+                        "surf_with_mark": "仕事に使う (ものだからと)",
+                        "mrphs": "仕事 に 使う もの だ から と",
+                        "mrphs_with_mark": "仕事 に 使う (もの だ から と)",
+                        "normalized_mrphs": "仕事 に 使う",
+                        "normalized_mrphs_with_mark": "仕事 に 使う",
+                        "normalized_mrphs_without_exophora": "仕事 に 使う",
+                        "normalized_mrphs_with_mark_without_exophora": "仕事 に 使う",
+                        "reps": "仕事/しごと に/に 使う/つかう もの/もの だ/だ から/から と/と",
+                        "reps_with_mark": "仕事/しごと に/に 使う/つかう (もの/もの だ/だ から/から と/と)",
+                        "normalized_reps": "仕事/しごと に/に 使う/つかう",
+                        "normalized_reps_with_mark": "仕事/しごと に/に 使う/つかう",
+                        "content_rep_list": [
+                                "仕事/しごと",
+                                "使う/つかう",
+                                "もの/もの"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "使う",
+                                        "normalized_surf": "使う",
+                                        "mrphs": "使う",
+                                        "normalized_mrphs": "使う",
+                                        "reps": "使う/つかう",
+                                        "normalized_reps": "使う/つかう",
+                                        "standard_reps": "使う/つかう",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ニ": [
+                                                {
+                                                        "surf": "仕事に",
+                                                        "normalized_surf": "仕事",
+                                                        "mrphs": "仕事 に",
+                                                        "normalized_mrphs": "仕事",
+                                                        "reps": "仕事/しごと に/に",
+                                                        "normalized_reps": "仕事/しごと",
+                                                        "head_reps": "仕事/しごと",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "外の関係": [
+                                                {
+                                                        "surf": "ものだからと",
+                                                        "normalized_surf": "もの",
+                                                        "mrphs": "もの だ から と",
+                                                        "normalized_mrphs": "もの",
+                                                        "reps": "もの/もの だ/だ から/から と/と",
+                                                        "normalized_reps": "もの/もの",
+                                                        "head_reps": "もの/もの",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "いう言い訳がきくわけですね。",
+                        "surf_with_mark": "■ いう言い訳がきくわけです (ね。)",
+                        "mrphs": "いう 言い訳 が きく わけです ね 。",
+                        "mrphs_with_mark": "■ いう 言い訳 が きく わけです (ね 。)",
+                        "normalized_mrphs": "いう 言い訳 が きく わけだ",
+                        "normalized_mrphs_with_mark": "■ いう 言い訳 が きく わけだ",
+                        "normalized_mrphs_without_exophora": "いう 言い訳 が きく わけだ",
+                        "normalized_mrphs_with_mark_without_exophora": "■ いう 言い訳 が きく わけだ",
+                        "reps": "言う/いう 言い訳/いいわけ が/が 効く/きく わけです/わけです ね/ね 。/。",
+                        "reps_with_mark": "■ 言う/いう 言い訳/いいわけ が/が 効く/きく わけです/わけです (ね/ね 。/。)",
+                        "normalized_reps": "言う/いう 言い訳/いいわけ が/が 効く/きく わけです/わけです",
+                        "normalized_reps_with_mark": "■ 言う/いう 言い訳/いいわけ が/が 効く/きく わけです/わけです",
+                        "content_rep_list": [
+                                "言う/いう",
+                                "言い訳/いいわけ",
+                                "効く/きく"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "きく",
+                                        "normalized_surf": "きく",
+                                        "mrphs": "きく",
+                                        "normalized_mrphs": "きく",
+                                        "reps": "聴く/きく?聞く/きく?効く/きく?利く/きく",
+                                        "normalized_reps": "聴く/きく?聞く/きく?効く/きく?利く/きく",
+                                        "standard_reps": "効く/きく",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "言い訳が",
+                                                        "normalized_surf": "言い訳",
+                                                        "mrphs": "言い訳 が",
+                                                        "normalized_mrphs": "言い訳",
+                                                        "reps": "言い訳/いいわけ が/が",
+                                                        "normalized_reps": "言い訳/いいわけ",
+                                                        "head_reps": "言い訳/いいわけ",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "いう",
+                                                                        "normalized_surf": "いう",
+                                                                        "mrphs": "いう",
+                                                                        "normalized_mrphs": "いう",
+                                                                        "reps": "言う/いう",
+                                                                        "normalized_reps": "言う/いう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [
+                                                                                0
+                                                                        ],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

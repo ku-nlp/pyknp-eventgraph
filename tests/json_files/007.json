@@ -1,0 +1,321 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "情緒あふれる趣と真心こめた心使いでお客様をお迎えしております。",
+                        "mrphs": "情緒 あふれる 趣 と 真心 こめた 心 使いで お 客 様 を お迎え して おり ます 。",
+                        "reps": "情緒/じょうちょ 溢れる/あふれる 趣/おもむき と/と 真心/まごころ 込める/こめる 心/こころ 使い出/つかいで 御/お 客/きゃく 様/さま を/を 御迎え/おむかえ する/する 居る/おる ます/ます 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 2,
+                                        "label": "連体修飾",
+                                        "surf": "",
+                                        "reliable": false,
+                                        "head_tid": 2
+                                }
+                        ],
+                        "surf": "情緒あふれる",
+                        "surf_with_mark": "情緒あふれる",
+                        "mrphs": "情緒 あふれる",
+                        "mrphs_with_mark": "情緒 あふれる",
+                        "normalized_mrphs": "情緒 あふれる",
+                        "normalized_mrphs_with_mark": "情緒 あふれる",
+                        "normalized_mrphs_without_exophora": "情緒 あふれる",
+                        "normalized_mrphs_with_mark_without_exophora": "情緒 あふれる",
+                        "reps": "情緒/じょうちょ 溢れる/あふれる",
+                        "reps_with_mark": "情緒/じょうちょ 溢れる/あふれる",
+                        "normalized_reps": "情緒/じょうちょ 溢れる/あふれる",
+                        "normalized_reps_with_mark": "情緒/じょうちょ 溢れる/あふれる",
+                        "content_rep_list": [
+                                "情緒/じょうちょ",
+                                "溢れる/あふれる"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "あふれる",
+                                        "normalized_surf": "あふれる",
+                                        "mrphs": "あふれる",
+                                        "normalized_mrphs": "あふれる",
+                                        "reps": "溢れる/あふれる",
+                                        "normalized_reps": "溢れる/あふれる",
+                                        "standard_reps": "溢れる/あふれる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "情緒",
+                                                        "normalized_surf": "情緒",
+                                                        "mrphs": "情緒",
+                                                        "normalized_mrphs": "情緒",
+                                                        "reps": "情緒/じょうちょ",
+                                                        "normalized_reps": "情緒/じょうちょ",
+                                                        "head_reps": "情緒/じょうちょ",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "外の関係": [
+                                                {
+                                                        "surf": "趣と",
+                                                        "normalized_surf": "趣",
+                                                        "mrphs": "趣 と",
+                                                        "normalized_mrphs": "趣",
+                                                        "reps": "趣/おもむき と/と",
+                                                        "normalized_reps": "趣/おもむき",
+                                                        "head_reps": "趣/おもむき",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 2,
+                                        "label": "連体修飾",
+                                        "surf": "",
+                                        "reliable": true,
+                                        "head_tid": 6
+                                }
+                        ],
+                        "surf": "真心こめた",
+                        "surf_with_mark": "真心こめた",
+                        "mrphs": "真心 こめた",
+                        "mrphs_with_mark": "真心 こめた",
+                        "normalized_mrphs": "真心 こめる",
+                        "normalized_mrphs_with_mark": "真心 こめる",
+                        "normalized_mrphs_without_exophora": "真心 こめる",
+                        "normalized_mrphs_with_mark_without_exophora": "真心 こめる",
+                        "reps": "真心/まごころ 込める/こめる",
+                        "reps_with_mark": "真心/まごころ 込める/こめる",
+                        "normalized_reps": "真心/まごころ 込める/こめる",
+                        "normalized_reps_with_mark": "真心/まごころ 込める/こめる",
+                        "content_rep_list": [
+                                "真心/まごころ",
+                                "込める/こめる"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "こめる",
+                                        "normalized_surf": "こめる",
+                                        "mrphs": "こめる",
+                                        "normalized_mrphs": "こめる",
+                                        "reps": "込める/こめる",
+                                        "normalized_reps": "込める/こめる",
+                                        "standard_reps": "込める/こめる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "使いで",
+                                                        "normalized_surf": "使いで",
+                                                        "mrphs": "使いで",
+                                                        "normalized_mrphs": "使いで",
+                                                        "reps": "使い出/つかいで",
+                                                        "normalized_reps": "使い出/つかいで",
+                                                        "head_reps": "使い出/つかいで",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "心",
+                                                                        "normalized_surf": "心",
+                                                                        "mrphs": "心",
+                                                                        "normalized_mrphs": "心",
+                                                                        "reps": "心/こころ",
+                                                                        "normalized_reps": "心/こころ",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                },
+                                                                {
+                                                                        "surf": "趣と",
+                                                                        "normalized_surf": "趣",
+                                                                        "mrphs": "趣 と",
+                                                                        "normalized_mrphs": "趣",
+                                                                        "reps": "趣/おもむき と/と",
+                                                                        "normalized_reps": "趣/おもむき",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "ヲ": [
+                                                {
+                                                        "surf": "真心",
+                                                        "normalized_surf": "真心",
+                                                        "mrphs": "真心",
+                                                        "normalized_mrphs": "真心",
+                                                        "reps": "真心/まごころ",
+                                                        "normalized_reps": "真心/まごころ",
+                                                        "head_reps": "真心/まごころ",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 2,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "趣と心使いでお客様をお迎えしております。",
+                        "surf_with_mark": "▼ 趣と▼ 心使いでお客様をお迎えしております (。)",
+                        "mrphs": "趣 と 心 使いで お 客 様 を お迎え して おり ます 。",
+                        "mrphs_with_mark": "▼ 趣 と ▼ 心 使いで お 客 様 を お迎え して おり ます (。)",
+                        "normalized_mrphs": "趣 と 心 使いで お 客 様 を お迎え して おり ます",
+                        "normalized_mrphs_with_mark": "▼ 趣 と ▼ 心 使いで お 客 様 を お迎え して おり ます",
+                        "normalized_mrphs_without_exophora": "趣 と 心 使いで お 客 様 を お迎え して おり ます",
+                        "normalized_mrphs_with_mark_without_exophora": "▼ 趣 と ▼ 心 使いで お 客 様 を お迎え して おり ます",
+                        "reps": "趣/おもむき と/と 心/こころ 使い出/つかいで 御/お 客/きゃく 様/さま を/を 御迎え/おむかえ する/する 居る/おる ます/ます 。/。",
+                        "reps_with_mark": "▼ 趣/おもむき と/と ▼ 心/こころ 使い出/つかいで 御/お 客/きゃく 様/さま を/を 御迎え/おむかえ する/する 居る/おる ます/ます (。/。)",
+                        "normalized_reps": "趣/おもむき と/と 心/こころ 使い出/つかいで 御/お 客/きゃく 様/さま を/を 御迎え/おむかえ する/する 居る/おる ます/ます",
+                        "normalized_reps_with_mark": "▼ 趣/おもむき と/と ▼ 心/こころ 使い出/つかいで 御/お 客/きゃく 様/さま を/を 御迎え/おむかえ する/する 居る/おる ます/ます",
+                        "content_rep_list": [
+                                "趣/おもむき",
+                                "心/こころ",
+                                "使い出/つかいで",
+                                "客/きゃく",
+                                "御迎え/おむかえ"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "お迎えしておる",
+                                        "normalized_surf": "お迎えしておる",
+                                        "mrphs": "お迎え して おる",
+                                        "normalized_mrphs": "お迎え して おる",
+                                        "reps": "御迎え/おむかえ+する/する~テ形+居る/おる",
+                                        "normalized_reps": "御迎え/おむかえ+する/する~テ形+居る/おる",
+                                        "standard_reps": "御迎え/おむかえ+する/する~テ形+居る/おる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ヲ": [
+                                                {
+                                                        "surf": "お客様を",
+                                                        "normalized_surf": "お客様",
+                                                        "mrphs": "お 客 様 を",
+                                                        "normalized_mrphs": "お 客 様",
+                                                        "reps": "御/お 客/きゃく 様/さま を/を",
+                                                        "normalized_reps": "御/お 客/きゃく 様/さま",
+                                                        "head_reps": "客/きゃく",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "使いで",
+                                                                        "normalized_surf": "使いで",
+                                                                        "mrphs": "使いで",
+                                                                        "normalized_mrphs": "使いで",
+                                                                        "reps": "使い出/つかいで",
+                                                                        "normalized_reps": "使い出/つかいで",
+                                                                        "adnominal_event_ids": [
+                                                                                1
+                                                                        ],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                },
+                                                                {
+                                                                        "surf": "心",
+                                                                        "normalized_surf": "心",
+                                                                        "mrphs": "心",
+                                                                        "normalized_mrphs": "心",
+                                                                        "reps": "心/こころ",
+                                                                        "normalized_reps": "心/こころ",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                },
+                                                                {
+                                                                        "surf": "趣と",
+                                                                        "normalized_surf": "趣",
+                                                                        "mrphs": "趣 と",
+                                                                        "normalized_mrphs": "趣",
+                                                                        "reps": "趣/おもむき と/と",
+                                                                        "normalized_reps": "趣/おもむき",
+                                                                        "adnominal_event_ids": [
+                                                                                0
+                                                                        ],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

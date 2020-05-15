@@ -1,0 +1,160 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "点々や点線などと呼ばれることもある。",
+                        "mrphs": "点々 や 点線 など と 呼ば れる こと も ある 。",
+                        "reps": "点々/てんてん や/や 点線/てんせん など/など と/と 呼ぶ/よぶ れる/れる こと/こと も/も 有る/ある 。/。"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "補文",
+                                        "surf": "",
+                                        "reliable": true,
+                                        "head_tid": 2
+                                }
+                        ],
+                        "surf": "点々や点線などと",
+                        "surf_with_mark": "点々や点線 (などと)",
+                        "mrphs": "点々 や 点線 など と",
+                        "mrphs_with_mark": "点々 や 点線 (など と)",
+                        "normalized_mrphs": "点々 や 点線",
+                        "normalized_mrphs_with_mark": "点々 や 点線",
+                        "normalized_mrphs_without_exophora": "点々 や 点線",
+                        "normalized_mrphs_with_mark_without_exophora": "点々 や 点線",
+                        "reps": "点々/てんてん や/や 点線/てんせん など/など と/と",
+                        "reps_with_mark": "点々/てんてん や/や 点線/てんせん (など/など と/と)",
+                        "normalized_reps": "点々/てんてん や/や 点線/てんせん",
+                        "normalized_reps_with_mark": "点々/てんてん や/や 点線/てんせん",
+                        "content_rep_list": [
+                                "点々/てんてん",
+                                "点線/てんせん"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "点線",
+                                        "normalized_surf": "点線",
+                                        "mrphs": "点線",
+                                        "normalized_mrphs": "点線",
+                                        "reps": "点線/てんせん",
+                                        "normalized_reps": "点線/てんせん",
+                                        "standard_reps": "点線/てんせん",
+                                        "type": "判",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": [
+                                                {
+                                                        "surf": "点々や",
+                                                        "normalized_surf": "点々や",
+                                                        "mrphs": "点々 や",
+                                                        "normalized_mrphs": "点々 や",
+                                                        "reps": "点々/てんてん や/や",
+                                                        "normalized_reps": "点々/てんてん や/や",
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "modifier": false,
+                                                        "possessive": false
+                                                }
+                                        ]
+                                },
+                                "argument": {}
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "呼ばれることもある。",
+                        "surf_with_mark": "■ 呼ばれることもある (。)",
+                        "mrphs": "呼ば れる こと も ある 。",
+                        "mrphs_with_mark": "■ 呼ば れる こと も ある (。)",
+                        "normalized_mrphs": "呼ば れる こと も ある",
+                        "normalized_mrphs_with_mark": "■ 呼ば れる こと も ある",
+                        "normalized_mrphs_without_exophora": "呼ば れる こと も ある",
+                        "normalized_mrphs_with_mark_without_exophora": "■ 呼ば れる こと も ある",
+                        "reps": "呼ぶ/よぶ れる/れる こと/こと も/も 有る/ある 。/。",
+                        "reps_with_mark": "■ 呼ぶ/よぶ れる/れる こと/こと も/も 有る/ある (。/。)",
+                        "normalized_reps": "呼ぶ/よぶ れる/れる こと/こと も/も 有る/ある",
+                        "normalized_reps_with_mark": "■ 呼ぶ/よぶ れる/れる こと/こと も/も 有る/ある",
+                        "content_rep_list": [
+                                "呼ぶ/よぶ"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "呼ばれる",
+                                        "normalized_surf": "呼ばれる",
+                                        "mrphs": "呼ば れる",
+                                        "normalized_mrphs": "呼ば れる",
+                                        "reps": "呼ぶ/よぶ+れる/れる",
+                                        "normalized_reps": "呼ぶ/よぶ+れる/れる",
+                                        "standard_reps": "呼ぶ/よぶ+れる/れる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [
+                                                0
+                                        ],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ト": [
+                                                {
+                                                        "surf": "点々や",
+                                                        "normalized_surf": "点々",
+                                                        "mrphs": "点々 や",
+                                                        "normalized_mrphs": "点々",
+                                                        "reps": "点々/てんてん や/や",
+                                                        "normalized_reps": "点々/てんてん",
+                                                        "head_reps": "点々/てんてん",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                },
+                                                {
+                                                        "surf": "点線などと",
+                                                        "normalized_surf": "点線",
+                                                        "mrphs": "点線 など と",
+                                                        "normalized_mrphs": "点線",
+                                                        "reps": "点線/てんせん など/など と/と",
+                                                        "normalized_reps": "点線/てんせん",
+                                                        "head_reps": "点線/てんせん",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [
+                                        "評価:弱"
+                                ],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}

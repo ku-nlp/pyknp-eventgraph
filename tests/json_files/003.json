@@ -56,67 +56,70 @@
                                         "children": []
                                 },
                                 "argument": {
-                                        "ガ": {
-                                                "surf": "マジコンが",
-                                                "normalized_surf": "マジコン",
-                                                "mrphs": "マジコン が",
-                                                "normalized_mrphs": "マジコン",
-                                                "reps": "マジコン/マジコン が/が",
-                                                "normalized_reps": "マジコン/マジコン",
-                                                "head_reps": "マジコン/マジコン",
-                                                "eid": 5,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        },
-                                        "デ": {
-                                                "surf": "番組で",
-                                                "normalized_surf": "番組",
-                                                "mrphs": "番組 で",
-                                                "normalized_mrphs": "番組",
-                                                "reps": "番組/ばんぐみ で/で",
-                                                "normalized_reps": "番組/ばんぐみ",
-                                                "head_reps": "番組/ばんぐみ",
-                                                "eid": 4,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [
-                                                        {
-                                                                "surf": "報道",
-                                                                "normalized_surf": "報道",
-                                                                "mrphs": "報道",
-                                                                "normalized_mrphs": "報道",
-                                                                "reps": "報道/ほうどう",
-                                                                "normalized_reps": "報道/ほうどう",
-                                                                "adnominal_event_ids": [],
-                                                                "sentential_complement_event_ids": [],
-                                                                "modifier": false,
-                                                                "possessive": false
-                                                        }
-                                                ],
-                                                "event_head": false
-                                        },
-                                        "マデ": {
-                                                "surf": "ここまで",
-                                                "normalized_surf": "ここ",
-                                                "mrphs": "ここ まで",
-                                                "normalized_mrphs": "ここ",
-                                                "reps": "ここ/ここ まで/まで",
-                                                "normalized_reps": "ここ/ここ",
-                                                "head_reps": "ここ/ここ",
-                                                "eid": 6,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        }
+                                        "ガ": [
+                                                {
+                                                        "surf": "マジコンが",
+                                                        "normalized_surf": "マジコン",
+                                                        "mrphs": "マジコン が",
+                                                        "normalized_mrphs": "マジコン",
+                                                        "reps": "マジコン/マジコン が/が",
+                                                        "normalized_reps": "マジコン/マジコン",
+                                                        "head_reps": "マジコン/マジコン",
+                                                        "eid": 5,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ],
+                                        "デ": [
+                                                {
+                                                        "surf": "番組で",
+                                                        "normalized_surf": "番組",
+                                                        "mrphs": "番組 で",
+                                                        "normalized_mrphs": "番組",
+                                                        "reps": "番組/ばんぐみ で/で",
+                                                        "normalized_reps": "番組/ばんぐみ",
+                                                        "head_reps": "番組/ばんぐみ",
+                                                        "eid": 4,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "報道",
+                                                                        "normalized_surf": "報道",
+                                                                        "mrphs": "報道",
+                                                                        "normalized_mrphs": "報道",
+                                                                        "reps": "報道/ほうどう",
+                                                                        "normalized_reps": "報道/ほうどう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "マデ": [
+                                                {
+                                                        "surf": "ここまで",
+                                                        "normalized_surf": "ここ",
+                                                        "mrphs": "ここ まで",
+                                                        "normalized_mrphs": "ここ",
+                                                        "reps": "ここ/ここ まで/まで",
+                                                        "normalized_reps": "ここ/ここ",
+                                                        "head_reps": "ここ/ここ",
+                                                        "eid": 6,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
                                 }
                         },
                         "features": {
@@ -165,53 +168,55 @@
                                         "children": []
                                 },
                                 "argument": {
-                                        "ガ": {
-                                                "surf": "のが",
-                                                "normalized_surf": "の",
-                                                "mrphs": "の が",
-                                                "normalized_mrphs": "の",
-                                                "reps": "の/の が/が",
-                                                "normalized_reps": "の/の",
-                                                "head_reps": "言う/いう",
-                                                "eid": 7,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [
-                                                        {
-                                                                "surf": "いう",
-                                                                "normalized_surf": "いう",
-                                                                "mrphs": "いう",
-                                                                "normalized_mrphs": "いう",
-                                                                "reps": "言う/いう",
-                                                                "normalized_reps": "言う/いう",
-                                                                "adnominal_event_ids": [],
-                                                                "sentential_complement_event_ids": [
-                                                                        0
-                                                                ],
-                                                                "modifier": false,
-                                                                "possessive": false
-                                                        }
-                                                ],
-                                                "event_head": false
-                                        },
-                                        "修飾": {
-                                                "surf": "それにしても、",
-                                                "normalized_surf": "それにしても",
-                                                "mrphs": "それにしても 、",
-                                                "normalized_mrphs": "それにしても",
-                                                "reps": "それにしても/それにしても 、/、",
-                                                "normalized_reps": "それにしても/それにしても",
-                                                "head_reps": "それにしても/それにしても",
-                                                "eid": -1,
-                                                "flag": "C",
-                                                "sdist": 0,
-                                                "adnominal_event_ids": [],
-                                                "sentential_complement_event_ids": [],
-                                                "children": [],
-                                                "event_head": false
-                                        }
+                                        "ガ": [
+                                                {
+                                                        "surf": "のが",
+                                                        "normalized_surf": "の",
+                                                        "mrphs": "の が",
+                                                        "normalized_mrphs": "の",
+                                                        "reps": "の/の が/が",
+                                                        "normalized_reps": "の/の",
+                                                        "head_reps": "言う/いう",
+                                                        "eid": 7,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "いう",
+                                                                        "normalized_surf": "いう",
+                                                                        "mrphs": "いう",
+                                                                        "normalized_mrphs": "いう",
+                                                                        "reps": "言う/いう",
+                                                                        "normalized_reps": "言う/いう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [
+                                                                                0
+                                                                        ],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "修飾": [
+                                                {
+                                                        "surf": "それにしても、",
+                                                        "normalized_surf": "それにしても",
+                                                        "mrphs": "それにしても 、",
+                                                        "normalized_mrphs": "それにしても",
+                                                        "reps": "それにしても/それにしても 、/、",
+                                                        "normalized_reps": "それにしても/それにしても",
+                                                        "head_reps": "それにしても/それにしても",
+                                                        "eid": -1,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
                                 }
                         },
                         "features": {

@@ -3,7 +3,7 @@ import collections
 import json
 import pickle
 import re
-from logging import getLogger, StreamHandler, Formatter, Logger
+from logging import getLogger
 from typing import List, IO
 
 from pyknp import BList
@@ -13,6 +13,8 @@ from pyknp_eventgraph.basic_phrase import BasicPhrase
 from pyknp_eventgraph.event import Event, Relation
 from pyknp_eventgraph.helper import get_child_tags
 from pyknp_eventgraph.sentence import Sentence
+
+logger = getLogger(__name__)
 
 
 class EventGraph(Base):
@@ -35,27 +37,17 @@ class EventGraph(Base):
         self.__ssid_events_map = collections.defaultdict(list)
 
     @classmethod
-    def build(cls, blists, logger=None, logging_level='INFO'):
+    def build(cls, blists):
         """Create an instance from language analysis.
 
         Args:
             blists (List[BList]): A list of KNP outputs.
-            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
-            logging_level (str): A logging level.
 
         Returns:
             EventGraph: An EventGraph.
 
         """
         evg = EventGraph()
-
-        if logger is None:
-            logger = getLogger(__name__)
-            handler = StreamHandler()
-            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            logger.addHandler(handler)
-            logger.propagate = False
-            logger.setLevel(logging_level)
 
         logger.debug('Construct hash tables')
         for ssid, blist in enumerate(blists):
@@ -95,28 +87,18 @@ class EventGraph(Base):
         return evg
 
     @classmethod
-    def load(cls, f, binary=False, logger=None, logging_level='INFO'):
+    def load(cls, f, binary=False):
         """Create an instance from a dictionary.
 
         Args:
             f (IO): A file.
             binary (bool): Whether the file is binary.
-            logger (Logger): A logger (the default is None, which indicates that a new logger will be created).
-            logging_level (str): A logging level.
 
         Returns:
             EventGraph: An EventGraph.
 
         """
         evg = EventGraph()
-
-        if logger is None:
-            logger = getLogger(__name__)
-            handler = StreamHandler()
-            handler.setFormatter(Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            logger.addHandler(handler)
-            logger.propagate = False
-            logger.setLevel(logging_level)
 
         if binary:
             logger.debug('Load EventGraph')
@@ -210,13 +192,13 @@ class EventGraph(Base):
         for tag in sentence.blist.tag_list():
             if start is None:
                 start = tag
-            if '節-主辞' in tag.features:
+            if head is None and '節-主辞' in tag.features:
                 head = tag
-            if '節-区切' in tag.features:
+            if end is None and '節-区切' in tag.features:
                 end = tag
                 if head:
                     events.append(Event.build(sentence.sid, sentence.ssid, start, head, end))
-                start, end, head = None, None, None
+                    start, end, head = None, None, None
         return events
 
     def _extract_relations_from_event(self, event):
@@ -298,29 +280,33 @@ class EventGraph(Base):
             event (Event): An event.
 
         """
-        # assigns the base phrases of the arguments
+        # assign the base phrases of the arguments
         if event.head.pas:
             for case, args in event.head.pas.arguments.items():
-                arg = args[0]
-                arg_ssid = event.ssid - arg.sdist
-                arg_tid = arg.tid
-                arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tid), -1)
-                arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid), None)
-                if arg.flag == 'E':  # exophora (omission)
-                    event.push_bp(BasicPhrase(arg.midasi, arg_ssid, arg_bid, is_omitted=True, case=case))
-                elif arg.flag == 'O' and arg_tag:  # zero anaphora (omission)
-                    event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, is_omitted=True, case=case))
-                elif arg_tag:  # anaphora
-                    event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=case))
-                    next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
-                    if next_arg_tag and '複合辞' in next_arg_tag.features:
-                        arg_bid = self.__stid_bid_map.get((arg_ssid, next_arg_tag.tag_id), -1)
-                        event.push_bp(BasicPhrase(next_arg_tag, arg_ssid, arg_bid, case=case))
-                    for tag in get_child_tags(arg_tag):
-                        arg_bid = self.__stid_bid_map.get((arg_ssid, tag.tag_id), -1)
-                        event.push_bp(BasicPhrase(tag, arg_ssid, arg_bid, is_child=True, case=case))
+                args = sorted(args, key=lambda arg: (event.ssid - arg.sdist, arg.tid))
+                for arg_index, arg in enumerate(args):
+                    arg_ssid = event.ssid - arg.sdist
+                    arg_tid = arg.tid
+                    arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tid), -1)
+                    arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid), None)
+                    arg_case = (case, arg_index)
+                    if arg.flag in {'E', 'O'}:  # omission: exophora or zero anaphora
+                        arg_tag = arg_tag if arg.flag == 'O' else arg.midasi
+                        event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, is_omitted=True, case=arg_case))
+                    elif arg_tag:
+                        arg_tags = [arg_tag]
+                        next_arg_tag = self.__stid_tag_map.get((arg_ssid, arg_tid + 1), None)
+                        if next_arg_tag and '複合辞' in next_arg_tag.features and '補文ト' not in next_arg_tag.features:
+                            arg_tags.append(next_arg_tag)
+                        for arg_tag in arg_tags:
+                            arg_bid = self.__stid_bid_map.get((arg_ssid, arg_tag.tag_id), -1)
+                            event.push_bp(BasicPhrase(arg_tag, arg_ssid, arg_bid, case=arg_case))
+                        for arg_tag in arg_tags:
+                            for child_tag in get_child_tags(arg_tag):
+                                child_bid = self.__stid_bid_map.get((arg_ssid, child_tag.tag_id), -1)
+                                event.push_bp(BasicPhrase(child_tag, arg_ssid, child_bid, is_child=True, case=arg_case))
 
-        # assigns the base phrases of the predicate
+        # assign the base phrases of the predicate
         for tag in {event.head, event.end}:
             bid = self.__stid_bid_map[(event.ssid, tag.tag_id)]
             event.push_bp(BasicPhrase(tag, event.ssid, bid))
