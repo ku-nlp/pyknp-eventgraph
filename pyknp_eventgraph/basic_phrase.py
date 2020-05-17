@@ -316,10 +316,10 @@ class BasicPhraseList:
 
     def __getitem__(self, key):
         assert isinstance(key, int)
-        return self.__bps[key]
+        return self.to_list()[key]
 
     def __iter__(self):
-        for bp in self.__bps:
+        for bp in self.to_list():
             yield bp
 
     def __contains__(self, bp):
