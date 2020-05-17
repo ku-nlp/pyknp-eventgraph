@@ -1,5 +1,6 @@
 """A class to manage event information."""
 import collections
+import copy
 from typing import List
 
 from pyknp import Tag
@@ -281,19 +282,23 @@ class Event(Base):
                 if not is_valid_basic_phrase_list(argument.bpl.head):
                     continue
                 for argument_bp in argument.bpl:
+                    argument_bp = copy.deepcopy(argument_bp)
                     argument_bp.is_child = True
                     bpl.push(argument_bp)
                     if include_modifiers:
                         for modifier_bp in self._get_modifier_basic_phrase_list(argument_bp):
+                            modifier_bp = copy.deepcopy(modifier_bp)
                             modifier_bp.case = argument_bp.case  # treat this as a part of the argument
                             modifier_bp.arg_index = argument_bp.arg_index
                             modifier_bp.is_child = True
                             if modifier_bp not in bpl:
                                 bpl.push(modifier_bp)
         for predicate_bp in self.pas.predicate.bpl:
+            predicate_bp = copy.deepcopy(predicate_bp)
             bpl.push(predicate_bp)
             if include_modifiers:
                 for modifier_bp in self._get_modifier_basic_phrase_list(predicate_bp):
+                    modifier_bp = copy.deepcopy(modifier_bp)
                     modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
                     modifier_bp.is_child = True
                     if modifier_bp not in bpl:
