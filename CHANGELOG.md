@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.3]
+
+### Fixed
+- Fixed a bug related to complex particle handling
+
 ## [0.5.2]
 
 ### Fixed
