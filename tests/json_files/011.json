@@ -1,0 +1,277 @@
+{
+        "sentences": [
+                {
+                        "sid": "1",
+                        "ssid": 0,
+                        "surf": "試用期間中の者でも、引き続き試用されるに至った場合において解雇予告の手続が必要ですので",
+                        "mrphs": "試用 期間 中 の 者 でも 、 引き続き 試用 さ れる に 至った 場合 に おいて 解雇 予告 の 手続 が 必要です ので",
+                        "reps": "試用/しよう 期間/きかん 中/ちゅう の/の 者/もの でも/でも 、/、 引き続き/ひきつづきv 試用/しよう する/する れる/れる に/に 至る/いたる 場合/ばあい に/に おく/おく 解雇/かいこ 予告/よこく の/の 手続き/てつづき が/が 必要だ/ひつようだ ので/ので"
+                }
+        ],
+        "events": [
+                {
+                        "event_id": 0,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [
+                                {
+                                        "event_id": 1,
+                                        "label": "係り受け",
+                                        "surf": "",
+                                        "reliable": true,
+                                        "head_tid": -1
+                                }
+                        ],
+                        "surf": "試用期間中の者でも、引き続き試用されるに至った場合において",
+                        "surf_with_mark": "試用期間中の者でも、引き続き試用されるに至った (場合において)",
+                        "mrphs": "試用 期間 中 の 者 でも 、 引き続き 試用 さ れる に 至った 場合 に おいて",
+                        "mrphs_with_mark": "試用 期間 中 の 者 でも 、 引き続き 試用 さ れる に 至った (場合 に おいて)",
+                        "normalized_mrphs": "試用 期間 中 の 者 でも 、 引き続き 試用 さ れる に 至る",
+                        "normalized_mrphs_with_mark": "試用 期間 中 の 者 でも 、 引き続き 試用 さ れる に 至る",
+                        "normalized_mrphs_without_exophora": "試用 期間 中 の 者 でも 、 引き続き 試用 さ れる に 至る",
+                        "normalized_mrphs_with_mark_without_exophora": "試用 期間 中 の 者 でも 、 引き続き 試用 さ れる に 至る",
+                        "reps": "試用/しよう 期間/きかん 中/ちゅう の/の 者/もの でも/でも 、/、 引き続き/ひきつづきv 試用/しよう する/する れる/れる に/に 至る/いたる 場合/ばあい に/に おく/おく",
+                        "reps_with_mark": "試用/しよう 期間/きかん 中/ちゅう の/の 者/もの でも/でも 、/、 引き続き/ひきつづきv 試用/しよう する/する れる/れる に/に 至る/いたる (場合/ばあい に/に おく/おく)",
+                        "normalized_reps": "試用/しよう 期間/きかん 中/ちゅう の/の 者/もの でも/でも 、/、 引き続き/ひきつづきv 試用/しよう する/する れる/れる に/に 至る/いたる",
+                        "normalized_reps_with_mark": "試用/しよう 期間/きかん 中/ちゅう の/の 者/もの でも/でも 、/、 引き続き/ひきつづきv 試用/しよう する/する れる/れる に/に 至る/いたる",
+                        "content_rep_list": [
+                                "試用/しよう",
+                                "期間/きかん",
+                                "中/ちゅう",
+                                "者/もの",
+                                "引き続き/ひきつづきv",
+                                "試用/しよう",
+                                "至る/いたる",
+                                "場合/ばあい",
+                                "おく/おく"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "至る",
+                                        "normalized_surf": "至る",
+                                        "mrphs": "至る",
+                                        "normalized_mrphs": "至る",
+                                        "reps": "至る/いたる",
+                                        "normalized_reps": "至る/いたる",
+                                        "standard_reps": "至る/いたる",
+                                        "type": "動",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": [
+                                                {
+                                                        "surf": "試用されるに",
+                                                        "normalized_surf": "試用される",
+                                                        "mrphs": "試用 さ れる に",
+                                                        "normalized_mrphs": "試用 さ れる",
+                                                        "reps": "試用/しよう する/する れる/れる に/に",
+                                                        "normalized_reps": "試用/しよう する/する れる/れる",
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "modifier": false,
+                                                        "possessive": false
+                                                },
+                                                {
+                                                        "surf": "引き続き",
+                                                        "normalized_surf": "引き続き",
+                                                        "mrphs": "引き続き",
+                                                        "normalized_mrphs": "引き続き",
+                                                        "reps": "引き続き/ひきつづきv",
+                                                        "normalized_reps": "引き続き/ひきつづきv",
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "modifier": false,
+                                                        "possessive": false
+                                                }
+                                        ]
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "者でも、",
+                                                        "normalized_surf": "者",
+                                                        "mrphs": "者 でも 、",
+                                                        "normalized_mrphs": "者",
+                                                        "reps": "者/もの でも/でも 、/、",
+                                                        "normalized_reps": "者/もの",
+                                                        "head_reps": "者/もの",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "中の",
+                                                                        "normalized_surf": "中",
+                                                                        "mrphs": "中 の",
+                                                                        "normalized_mrphs": "中",
+                                                                        "reps": "中/ちゅう の/の",
+                                                                        "normalized_reps": "中/ちゅう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": true
+                                                                },
+                                                                {
+                                                                        "surf": "期間",
+                                                                        "normalized_surf": "期間",
+                                                                        "mrphs": "期間",
+                                                                        "normalized_mrphs": "期間",
+                                                                        "reps": "期間/きかん",
+                                                                        "normalized_reps": "期間/きかん",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                },
+                                                                {
+                                                                        "surf": "試用",
+                                                                        "normalized_surf": "試用",
+                                                                        "mrphs": "試用",
+                                                                        "normalized_mrphs": "試用",
+                                                                        "reps": "試用/しよう",
+                                                                        "normalized_reps": "試用/しよう",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "外の関係": [
+                                                {
+                                                        "surf": "場合において",
+                                                        "normalized_surf": "場合",
+                                                        "mrphs": "場合 に おいて",
+                                                        "normalized_mrphs": "場合",
+                                                        "reps": "場合/ばあい に/に おく/おく",
+                                                        "normalized_reps": "場合/ばあい",
+                                                        "head_reps": "場合/ばあい",
+                                                        "eid": null,
+                                                        "flag": "N",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "過去",
+                                "negation": false,
+                                "state": "動態述語",
+                                "complement": false
+                        }
+                },
+                {
+                        "event_id": 1,
+                        "sid": "1",
+                        "ssid": 0,
+                        "rel": [],
+                        "surf": "解雇予告の手続が必要ですので",
+                        "surf_with_mark": "解雇予告の手続が必要です (ので)",
+                        "mrphs": "解雇 予告 の 手続 が 必要です ので",
+                        "mrphs_with_mark": "解雇 予告 の 手続 が 必要です (ので)",
+                        "normalized_mrphs": "解雇 予告 の 手続 が 必要だ",
+                        "normalized_mrphs_with_mark": "解雇 予告 の 手続 が 必要だ",
+                        "normalized_mrphs_without_exophora": "解雇 予告 の 手続 が 必要だ",
+                        "normalized_mrphs_with_mark_without_exophora": "解雇 予告 の 手続 が 必要だ",
+                        "reps": "解雇/かいこ 予告/よこく の/の 手続き/てつづき が/が 必要だ/ひつようだ ので/ので",
+                        "reps_with_mark": "解雇/かいこ 予告/よこく の/の 手続き/てつづき が/が 必要だ/ひつようだ (ので/ので)",
+                        "normalized_reps": "解雇/かいこ 予告/よこく の/の 手続き/てつづき が/が 必要だ/ひつようだ",
+                        "normalized_reps_with_mark": "解雇/かいこ 予告/よこく の/の 手続き/てつづき が/が 必要だ/ひつようだ",
+                        "content_rep_list": [
+                                "解雇/かいこ",
+                                "予告/よこく",
+                                "手続き/てつづき",
+                                "必要だ/ひつようだ"
+                        ],
+                        "pas": {
+                                "predicate": {
+                                        "surf": "必要だ",
+                                        "normalized_surf": "必要だ",
+                                        "mrphs": "必要だ",
+                                        "normalized_mrphs": "必要だ",
+                                        "reps": "必要だ/ひつようだ",
+                                        "normalized_reps": "必要だ/ひつようだ",
+                                        "standard_reps": "必要だ/ひつようだ",
+                                        "type": "形",
+                                        "adnominal_event_ids": [],
+                                        "sentential_complement_event_ids": [],
+                                        "children": []
+                                },
+                                "argument": {
+                                        "ガ": [
+                                                {
+                                                        "surf": "手続が",
+                                                        "normalized_surf": "手続",
+                                                        "mrphs": "手続 が",
+                                                        "normalized_mrphs": "手続",
+                                                        "reps": "手続き/てつづき が/が",
+                                                        "normalized_reps": "手続き/てつづき",
+                                                        "head_reps": "手続き/てつづき",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": [
+                                                                {
+                                                                        "surf": "予告の",
+                                                                        "normalized_surf": "予告",
+                                                                        "mrphs": "予告 の",
+                                                                        "normalized_mrphs": "予告",
+                                                                        "reps": "予告/よこく の/の",
+                                                                        "normalized_reps": "予告/よこく",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": true
+                                                                },
+                                                                {
+                                                                        "surf": "解雇",
+                                                                        "normalized_surf": "解雇",
+                                                                        "mrphs": "解雇",
+                                                                        "normalized_mrphs": "解雇",
+                                                                        "reps": "解雇/かいこ",
+                                                                        "normalized_reps": "解雇/かいこ",
+                                                                        "adnominal_event_ids": [],
+                                                                        "sentential_complement_event_ids": [],
+                                                                        "modifier": false,
+                                                                        "possessive": false
+                                                                }
+                                                        ]
+                                                }
+                                        ],
+                                        "ニオク": [
+                                                {
+                                                        "surf": "場合において",
+                                                        "normalized_surf": "場合",
+                                                        "mrphs": "場合 に おいて",
+                                                        "normalized_mrphs": "場合",
+                                                        "reps": "場合/ばあい に/に おく/おく",
+                                                        "normalized_reps": "場合/ばあい",
+                                                        "head_reps": "場合/ばあい",
+                                                        "eid": null,
+                                                        "flag": "C",
+                                                        "sdist": 0,
+                                                        "adnominal_event_ids": [],
+                                                        "sentential_complement_event_ids": [],
+                                                        "children": []
+                                                }
+                                        ]
+                                }
+                        },
+                        "features": {
+                                "modality": [],
+                                "tense": "非過去",
+                                "negation": false,
+                                "state": "状態述語",
+                                "complement": false
+                        }
+                }
+        ]
+}
