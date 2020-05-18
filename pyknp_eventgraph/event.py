@@ -262,7 +262,10 @@ class Event(Base):
 
             """
             def is_valid_basic_phrase(bp):
-                if bp.is_omitted:
+                if bp.tag and '複合辞' in bp.tag.features:
+                    # ignore 複合辞
+                    return True
+                elif bp.is_omitted:
                     # always include omitted tokens (extracted by inter-sentential anaphora and exophora resolution)
                     return True
                 elif bp.tid < self.head.tag_id and (bp.is_event_head or bp.is_event_end):
