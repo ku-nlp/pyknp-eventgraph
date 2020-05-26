@@ -27,8 +27,6 @@ def main() -> None:
 
     for event in evg.events[:10]:
         event_surf = event.to_basic_phrase_list(include_modifiers=True).to_string()
-        # `to_basic_phrase_list()` converts an event into a basic phrase list
-        # The `head` attribute returns a basic phrase list consisting of head basic phrases
         # `to_tags()` converts a basic phrase list into a list of pyknp.Tag instances
         # To get a clause head (節-主辞) tag, extract the first element
         clause_head_tag = event.pas.predicate.bpl.head.to_tags()[0]
@@ -41,6 +39,7 @@ def main() -> None:
             if nominative.flag == 'E':  # exophora
                 nominative_head_tag_or_midasi = nominative.normalized_surf[1:-1]  # e.g., [著者] -> 著者
             else:
+                # To get an argument head tag, extract the first element
                 nominative_head_tag_or_midasi = nominative.bpl.head.to_tags()[0]
 
         result = ishi.has_volition(clause_head_tag, nominative_head_tag_or_midasi)
