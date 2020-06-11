@@ -30,14 +30,14 @@ class Features(Base):
         self.level = ''
 
     @classmethod
-    def build(cls, head):
-        """Create an instance from language analysis.
+    def build(cls, head: Tag) -> 'Features':
+        """Create an object from language analysis.
 
         Args:
-            head (Tag): The head tag of an event.
+            head: The head tag of an event.
 
         Returns:
-            Features: Features.
+            One :class:`.Features` object.Fe
 
         """
         features = Features()
@@ -64,14 +64,14 @@ class Features(Base):
         return features
 
     @classmethod
-    def load(cls, dct):
-        """Create an instance from a dictionary.
+    def load(cls, dct: dict) -> 'Features':
+        """Create an object from a dictionary.
 
         Args:
-            dct (dict): A dictionary storing an instance.
+            dct: A dictionary storing an object.
 
         Returns:
-            Features: Features.
+            One :class:`.Features` object.
 
         """
         features = Features()
@@ -83,14 +83,14 @@ class Features(Base):
         return features
 
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         pass
 
-    def to_dict(self):
-        """Convert this instance into a dictionary.
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this feature information.
+            One :class:`dict` object.
 
         """
         return collections.OrderedDict([
@@ -102,14 +102,14 @@ class Features(Base):
         ])
 
     @staticmethod
-    def _get_functional_tag(tag):
+    def _get_functional_tag(tag) -> Tag:
         """Return a tag which functionally plays a central role.
 
         Args:
-            tag (Tag): A tag.
+            tag: A :class:`pyknp.knp.tag.Tag` object.
 
         Returns:
-            Tag: A tag which functionally plays a central role.
+            A tag that functionally plays a central role.
 
         """
         functional_tag = tag

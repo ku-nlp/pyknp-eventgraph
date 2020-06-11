@@ -13,14 +13,14 @@ from pyknp_eventgraph.helper import PAS_ORDER
 logger = getLogger(__name__)
 
 
-def make_image(evg, output, with_detail=True, with_original_text=True):
+def make_image(evg: EventGraph, output: str, with_detail: bool = True, with_original_text: bool = True):
     """Visualize EventGraph.
 
     Args:
-        evg (EventGraph): EventGraph.
-        output (str): Path to output. The extension must be '.svg'.
-        with_detail (bool): Whether to include the detail information.
-        with_original_text (bool): Whether to include the original text.
+        evg: EventGraph.
+        output: Path to output. The extension must be '.svg'.
+        with_detail: Whether to include the detail information.
+        with_original_text: Whether to include the original text.
 
     """
     evgviz = EventGraphVisualizer()
@@ -32,17 +32,17 @@ def make_image(evg, output, with_detail=True, with_original_text=True):
     )
 
 
-class EventGraphVisualizer(object):
+class EventGraphVisualizer:
     """Visualize an EventGraph as an image."""
 
-    def make_image(self, evg, output, with_detail=True, with_original_text=True):
-        """Visualize EventGraph.
+    def make_image(self, evg: EventGraph, output: str, with_detail: bool = True, with_original_text: bool = True):
+        """Visualize an EventGraph.
 
         Args:
-            evg (EventGraph): EventGraph.
-            output (str): Path to the output. This path should end with '.svg'.
-            with_detail (bool): Whether to include the detail information.
-            with_original_text (bool): Whether to include the original text.
+            evg: EventGraph.
+            output: Path to output. The extension must be '.svg'.
+            with_detail: Whether to include the detail information.
+            with_original_text: Whether to include the original text.
 
         """
         output, ext = os.path.splitext(output)
@@ -124,15 +124,15 @@ class EventGraphVisualizer(object):
         logger.debug('Successfully constructed visualization')
 
     @staticmethod
-    def _split_events_by_sid(events, max_length=4):
+    def _split_events_by_sid(events: List[Event], max_length: int = 4) -> List[List[Event]]:
         """Group events by their sentence IDs.
 
         Args:
-            events (List[Event]): A list of events.
-            max_length (int): A maximum number of events which are written in the same row.
+            events: A list of events.
+            max_length: A maximum number of events which are written in the same row.
 
         Returns:
-            List[List[Event]]
+            A list of lists of events.
 
         """
         ssid_events_map = collections.defaultdict(list)
@@ -144,27 +144,31 @@ class EventGraphVisualizer(object):
                 split_events.append(sent_events[i:i+max_length])
         return split_events
 
+
 class Node:
 
-    def __init__(self, event):
-        """Create a node instance.
+    def __init__(self, event: Event):
+        """Create a node object.
 
         Args:
-            event (Event): An event.
+            event: An event.
 
         """
         self.event = event
 
     @property
-    def name(self):
+    def name(self) -> str:
+        """The name of this node."""
         return 'event_{}'.format(self.event.evid)
 
     @property
-    def surf(self):
+    def surf(self) -> str:
+        """The surface string of this node."""
         return self.event.surf_with_mark
 
     @property
-    def pas(self):
+    def pas(self) -> str:
+        """The PAS of this node."""
         pred = self.event.pas.predicate.standard_reps
         if self.event.pas.predicate.type_:
             pred += ':{}'.format(self.event.pas.predicate.type_)
@@ -176,7 +180,8 @@ class Node:
         return ', '.join([pred] + args)
 
     @property
-    def features(self):
+    def features(self) -> str:
+        """The features of this node."""
         features = []
         if self.event.features.negation:
             features.append('否定')
@@ -186,14 +191,14 @@ class Node:
             features.append('モダリティ:{}'.format(modality))
         return ', '.join(features)
 
-    def to_string(self, with_detail):
+    def to_string(self, with_detail: bool) -> str:
         """Return the string.
 
         Args:
-            with_detail (bool): Whether to include the detail information.
+            with_detail: Whether to include the detail information.
 
         Returns:
-            str: The string of a given event.
+            The string of a given event.
 
         """
         content = ''
@@ -219,24 +224,26 @@ class Node:
 
 class Edge:
 
-    def __init__(self, relation):
-        """Create an Edge instance.
+    def __init__(self, relation: Relation):
+        """Create an Edge object.
 
         Args:
-            relation (Relation): A relation.
+            relation: A relation.
 
         """
         self.relation = relation
 
     @property
-    def head_node_name(self):
-        return Node(self.relation.head).name
-
-    @property
-    def modifier_node_name(self):
+    def modifier_node_name(self) -> str:
+        """The name of the modifier node."""
         return Node(self.relation.modifier).name
 
-    def to_string(self):
+    @property
+    def head_node_name(self) -> str:
+        """The name of the head node."""
+        return Node(self.relation.head).name
+
+    def to_string(self) -> str:
         """Return the string."""
         label = self.relation.label. \
             replace('談話関係', '談'). \
