@@ -29,15 +29,15 @@ class Sentence(Base):
         self.reps = ''
 
     @classmethod
-    def build(cls, ssid, blist):
-        """Create an instance from language analysis.
+    def build(cls, ssid: int, blist: BList) -> 'Sentence':
+        """Create an object from language analysis.
 
         Args:
             ssid (int): A serial sentence ID.
-            blist (BList): A KNP output.
+            blist (BList): A :class:`pyknp.knp.blist.BList` object.
 
         Returns:
-            Sentence: A sentence.
+            A sentence.
 
         """
         sentence = Sentence()
@@ -47,14 +47,14 @@ class Sentence(Base):
         return sentence
 
     @classmethod
-    def load(cls, dct):
-        """Create an instance from a dictionary.
+    def load(cls, dct: dict) -> 'Sentence':
+        """Create an object from a dictionary.
 
         Args:
-            dct (dict): A dictionary storing an instance.
+            dct: A dictionary storing an object.
 
         Returns:
-            Sentence: A sentence.
+            A sentence.
 
         """
         sentence = Sentence()
@@ -66,16 +66,16 @@ class Sentence(Base):
         return sentence
 
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         self.surf = ''.join(m.midasi for m in self.blist.mrph_list())
         self.mrphs = ' '.join(m.midasi for m in self.blist.mrph_list())
         self.reps = ' '.join(m.repname if m.repname else m.midasi + '/' + m.midasi for m in self.blist.mrph_list())
 
-    def to_dict(self):
-        """Convert this instance into a dictionary.
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this sentence information.
+            One :class:`dict` object.
 
         """
         return collections.OrderedDict([

@@ -17,15 +17,15 @@ class BasicPhrase:
     """A class to manage a basic phrase.
 
     Attributes:
-        tag (Tag): A tag.
+        tag (Tag): A :class:`pyknp.knp.tag.Tag` object.
         ssid (int): A serial sentence ID.
         bid (int): A serial bunsetsu ID.
         tid (int): A serial tag ID.
-        is_modifier (bool): Whether this basic phrase is a modifier.
-        is_possessive (bool): Whether this basic phrase is a possessive.
-        is_child (bool): Whether this basic phrase is a child of another one.
-        is_omitted (bool): Whether this basic phrase is omitted.
-        case (int): A case.
+        is_modifier (bool): ``True`` when this basic phrase is a modifier.
+        is_possessive (bool): ``True`` when this basic phrase is a possessive.
+        is_child (bool): ``True`` when this basic phrase is a child.
+        is_omitted (bool): ``True`` when this basic phrase is omitted.
+        case (str): A case.
         arg_index (int): An argument index.
         adnominal_evids (List[int]): A list of adnominal event IDs.
         sentential_complement_evids (List[int]): A list of sentential complement event IDs.
@@ -33,16 +33,17 @@ class BasicPhrase:
 
     """
 
-    def __init__(self, tag_or_midasi, ssid=-1, bid=-1, is_child=False, is_omitted=False, case=None):
+    def __init__(self, tag_or_midasi: Union[Tag, str], ssid: int = -1, bid: int = -1, is_child: bool = False,
+                 is_omitted: bool = False, case: Tuple[str, int] = None):
         """Initialize a BasicPhrase instance.
 
         Args:
-            tag_or_midasi (Union[Tag, str]): A tag or the midasi (surface string).
-            ssid (int): A serial sentence ID.
-            bid (int): A serial bunsetsu ID.
-            is_child (bool): Whether this basic phrase is a child of another one.
-            is_omitted (bool): Whether this basic phrase is omitted.
-            case (Tuple[str, int]): A case.
+            tag_or_midasi: A :class:`pyknp.knp.tag.Tag` object or the surface string.
+            ssid: A serial sentence ID.
+            bid: A serial bunsetsu ID.
+            is_child: ``True`` when this basic phrase is a child of another one.
+            is_omitted: ``True`` when this basic phrase is omitted.
+            case: A case.
 
         """
         self.tag = None
@@ -71,41 +72,46 @@ class BasicPhrase:
         else:
             raise NotImplementedError
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'BasicPhrase({}, ssid={}, bid={}, case={})'.format(self.surf, self.ssid, self.bid, self.case)
 
     @property
-    def surf(self):
+    def surf(self) -> str:
+        """The surface string."""
         content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
         return ''.join(content_string_tokens)
 
     @property
-    def mrphs(self):
+    def mrphs(self) -> str:
+        """The surface string where morphemes are separated by white spaces."""
         content_string_tokens, _, _ = self.to_string(type_='midasi', normalize='none', truncate=False)
         return ' '.join(content_string_tokens)
 
     @property
-    def reps(self):
+    def reps(self) -> str:
+        """The representative string."""
         content_string_tokens, _, _ = self.to_string(type_='repname', normalize='none', truncate=False)
         return ' '.join(content_string_tokens)
 
     @property
-    def position(self):
-        """Return the position of this basic phrase.
+    def position(self) -> Tuple[int, int, int, str]:
+        """The position of this basic phrase.
 
         Notes:
             To distinguish basic phrases extracted by exophora resolution, it is necessary to include case information.
-            On the other hand, to distinguish basic phrases that appear in text, case information is not used.
+            On the other hand, to distinguish basic phrases that appear in text, case information is not necessary.
 
         """
         return self.ssid, self.bid, self.tid, self.case if self.is_omitted else ''
 
     @property
-    def sort_key(self):
+    def sort_key(self) -> Tuple[int, int, int, int]:
+        """The key used for sorting basic phrases."""
         return PAS_ORDER.get(self.case if self.is_omitted else '', 99), self.ssid, self.bid, self.tid
 
     @property
-    def is_event_head(self):
+    def is_event_head(self) -> bool:
+        """``True`` if this basic phrase is the head of an event."""
         if isinstance(self.tag, Tag):
             if '節-主辞' in self.tag.features:
                 return True
@@ -114,7 +120,8 @@ class BasicPhrase:
         return False
 
     @property
-    def is_event_end(self):
+    def is_event_end(self) -> bool:
+        """``True`` if this basic phrase is the end of an event."""
         if isinstance(self.tag, Tag):
             if '節-区切' in self.tag.features:
                 return True
@@ -122,45 +129,45 @@ class BasicPhrase:
                 return True
         return False
 
-    def set_adnominal_evids(self, adnominal_evids):
+    def set_adnominal_evids(self, adnominal_evids: List[int]):
         """Set adnominal event IDs.
 
         Args:
-            adnominal_evids (List[int]): A list of adnominal event IDs.
+            adnominal_evids: A list of adnominal event IDs.
 
         """
         self.adnominal_evids = adnominal_evids
 
-    def set_sentential_complement_evids(self, sentential_complement_evids):
+    def set_sentential_complement_evids(self, sentential_complement_evids: List[int]):
         """Set sentential complement IDs.
 
         Args:
-            sentential_complement_evids (List[int]): A list of sentential complement IDs.
+            sentential_complement_evids: A list of sentential complement IDs.
 
         """
         self.sentential_complement_evids = sentential_complement_evids
 
-    def to_singleton(self):
+    def to_singleton(self) -> 'BasicPhraseList':
         """Return this instance as a singleton.
 
         Returns:
-            BasicPhraseList: A basic phrase list that just includes this basic phrase.
+            A :class:`.BasicPhraseList` object that consists of only this basic phrase.
 
         """
         return BasicPhraseList([self])
 
-    def to_string(self, type_, normalize, truncate, normalizes_child_bp=False):
+    def to_string(self, type_: str, normalize: str, truncate: bool, normalizes_child_bp: bool = False) \
+            -> Tuple[List[str], List[str], bool]:
         """Convert this instance into a string based on given parameters.
 
         Args:
-            type_ (str): A type of string, which can take either `midasi` or `repname`.
-            normalize (str): A normalization target, which can take either `predicate`, `argument`, or `none`.
-            truncate (bool): Whether to truncate adjunct strings.
-            normalizes_child_bp (bool): Whether to normalize child basic phrases.
+            type_: A type of string, which can take either `midasi` or `repname`.
+            normalize: A normalization target, which can take either `predicate`, `argument`, or `none`.
+            truncate: Specify ``True`` to truncate adjunct strings.
+            normalizes_child_bp: Specify ``True`` to normalize child basic phrases.
 
         Returns:
-            Tuple[List[str], List[str], bool]: Content strings, adjunct strings, and a flag which indicates that
-                a normalization process has been performed
+            Content strings, adjunct strings, and a flag that indicates that a normalization process has been performed
 
         """
         assert type_ in {'midasi', 'repname'}, '`type_` must be either midasi or repname'
@@ -294,11 +301,11 @@ class BasicPhrase:
 class BasicPhraseList:
     """A class to manage a list of basic phrases."""
 
-    def __init__(self, bps=None):
+    def __init__(self, bps: Optional[List[BasicPhrase]] = None):
         """Initialize a basic phrase list.
 
         Args:
-            bps (Optional[List[BasicPhrase]]): A list of basic phrases.
+            bps: A list of :class:`.BasicPhrase` objects.
 
         """
         self.__bps = []
@@ -332,109 +339,91 @@ class BasicPhraseList:
         return bpl
 
     @property
-    def head(self):
-        """Return the head part.
-
-        Returns:
-            BasicPhraseList: A basic phrase list that include the head part of this list.
-
-        """
+    def head(self) -> 'BasicPhraseList':
+        """The head part."""
         return BasicPhraseList(list(filter(lambda x: not x.is_child, self.to_list())))
 
     @property
-    def child(self):
-        """Return the child part.
-
-        Returns:
-            BasicPhraseList: A basic phrase list that include the child part of this list.
-
-        """
+    def child(self) -> 'BasicPhraseList':
+        """The child part."""
         return BasicPhraseList(list(filter(lambda x: x.is_child, self.to_list())))
 
     @property
-    def adnominal_evids(self):
-        """Return the list of adnominal event IDs.
-
-        Returns:
-            List[int]: A list of adnominal event IDs.
-
-        """
+    def adnominal_evids(self) -> List[int]:
+        """The list of adnominal event IDs."""
         return [evid for bp in self.__bps for evid in bp.adnominal_evids]
 
     @property
-    def sentential_complement_evids(self):
-        """Return the list of sentential complement event IDs.
-
-        Returns:
-            List[int]: A list of sentential complement event IDs.
-
-        """
+    def sentential_complement_evids(self) -> List[int]:
+        """The list of sentential complement event IDs."""
         return [evid for bp in self.__bps for evid in bp.sentential_complement_evids]
 
-    def push(self, bp):
+    def push(self, bp: BasicPhrase):
         """Push a basic phrase to this instance.
 
         Args:
-            bp (BasicPhrase): A basic phrase.
+            bp: A :class:`.BasicPhrase` object.
 
         """
         assert isinstance(bp, BasicPhrase)
         self.__bps.append(bp)
         self.sort()
 
-    def sort(self, reverse=False):
+    def sort(self, reverse: bool = False):
         """Sort this list.
 
         Args:
-            reverse (bool): Whether to reverse the order.
+            reverse: Specify ``True`` to reverse the order.
 
         """
         self.__bps.sort(key=lambda bp: bp.sort_key, reverse=reverse)
 
-    def to_list(self):
-        """Return this instance as a Python list object.
+    def to_list(self) -> List[BasicPhrase]:
+        """Convert this instance into a :class:`list` object.
 
         Returns:
-            List[BasicPhrase]: A list of basic phrases.
+            A list of :class:`.BasicPhrase` objects.
 
         """
         return self.__bps[:]
 
-    def to_bunsetsu_group_list(self):
-        """Return this instance as a series of basic phrase lists grouped by their bunsetsu IDs.
+    def to_bunsetsu_group_list(self) -> List['BasicPhraseList']:
+        """Convert this instance into a series of basic phrase lists grouped by their bunsetsu IDs.
 
         Returns:
-            List[BasicPhraseList]: A list of basic phrase lists.
+            A list of :class:`BasicPhraseList` objects.
 
         """
         sbid_bps_map = collections.defaultdict(list)
         for bp in self.__bps:
             sbid_bps_map[bp.sort_key[:-1]].append(bp)  # [:-1] ignores tag IDs
-
-        bunsetsu_bpl_list = []
-        for sbid in sorted(sbid_bps_map):
-            bunsetsu_bpl_list.append(BasicPhraseList(sbid_bps_map[sbid]))
+        bunsetsu_bpl_list = [BasicPhraseList(sbid_bps_map[sbid]) for sbid in sorted(sbid_bps_map)]
         return bunsetsu_bpl_list
 
-    def to_tags(self):
-        """Return this instance as a list of pyknp.Tag objects."""
-        return sorted(set(bp.tag for bp in self.__bps if bp.tag is not None), key=lambda x: x.tag_id)
-
-    def to_string(self, type_='midasi', mark=False, space=True, normalize='predicate', truncate=False,
-                  needs_exophora=True, normalizes_child_bps=False):
-        """Return this instance as a string.
-
-        Args:
-            type_ (str): A type of string, which can take either `midasi` or `repname`.
-            mark (bool): Whether to include special marks.
-            space (bool): Whether to include white spaces between morphemes.
-            normalize (str): A normalization target, which can take either `predicate` or `argument`.
-            truncate (bool): Whether to truncate the latter of the normalized token.
-            needs_exophora (bool): Whether to include exophora.
-            normalizes_child_bps (bool): Whether to normalize child basic phrases.
+    def to_tags(self) -> List[Tag]:
+        """Convert this instance into a list of :class:`pyknp.knp.tag.Tag` objects.
 
         Returns:
-            str: A string.
+            A list of :class:`pyknp.knp.tag.Tag` objects.
+
+        """
+        return sorted(set(bp.tag for bp in self.__bps if bp.tag is not None), key=lambda x: x.tag_id)
+
+    def to_string(self, type_: str = 'midasi', mark: bool = False, space: bool = True, normalize: str = 'predicate',
+                  truncate: bool = False, needs_exophora: bool = True, normalizes_child_bps: bool = False) -> str:
+        """Convert this instance into a string.
+
+        Args:
+            type_: A type of string, which can take either `midasi` or `repname`.
+            mark: Specify ``True`` to include special marks.
+            space: Specify ``True`` to include white spaces between morphemes.
+            normalize: A normalization target, which can take either `predicate` or `argument`.
+            truncate: Specify ``True`` to truncate the latter of the normalized token.
+            needs_exophora: Specify ``True`` to include exophora.
+            normalizes_child_bps: Specify ``True`` to normalize child basic phrases.
+
+        Returns:
+            A string.
 
         """
         omitted_string_tokens, content_string_tokens, adjunct_string_tokens = [], [], []
@@ -539,11 +528,11 @@ class BasicPhraseList:
             else:
                 return joiner.join((content_string, adjunct_string))
 
-    def to_content_rep_list(self):
-        """Return this instance as a list of the representative strings of content words.
+    def to_content_rep_list(self) -> List[str]:
+        """Convert this instance into a list of the representative strings of content words.
 
         Returns:
-            List[str]: A list of the representative strings of content words.
+            A list of the representative strings of content words.
 
         """
         content_reps = []

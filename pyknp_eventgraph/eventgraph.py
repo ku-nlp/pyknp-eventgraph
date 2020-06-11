@@ -1,4 +1,3 @@
-"""A class to manage EventGraph information."""
 import collections
 import json
 import pickle
@@ -21,15 +20,15 @@ class EventGraph(Base):
     """A class to manage an EventGraph.
 
     Attributes:
-        sentences (List[Sentence]): A list of sentences.
-        events (List[Event]): A list of events.
+        sentences (List[Sentence]): A list of :class:`.Sentence` objects.
+        events (List[Event]): A list of :class:`.Event` objects.
 
     """
 
     def __init__(self):
         Event.reset_serial_id()
-        self.sentences = []
-        self.events = []
+        self.sentences: List[Sentence] = []
+        self.events: List[Event] = []
         self.__stid_tag_map = {}
         self.__stid_bid_map = {}
         self.__evid_event_map = {}
@@ -37,14 +36,14 @@ class EventGraph(Base):
         self.__ssid_events_map = collections.defaultdict(list)
 
     @classmethod
-    def build(cls, blists):
-        """Create an instance from language analysis.
+    def build(cls, blists: List[BList]) -> 'EventGraph':
+        """Create an object from language analysis.
 
         Args:
-            blists (List[BList]): A list of KNP outputs.
+            blists: A list of :class:`pyknp.knp.blist.BList` objects.
 
         Returns:
-            EventGraph: An EventGraph.
+            One :class:`.EventGraph` object.
 
         """
         evg = EventGraph()
@@ -87,15 +86,15 @@ class EventGraph(Base):
         return evg
 
     @classmethod
-    def load(cls, f, binary=False):
-        """Create an instance from a dictionary.
+    def load(cls, f: IO, binary: bool = False) -> 'EventGraph':
+        """Create an object from a dictionary.
 
         Args:
-            f (IO): A file.
-            binary (bool): Whether the file is binary.
+            f: A file descriptor.
+            binary: If ``True``, load the file as a binary file.
 
         Returns:
-            EventGraph: An EventGraph.
+            One :class:`.EventGraph` object.
 
         """
         evg = EventGraph()
@@ -131,17 +130,17 @@ class EventGraph(Base):
         return evg
 
     def finalize(self):
-        """Finalizes this instance."""
+        """Finalizes this object."""
         for sentence in self.sentences:
             sentence.finalize()
         for event in self.events:
             event.finalize()
 
-    def to_dict(self):
-        """Convert this instance into a dictionary.
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this instance.
+            One :class:`dict` object.
 
         """
         return collections.OrderedDict([
@@ -149,13 +148,13 @@ class EventGraph(Base):
             ('events', [event.to_dict() for event in self.events])
         ])
 
-    def save(self, filename, binary=False, indent=8):
-        """Output this instance.
+    def save(self, filename: str, binary: bool = False, indent: int = 8):
+        """Save this object.
 
         Args:
-            filename (str): Path to output.
-            binary (bool): binary (bool): Whether to output this instance as a binary file.
-            indent (int): The number of indent (the default is 8).
+            filename: Path to output.
+            binary: If ``True``, output this object as a binary file.
+            indent: The number of indent (the default is 8).
 
         """
         if binary:
@@ -165,26 +164,26 @@ class EventGraph(Base):
             with open(filename, 'w', encoding='utf-8', errors='ignore') as f:
                 json.dump(self.to_dict(), f, indent=indent, ensure_ascii=False)
 
-    def _extract_sentences_from_blists(self, blists):
+    def _extract_sentences_from_blists(self, blists: List[BList]) -> List[Sentence]:
         """Extract sentences from language analysis.
 
         Args:
-            blists (List[BList]): A list of KNP outputs.
+            blists: A list of :class:`pyknp.knp.blist.BList` objects.
 
         Returns:
-            List[Sentence]: A list of sentences.
+            A list of :class:`.Sentence` objects.
 
         """
         return [Sentence.build(ssid, blist) for ssid, blist in enumerate(blists)]
 
-    def _extract_events_from_sentence(self, sentence):
+    def _extract_events_from_sentence(self, sentence: Sentence) -> List[Event]:
         """Extract events from a sentence.
 
         Args:
-            sentence (Sentence): A sentence.
+            sentence: A :class:`.Sentence` object.
 
         Returns:
-            List[Event]: A list of events.
+            A list of :class:`.Event` objects.
 
         """
         events = []
@@ -201,14 +200,14 @@ class EventGraph(Base):
                     start, end, head = None, None, None
         return events
 
-    def _extract_relations_from_event(self, event):
+    def _extract_relations_from_event(self, event: Event) -> List[Relation]:
         """Extract event-to-event relations from a given event.
 
         Args:
-            event (Event): An event.
+            event: An :class:`.Event` object.
 
         Returns:
-            List[Relation]: A list of relations.
+            A list of :class:`.Relation` objects.
 
         """
         relations = []
@@ -273,11 +272,11 @@ class EventGraph(Base):
 
         return relations
 
-    def _assign_bps_to_event(self, event):
+    def _assign_bps_to_event(self, event: Event):
         """Assign base phrases to a given event.
 
         Args:
-            event (Event): An event.
+            event: An :class:`.Event` object.
 
         """
         # assign the base phrases of the arguments

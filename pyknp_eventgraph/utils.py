@@ -4,14 +4,14 @@ from typing import List
 from pyknp import KNP, BList
 
 
-def read_knp_result_file(filename):
+def read_knp_result_file(filename: str) -> List[BList]:
     """Read a file of KNP results.
 
     Args:
         filename (str): A filename.
 
     Returns:
-        List[BList]: A list of KNP results.
+        List[BList]: A list of :class:`pyknp.knp.blist.BList` objects.
 
     """
     knp = KNP()

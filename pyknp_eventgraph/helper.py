@@ -12,7 +12,7 @@ PAS_ORDER = {
 }
 
 
-def get_child_tags(tag):
+def get_child_tags(tag: Tag) -> List[Tag]:
     """Return child tags of a given tag.
 
     Notes:
@@ -20,10 +20,10 @@ def get_child_tags(tag):
         This search stops when it encounters a clause-head or clause-end.
 
     Args:
-        tag (Tag): A tag.
+        tag: A :class:`pyknp.knp.tag.Tag` object.
 
     Returns:
-        List[Tag]: A list of child tags.
+        A list of child tags.
 
     """
     if tag.tag_id < 0:
@@ -43,14 +43,14 @@ def get_child_tags(tag):
     return sorted(children, key=lambda x: x.tag_id)
 
 
-def get_parallel_tags(tag):
+def get_parallel_tags(tag: Tag) -> List[Tag]:
     """Return parallel tags of a given tag.
 
     Args:
-        tag (Tag): A tag.
+        tag: A :class:`pyknp.knp.tag.Tag` object.
 
     Returns:
-        List[Tag]: A list of parallel tags.
+        A list of parallel tags.
 
     """
     parallels = []
@@ -60,40 +60,40 @@ def get_parallel_tags(tag):
     return parallels
 
 
-def convert_mrphs_to_midasi_list(mrphs):
+def convert_mrphs_to_midasi_list(mrphs: List[Morpheme]) -> List[str]:
     """Convert a tag into the midasi list.
 
     Args:
-        mrphs (List[Morpheme]): A tag.
+        mrphs: A list of :class:`pyknp.juman.morpheme.Morpheme` objects.
 
     Returns:
-        List[str]: A list of surface strings.
+        A list of surface strings.
 
     """
     return [m.midasi for m in mrphs]
 
 
-def convert_mrphs_to_repname_list(mrphs):
+def convert_mrphs_to_repname_list(mrphs: List[Morpheme]) -> List[str]:
     """Convert a tag into the repname list.
 
     Args:
-        mrphs (List[Morpheme]): A tag.
+        mrphs: A list of :class:`pyknp.juman.morpheme.Morpheme` objects.
 
     Returns:
-        List[str]: A list of representative strings.
+        A list of representative strings.
 
     """
     return [m.repname if m.repname else '{}/{}'.format(m.midasi, m.midasi) for m in mrphs]
 
 
-def convert_katakana_to_hiragana(in_str):
+def convert_katakana_to_hiragana(in_str: str) -> str:
     """Convert katakana characters in a given string to their corresponding hiragana characters.
 
     Args:
-        in_str (str): A string.
+        in_str: A string.
 
     Returns:
-        str: A string, where katakana characters have been converted into hiragana.
+        A string where katakana characters have been converted into hiragana.
 
     """
     return "".join(chr(ord(ch) - 96) if ("ァ" <= ch <= "ン") else ch for ch in in_str)

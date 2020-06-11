@@ -17,8 +17,8 @@ class PAS(Base):
     """A class to manage a PAS.
 
     Attributes:
-        predicate (Predicate): A predicate.
-        arguments (Dict[str, List[Argument]]): Arguments.
+        predicate (Predicate): A :class:`.Predicate` object.
+        arguments (Dict[str, List[Argument]]): A map from a case to :class:`.Argument` objects.
 
     """
 
@@ -27,14 +27,14 @@ class PAS(Base):
         self.arguments = {}
 
     @classmethod
-    def build(cls, head):
-        """Create an instance from language analysis.
+    def build(cls, head: Tag) -> 'PAS':
+        """Create an object from language analysis.
 
         Args:
-            head (Tag): The head tag of an event.
+            head: The head tag of an event.
 
         Returns:
-            PAS: A PAS.
+            One :class:`.PAS` object.
 
         """
         pas = PAS()
@@ -45,14 +45,14 @@ class PAS(Base):
         return pas
 
     @classmethod
-    def load(cls, dct):
-        """Create an instance from a dictionary.
+    def load(cls, dct: dict) -> 'PAS':
+        """Create an object from a dictionary.
 
         Args:
-            dct (dict): A dictionary storing an instance.
+            dct: A dictionary storing an object.
 
         Returns:
-            PAS: A PAS.
+            One :class:`.PAS` object.
 
         """
         pas = PAS()
@@ -62,17 +62,17 @@ class PAS(Base):
         return pas
 
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         self.predicate.finalize()
         for argument_list in self.arguments.values():
             for argument in argument_list:
                 argument.finalize()
 
     def to_dict(self):
-        """Convert this instance into a dictionary.
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this PAS information.
+            One :class:`dict` object.
 
         """
         return collections.OrderedDict([
@@ -125,14 +125,14 @@ class Predicate(Base):
         self.type_ = ''
 
     @classmethod
-    def build(cls, head):
-        """Create an instance from language analysis.
+    def build(cls, head: Tag) -> 'Predicate':
+        """Create an object from language analysis.
 
         Args:
-            head (Tag): The head tag of an event.
+            head: The head tag of an event.
 
         Returns:
-            Predicate: A predicate.
+            One :class:`.Predicate` object.
 
         """
         predicate = Predicate()
@@ -140,14 +140,14 @@ class Predicate(Base):
         return predicate
 
     @classmethod
-    def load(cls, dct):
-        """Create an instance from a dictionary.
+    def load(cls, dct: dict) -> 'Predicate':
+        """Create an object from a dictionary.
 
         Args:
-            dct (dict): A dictionary storing an instance.
+            dct: A dictionary storing an object.
 
         Returns:
-            Predicate: A predicate.
+            One :class:`.Predicate` object.
 
         """
         predicate = Predicate()
@@ -164,17 +164,17 @@ class Predicate(Base):
         predicate.children = dct['children']
         return predicate
 
-    def push_bp(self, bp):
+    def push_bp(self, bp: BasicPhrase):
         """Push a basic phrase.
 
         Args:
-            bp (BasicPhrase): A basic phrase.
+            bp: A basic phrase.
 
         """
         self.bpl.push(bp)
 
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         self.mrphs = self.to_mrphs()
         self.normalized_mrphs = self.mrphs
         self.surf = self.mrphs.replace(' ', '')  # remove white spaces
@@ -206,11 +206,11 @@ class Predicate(Base):
                 ('possessive', bp.is_possessive)
             ]))
 
-    def to_dict(self):
-        """Return this instance as a dictionary.
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this predicate information.
+            One :class:`dict` object.
 
         """
         return collections.OrderedDict([
@@ -227,8 +227,8 @@ class Predicate(Base):
             ('children', self.children)
         ])
 
-    def to_mrphs(self):
-        """Return this instance as a surface string with white spaces between morphemes.
+    def to_mrphs(self) -> str:
+        """Convert this object into a surface string with white spaces between morphemes.
 
         Returns:
             str: A surface string.
@@ -247,8 +247,8 @@ class Predicate(Base):
                     mrphs.append(m.midasi)
         return ' '.join(mrphs)
 
-    def to_reps(self):
-        """Return this instance as a representative string.
+    def to_reps(self) -> str:
+        """Convert this object into a representative string.
 
         Returns:
             str: A representative string.
@@ -260,11 +260,11 @@ class Predicate(Base):
         else:
             return ' '.join(convert_mrphs_to_repname_list(self.head.mrph_list()))
 
-    def to_standard_reps(self):
-        """Return this instance as a standard representative string.
+    def to_standard_reps(self) -> str:
+        """Convert this object into a standard representative string.
 
         Returns:
-            str: A standard representative string.
+            A standard representative string.
 
         """
         for tag in self.bpl.head.to_tags():
@@ -278,7 +278,7 @@ class Argument(Base):
     """A class to manage argument information.
 
     Attributes:
-        arg (PyknpArgument): An argument.
+        arg (PyknpArgument): An argument, which is an object of :class:`pyknp.knp.pas.Argument`.
         bpl (BasicPhraseList): A list of basic phrases.
         surf (str): A surface string.
         normalized_surf (str): A normalized version of `surf`.
@@ -319,14 +319,14 @@ class Argument(Base):
         self.sdist = -1
 
     @classmethod
-    def build(cls, arg):
-        """Create an instance from language analysis.
+    def build(cls, arg: PyknpArgument) -> 'Argument':
+        """Create an object from language analysis.
 
         Args:
-            arg (PyknpArgument): An argument.
+            arg: A :class:`pyknp.knp.pas.Argument` object.
 
         Returns:
-            Argument: An argument.
+            One :class:`.Argument' object.
 
         """
         argument = Argument()
@@ -334,14 +334,14 @@ class Argument(Base):
         return argument
 
     @classmethod
-    def load(cls, dct):
-        """Create an instance from a dictionary.
+    def load(cls, dct: dict) -> 'Argument':
+        """Create an object from a dictionary.
 
         Args:
-            dct (dict): A dictionary storing an instance.
+            dct: A dictionary storing an object.
 
         Returns:
-            Argument: An argument.
+            One :class:`.Argument' object.
 
         """
         argument = Argument()
@@ -360,17 +360,17 @@ class Argument(Base):
         argument.children = dct['children']
         return argument
 
-    def push_bp(self, bp):
+    def push_bp(self, bp: BasicPhrase):
         """Push a basic phrase.
 
         Args:
-            bp (BasicPhrase): A basic phrase.
+            bp: A basic phrase.
 
         """
         self.bpl.push(bp)
 
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         head_bpl = self.bpl.head
         common_args = {'normalize': 'argument'}
         self.surf = head_bpl.to_string(space=False, **common_args)
@@ -404,11 +404,11 @@ class Argument(Base):
                 ('possessive', bp.is_possessive)
             ]))
 
-    def to_dict(self):
-        """Return this instance as a dictionary.
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this argument information.
+            One :class:`dict` object.
 
         """
         if self.surf == '':
@@ -430,11 +430,11 @@ class Argument(Base):
                 ('children', self.children)
             ])
 
-    def to_head_reps(self):
-        """Return this instance as a head representative string.
+    def to_head_reps(self) -> str:
+        """Convert this object into a head representative string.
 
         Returns:
-            str: A head representative string.
+            A head representative string.
 
         """
         head_bpl = self.bpl.head

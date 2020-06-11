@@ -1,4 +1,3 @@
-"""A class to manage event information."""
 import collections
 import copy
 from typing import List
@@ -18,30 +17,30 @@ class Event(Base):
     """A class to manage an event.
 
     Attributes:
-        evid (int): A serial event ID.
-        sid (str): An original sentence ID.
-        ssid (int): A serial sentence ID.
-        start (Tag): A clause-start tag.
-        head (Tag): A clause-head tag.
-        end (Tag): A clause-end tag.
-        surf (str): A surface string.
+        evid (int): The serial event ID.
+        sid (str): The original sentence ID.
+        ssid (int): The serial sentence ID.
+        start (Tag): A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's start.
+        head (Tag): A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's head.
+        end (Tag): A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's end.
+        surf (str): The surface string.
         surf_with_mark (str): `surf` with special marks.
         mrphs (str): `surf` with white spaces between morphemes.
         mrphs_with_mark (str): `mrphs` with special marks.
-        normalized_mrphs (str): A normalized version of `mrphs`.
+        normalized_mrphs (str): The normalized version of `mrphs`.
         normalized_mrphs_with_mark (str): `normalized_mrphs` with special marks.
         normalized_mrphs_without_exophora (str): `normalized_mrphs` without exophora arguments.
         normalized_mrphs_with_mark_without_exophora (str): `normalized_mrphs_with_mark` without exophora arguments.
         reps (str): The representative string.
         reps_with_mark (str): `reps` with special marks.
-        normalized_reps (str): A normalized version of `reps`.
+        normalized_reps (str): The normalized version of `reps`.
         normalized_reps_with_mark (str): `normalized_reps` with special marks.
-        content_rep_list (List[str]): A collection of repnames corresponding to content words.
-        parent_evid (int): A parent event ID.
-        outgoing_relations (List[Relation]): A list of relations, where the modifiers point this event.
-        incoming_relations (List[EventRelation]): A list of relations, where the heads point this event.
-        pas (PAS): A predicate argument structure.
-        features (Features): Features.
+        content_rep_list (List[str]): The collection of representative strings of content words.
+        parent_evid (int): The parent event ID.
+        outgoing_relations (List[Relation]): A list of relations whose modifiers are this event.
+        incoming_relations (List[EventRelation]): A list of relations whose heads are this event.
+        pas (PAS): A :class:`.PAS` object.
+        features (Features): A :class:`.Features` object.
 
     """
 
@@ -77,27 +76,33 @@ class Event(Base):
         self.features = None
 
     @property
-    def adnominal_relations(self):
+    def adnominal_relations(self) -> List['Relation']:
+        """Adnominal relations whose heads are this event."""
         return list(filter(lambda r: r.label == '連体修飾', self.incoming_relations))
 
     @property
     def sentential_complement_relations(self):
+        """Sentential complement relations whose heads are this event."""
         return list(filter(lambda r: r.label == '補文', self.incoming_relations))
 
     @property
-    def adnominal_events(self):
+    def adnominal_events(self) -> List['Event']:
+        """Adnominal events that modifies this event."""
         return list(map(lambda r: r.modifier, self.adnominal_relations))
 
     @property
-    def sentential_complement_events(self):
+    def sentential_complement_events(self) -> List['Event']:
+        """Sentential complement events that modifies this event."""
         return list(map(lambda r: r.modifier, self.sentential_complement_relations))
 
     @property
-    def is_adnominal(self):
+    def is_adnominal(self) -> bool:
+        """``True`` if this event plays a role as an adnominal."""
         return '連体修飾' in {r.label for r in self.outgoing_relations}
 
     @property
-    def is_sentential_complement(self):
+    def is_sentential_complement(self) -> bool:
+        """``True`` if this event plays a role as a sentential complement."""
         return '補文' in {r.label for r in self.outgoing_relations}
 
     @classmethod
@@ -106,18 +111,18 @@ class Event(Base):
         cls.__evid = 0
 
     @classmethod
-    def build(cls, sid, ssid, start, head, end):
-        """Create an instance from language analysis.
+    def build(cls, sid: int, ssid: int, start: Tag, head: Tag, end: Tag) -> 'Event':
+        """Create an object from language analysis.
 
         Args:
-            sid (str): An original sentence ID.
-            ssid (int): A serial sentence ID.
-            start (Tag): A clause-start tag.
-            head (Tag): A clause-head tag.
-            end (Tag): A clause-end tag.
+            sid: An original sentence ID.
+            ssid: A serial sentence ID.
+            start: A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's start.
+            head: A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's head.
+            end: A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's end.
 
         Returns:
-            Event: An event.
+            One :class:`.Event` object.
 
         """
         event = Event()
@@ -133,14 +138,14 @@ class Event(Base):
         return event
 
     @classmethod
-    def load(cls, dct):
-        """Create an instance from a dictionary.
+    def load(cls, dct: dict) -> 'Event':
+        """Create an object from a dictionary.
 
         Args:
-            dct (dict): A dictionary storing an instance.
+            dct: A dictionary storing an object.
 
         Returns:
-            Event: An event.
+            One :class:`.Event` object.
 
         """
         event = Event()
@@ -165,11 +170,11 @@ class Event(Base):
         Event.__evid = event.evid
         return event
 
-    def push_bp(self, bp):
+    def push_bp(self, bp: BasicPhrase):
         """Push a basic phrase.
 
         Args:
-            bp (BasicPhrase): A basic phrase.
+            bp: A :class:`.BasicPhrase` object.
 
         """
         if any(bp in argument.bpl for argument_list in self.pas.arguments.values() for argument in argument_list):
@@ -191,7 +196,7 @@ class Event(Base):
             self.pas.predicate.push_bp(bp)
 
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         self.pas.finalize()
         self.features.finalize()
         for relation in self.outgoing_relations:
@@ -212,11 +217,11 @@ class Event(Base):
         self.normalized_reps_with_mark = bpl.to_string('repname', mark=True, truncate=True)
         self.content_rep_list = bpl.to_content_rep_list()
 
-    def to_dict(self):
-        """Convert this instance into a dictionary.
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this instance information.
+            One :class:`dict` object.
 
         """
         return collections.OrderedDict([
@@ -241,24 +246,24 @@ class Event(Base):
             ('features', self.features.to_dict())
         ])
 
-    def to_basic_phrase_list(self, include_modifiers=False):
-        """Convert this instance into a basic phrase list.
+    def to_basic_phrase_list(self, include_modifiers: bool = False) -> BasicPhraseList:
+        """Convert this object into a basic phrase list.
 
         Args:
-            include_modifiers (bool): Whether to include modifiers' basic phrases.
+            include_modifiers: Specify ``True`` to include modifiers' basic phrases.
 
         Returns:
-            BasicPhraseList: A basic phrase list.
+            A :class:`.BasicPhraseList` object.
 
         """
-        def is_valid_basic_phrase_list(bpl):
+        def is_valid_basic_phrase_list(bpl: BasicPhraseList) -> bool:
             """Return True if the given basic phrase is used to show this event.
 
             Args:
-                bpl (BasicPhraseList): A basic phrase.
+                bpl: A :class`.BasicPhraseList` object.
 
             Returns:
-                bool: Whether this basic phrase is valid.
+                ``True`` if this basic phrase is valid.
 
             """
             def is_valid_basic_phrase(bp):
@@ -308,14 +313,14 @@ class Event(Base):
                         bpl.push(modifier_bp)
         return bpl
 
-    def _get_modifier_basic_phrase_list(self, bp):
+    def _get_modifier_basic_phrase_list(self, bp: BasicPhrase) -> BasicPhraseList:
         """Get a basic phrase list by collecting basic phrases of modifiers.
 
         Args:
-            bp (BasicPhrase): A basic phrase.
+            bp: A :class:`.BasicPhrase` object.
 
         Returns:
-            BasicPhraseList: A basic phrase list.
+            BasicPhraseList: A :class:`.BasicPhraseList` object.
 
         """
         def get_modifier_events_from_event(event):
@@ -340,15 +345,15 @@ class Relation(Base):
     """A class to manage relation information.
 
     Attributes:
-        modifier (Event): A modifier event.
-        head (Event): A head event.
-        modifier_evid (int): The serial event ID of a modifier event.
-        head_evid (int): The serial event ID of a head event.
-        head_tid (int): The serial tag ID of a head event's head tag.
+        modifier (Event): The modifier event.
+        head (Event): The head event.
+        modifier_evid (int): The serial event ID of the modifier event.
+        head_evid (int): The serial event ID of the head event.
+        head_tid (int): The serial tag ID of the head event's head tag.
             A negative value implies that the modifier event does not modify a specific token.
-        label (str): A label.
-        surf (str): An explicit marker.
-        reliable (bool): Whether a syntactic dependency is ambiguous.
+        label (str): The label.
+        surf (str): The explicit marker.
+        reliable (bool): ``True`` when a syntactic dependency is not ambiguous.
 
     """
 
@@ -363,20 +368,20 @@ class Relation(Base):
         self.reliable = False
 
     @classmethod
-    def build(cls, modifier, head, head_tid, label, surf, reliable):
-        """Create an instance from language analysis.
+    def build(cls, modifier: Event, head: Event, head_tid: int, label: str, surf: str, reliable: bool) -> 'Relation':
+        """Create an object from language analysis.
 
         Args:
-            modifier (Event): A modifier event.
-            head (Event): A head event.
-            head_tid (int): The serial tag ID of a head event's head tag.
+            modifier: A modifier event.
+            head: A head event.
+            head_tid: The serial tag ID of a head event's head tag.
                 A negative value implies that the modifier event does not modify a specific token.
-            label (str): A label.
-            surf (str): An explicit marker.
-            reliable (bool): Whether a syntactic dependency is ambiguous.
+            label: A label.
+            surf: An explicit marker.
+            reliable: ``True`` if a syntactic dependency is not ambiguous.
 
         Returns:
-            Relation: A relation.
+            One :class:`.Relation` object.
 
         """
         relation = Relation()
@@ -391,16 +396,16 @@ class Relation(Base):
         return relation
 
     @classmethod
-    def load(cls, modifier, head, dct):
-        """Create an instance from a dictionary.
+    def load(cls, modifier: Event, head: Event, dct: dict) -> 'Relation':
+        """Create an object from a dictionary.
 
         Args:
-            modifier (Event): A modifier event.
-            head (Event): A head event.
-            dct (dict): A dictionary storing relation information.
+            modifier: A modifier event.
+            head: A head event.
+            dct: A dictionary storing relation information.
 
         Returns:
-            Relation: A relation.
+            One :class:`.Relation` object.
 
         """
         relation = Relation()
@@ -415,14 +420,14 @@ class Relation(Base):
         return relation
 
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         pass
 
-    def to_dict(self):
-        """Convert this instance into a dictionary.
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary.
 
         Returns:
-            dict: A dictionary storing this relation information.
+            One :class:`dict` object.
 
         """
         return collections.OrderedDict([

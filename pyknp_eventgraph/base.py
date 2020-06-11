@@ -9,25 +9,25 @@ class Base(ABC):
     @classmethod
     @abstractmethod
     def build(cls, *args, **kwargs):
-        """Create an instance from language analysis."""
+        """Create an object from language analysis."""
         pass
 
     @classmethod
     @abstractmethod
     def load(cls, *args, **kwargs):
-        """Create an instance from a dictionary."""
+        """Create an object from a dictionary."""
         pass
 
     @abstractmethod
     def finalize(self):
-        """Finalize this instance."""
+        """Finalize this object."""
         pass
 
     @abstractmethod
     def to_dict(self):
-        """Convert this instance into a dictionary."""
+        """Convert this object into a dictionary."""
         pass
 
     def __repr__(self):
-        """Print this instance."""
+        """Print this object."""
         return json.dumps(self.to_dict(), indent=4, ensure_ascii=False)
