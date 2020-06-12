@@ -12,6 +12,8 @@ Events are linked to each other based on their syntactic and semantic relations.
 
 ## Installation
 
+To install pyknp-eventgraph, use `pip`.
+
 ```
 $ pip install pyknp-eventgraph
 ```
@@ -74,6 +76,10 @@ with open('example-eventgraph.json', 'r', encoding='utf-8', errors='ignore') as 
 # convert EventGraph to its visualization
 make_image(evg, 'example-eventgraph.svg')
 ```
+
+## Documents
+
+[https://pyknp-eventgraph.readthedocs.io/en/latest/](https://pyknp-eventgraph.readthedocs.io/en/latest/)
 
 ## Authors
 
