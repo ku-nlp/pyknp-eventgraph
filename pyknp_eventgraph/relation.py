@@ -84,11 +84,22 @@ class RelationBuilder:
     def __call__(self, modifier: 'Event', head: 'Event', label: str, surf: str = '', head_tid: int = -1,
                  reliable: bool = False) -> Relation:
         logger.debug('Create a relation')
-
         relation = Relation(modifier, head, label, surf, head_tid, reliable)
         modifier.outgoing_relations.append(relation)
         head.incoming_relations.append(relation)
+        logger.debug('Successfully created a relation.')
+        return relation
 
+
+class JsonRelationBuilder(Builder):
+
+    def __call__(self, modifier_evid: int, head_evid: int, dump: dict) -> Relation:
+        logger.debug('Create a relation')
+        modifier = Builder.evid_event_map[modifier_evid]
+        head = Builder.evid_event_map[head_evid]
+        relation = Relation(modifier, head, dump['label'], dump['surf'], dump['head_tid'], dump['reliable'])
+        modifier.outgoing_relations.append(relation)
+        head.incoming_relations.append(relation)
         logger.debug('Successfully created a relation.')
         return relation
 
@@ -96,7 +107,7 @@ class RelationBuilder:
 class RelationsBuilder(Builder):
 
     def __call__(self, event: 'Event') -> List[Relation]:
-        relations: List[Relation] = list()
+        relations: List[Relation] = []
         for relation in self._get_outgoing_relations(event):
             relations.append(relation)
         return relations

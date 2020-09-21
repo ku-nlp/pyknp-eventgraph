@@ -13,6 +13,7 @@ class Builder:
     ssid: int = 0
     evid: int = 0
 
+    evid_event_map: Dict[int, 'Event'] = {}
     stid_event_map: Dict[Tuple[int, int], 'Event'] = {}
     stid_bid_map: Dict[Tuple[int, int], int] = {}
     stid_tag_map: Dict[Tuple[int, int], Tag] = {}

@@ -20,17 +20,21 @@ class Sentence(Component):
         document (Document): A document that includes this sentence.
         sid (str): An original sentence ID.
         ssid (int): A serial sentence ID.
-        blist (BList): A list of bunsetsu-s. For details, refer to :class:`pyknp.knp.blist.BList`.
+        blist (BList, optional): A list of bunsetsu-s. For details, refer to :class:`pyknp.knp.blist.BList`.
         events (List[Event]): A list of events in this sentence.
 
     """
 
-    def __init__(self, document: 'Document', sid: str, ssid: int, blist: BList):
+    def __init__(self, document: 'Document', sid: str, ssid: int, blist: Optional[BList] = None):
         self.document: Document = document
         self.sid: str = sid
         self.ssid: int = ssid
         self.blist: BList = blist
         self.events: List[Event] = []
+
+        # Only used when this component is deserialized from a json file
+        self._mrphs = None
+        self._reps = None
 
     @property
     def surf(self):
@@ -40,12 +44,18 @@ class Sentence(Component):
     @property
     def mrphs(self):
         """A tokenized surface string."""
-        return ' '.join(m.midasi for m in self.blist.mrph_list())
+        if self._mrphs is not None:
+            return self._mrphs
+        else:
+            return ' '.join(m.midasi for m in self.blist.mrph_list())
 
     @property
     def reps(self):
         """A representative string."""
-        return ' '.join(m.repname or f'{m.midasi}/{m.midasi}' for m in self.blist.mrph_list())
+        if self._reps is not None:
+            return self._reps
+        else:
+            return ' '.join(m.repname or f'{m.midasi}/{m.midasi}' for m in self.blist.mrph_list())
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
@@ -67,7 +77,6 @@ class SentenceBuilder(Builder):
     def __call__(self, document: 'Document', blist: BList) -> Sentence:
         logger.debug('Create a sentence.')
         sentence = Sentence(document, blist.sid, Builder.ssid, blist)
-
         Builder.ssid += 1
 
         start: Optional[Tag] = None
@@ -92,5 +101,18 @@ class SentenceBuilder(Builder):
 
         document.sentences.append(sentence)
 
+        logger.debug('Successfully created a sentence.')
+        return sentence
+
+
+class JsonSentenceBuilder(Builder):
+
+    def __call__(self, document: 'Document', dump: dict) -> Sentence:
+        logger.debug('Create a sentence.')
+        sentence = Sentence(document, dump['sid'], dump['ssid'])
+        sentence._mrphs = dump['mrphs']
+        sentence._reps = dump['reps']
+        Builder.ssid += 1
+        document.sentences.append(sentence)
         logger.debug('Successfully created a sentence.')
         return sentence

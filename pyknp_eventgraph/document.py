@@ -6,7 +6,8 @@ from pyknp import BList
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.sentence import Sentence, SentenceBuilder
+from pyknp_eventgraph.sentence import Sentence, SentenceBuilder, JsonSentenceBuilder
+from pyknp_eventgraph.event import JsonEventBuilder
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.eventgraph import EventGraph
@@ -44,10 +45,23 @@ class DocumentBuilder(Builder):
     def __call__(self, evg: 'EventGraph', blists: List[BList]) -> Document:
         logger.debug('Create a document.')
         document = Document(evg)
-
         for blist in blists:
             SentenceBuilder()(document, blist)
         evg.document = document
+        logger.debug('Successfully created a document.')
+        return document
 
+
+class JsonDocumentBuilder(Builder):
+
+    def __call__(self, evg: 'EventGraph', dump: dict) -> Document:
+        logger.debug('Create a document.')
+        document = Document(evg)
+        for sentence_dump in dump['sentences']:
+            JsonSentenceBuilder()(document, sentence_dump)
+        for event_dump in dump['events']:
+            ssid = event_dump['ssid']
+            JsonEventBuilder()(document.sentences[ssid], event_dump)
+        evg.document = document
         logger.debug('Successfully created a document.')
         return document

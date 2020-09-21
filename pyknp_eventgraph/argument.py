@@ -23,16 +23,33 @@ class Argument(Component):
     Attributes:
         event (Event): An event that this argument belongs.
         case (str): A case.
-        arg (PyknpArgument): An argument. For details, refer to :class:`pyknp.knp.pas.Argument`.
+        eid (int): An entity ID.
+        flag (str): A flag.
+        sdist (int): The sentence distance between this argument and the predicate.
         head_token (Token, optional): A head token.
 
     """
 
-    def __init__(self, event: 'Event', case: str, arg: PyknpArgument):
+    def __init__(self, event: 'Event', case: str, eid: int, flag: str, sdist: int, arg: Optional[PyknpArgument] = None):
         self.event: Event = event
         self.case: str = case
-        self.arg: PyknpArgument = arg
+        self.eid: int = eid
+        self.flag: str = flag
+        self.sdist: int = sdist
+        self.arg: Optional[PyknpArgument] = arg
         self.head_token: Optional[Token] = None
+
+        # Only used when this component is deserialized from a json file
+        self._surf = None
+        self._normalized_surf = None
+        self._mrphs = None
+        self._normalized_mrphs = None
+        self._reps = None
+        self._normalized_reps = None
+        self._head_reps = None
+        self._children = None
+        self._adnominal_event_ids = None
+        self._sentential_complement_event_ids = None
 
     @property
     def tag(self) -> Optional[Tag]:
@@ -42,89 +59,105 @@ class Argument(Component):
     @property
     def surf(self) -> str:
         """A surface string."""
-        return self.mrphs.replace(' ', '')
+        if self._surf is not None:
+            return self._surf
+        else:
+            return self.mrphs.replace(' ', '')
 
     @property
     def normalized_surf(self) -> str:
         """A normalized surface string."""
-        return self.normalized_mrphs.replace(' ', '')
+        if self._normalized_surf is not None:
+            return self._normalized_surf
+        else:
+            return self.normalized_mrphs.replace(' ', '')
 
     @property
     def mrphs(self) -> str:
         """A tokenized surface string."""
-        return self._token_to_text(self.head_token, mode='mrphs', truncate=False, is_head=True)
+        if self._mrphs is not None:
+            return self._mrphs
+        else:
+            return self._token_to_text(self.head_token, mode='mrphs', truncate=False, is_head=True)
 
     @property
     def normalized_mrphs(self) -> str:
         """A tokenized/normalized surface string."""
-        return self._token_to_text(self.head_token, mode='mrphs', truncate=True, is_head=True)
+        if self._normalized_mrphs is not None:
+            return self._normalized_mrphs
+        else:
+            return self._token_to_text(self.head_token, mode='mrphs', truncate=True, is_head=True)
 
     @property
     def reps(self) -> str:
         """A representative string."""
-        return self._token_to_text(self.head_token, mode='reps', truncate=False, is_head=True)
+        if self._reps is not None:
+            return self._reps
+        else:
+            return self._token_to_text(self.head_token, mode='reps', truncate=False, is_head=True)
 
     @property
     def normalized_reps(self) -> str:
         """A normalized representative string."""
-        return self._token_to_text(self.head_token, mode='reps', truncate=True, is_head=True)
+        if self._normalized_reps is not None:
+            return self._normalized_reps
+        else:
+            return self._token_to_text(self.head_token, mode='reps', truncate=True, is_head=True)
 
     @property
     def head_reps(self) -> str:
         """A head representative string."""
-        if self.head_token.tag:  # Not an exophora.
-            head_reps = self.head_token.tag.head_prime_repname or self.head_token.tag.head_repname
-            if head_reps:
-                return f'[{head_reps}]' if self.head_token.omitted_case else head_reps
-        return self.normalized_reps
-
-    @property
-    def eid(self) -> int:
-        """An entity ID."""
-        return self.arg.eid
-
-    @property
-    def flag(self) -> str:
-        """A flag."""
-        return self.arg.flag
-
-    @property
-    def sdist(self) -> int:
-        """The sentence distance between this argument and the predicate."""
-        return self.arg.sdist
+        if self._head_reps is not None:
+            return self._head_reps
+        else:
+            if self.head_token.tag:  # Not an exophora.
+                head_reps = self.head_token.tag.head_prime_repname or self.head_token.tag.head_repname
+                if head_reps:
+                    return f'[{head_reps}]' if self.head_token.omitted_case else head_reps
+            return self.normalized_reps
 
     @property
     def adnominal_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (adnominal)."""
-        return sorted(
-            event.evid for t in self.head_token.modifiee(include_self=True) for event in t.adnominal_events
-        )
+        if self._adnominal_event_ids is not None:
+            return self._adnominal_event_ids
+        else:
+            return sorted(
+                event.evid for t in self.head_token.modifiee(include_self=True) for event in t.adnominal_events
+            )
 
     @property
     def sentential_complement_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (sentential complement)."""
-        return sorted(
-            event.evid for t in self.head_token.modifiee(include_self=True) for event in t.sentential_complement_events
-        )
+        if self._sentential_complement_event_ids is not None:
+            return self._sentential_complement_event_ids
+        else:
+            return sorted(
+                event.evid for t in self.head_token.modifiee(include_self=True)
+                for event in t.sentential_complement_events
+            )
 
     @property
     def children(self) -> List[dict]:
         """A list of child words."""
-        children = []
-        for token in reversed(self.head_token.modifier()):
-            children.append({
-                'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
-                'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
-                'mrphs': self._token_to_text(token, mode='mrphs', truncate=False),
-                'normalized_mrphs': self._token_to_text(token, mode='mrphs', truncate=True),
-                'reps': self._token_to_text(token, mode='reps', truncate=False),
-                'normalized_reps': self._token_to_text(token, mode='reps', truncate=True),
-                'adnominal_event_ids': [event.evid for event in token.adnominal_events],
-                'sentential_complement_event_ids': [event.evid for event in token.sentential_complement_events],
-                'modifier': '修飾' in token.tag.features,
-                'possessive': token.tag.features.get('係', '') == 'ノ格',
-            })
-        return children
+        if self._children is not None:
+            return self._children
+        else:
+            children = []
+            for token in reversed(self.head_token.modifier()):
+                children.append({
+                    'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
+                    'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
+                    'mrphs': self._token_to_text(token, mode='mrphs', truncate=False),
+                    'normalized_mrphs': self._token_to_text(token, mode='mrphs', truncate=True),
+                    'reps': self._token_to_text(token, mode='reps', truncate=False),
+                    'normalized_reps': self._token_to_text(token, mode='reps', truncate=True),
+                    'adnominal_event_ids': [event.evid for event in token.adnominal_events],
+                    'sentential_complement_event_ids': [event.evid for event in token.sentential_complement_events],
+                    'modifier': '修飾' in token.tag.features,
+                    'possessive': token.tag.features.get('係', '') == 'ノ格',
+                })
+            return children
 
     def _token_to_text(self, token: Token, mode: str = 'mrphs', truncate: bool = False, is_head: bool = False) -> str:
         """Convert a token to a text.
@@ -232,10 +265,28 @@ class ArgumentBuilder(Builder):
 
     def __call__(self, event: 'Event', case: str, arg: PyknpArgument) -> Argument:
         logger.debug('Create an argument')
-
-        argument = Argument(event, case, arg)
+        argument = Argument(event, case, arg.eid, arg.flag, arg.sdist, arg)
         event.arguments[case].append(argument)
+        logger.debug('Successfully created an argument.')
+        return argument
 
+
+class JsonArgumentBuilder(Builder):
+
+    def __call__(self, event: 'Event', case: str, dump: dict) -> Argument:
+        logger.debug('Create an argument')
+        argument = Argument(event, case, dump['eid'], dump['flag'], dump['sdist'])
+        argument._surf = dump['surf']
+        argument._normalized_surf = dump['normalized_surf']
+        argument._mrphs = dump['mrphs']
+        argument._normalized_mrphs = dump['normalized_mrphs']
+        argument._reps = dump['reps']
+        argument._normalized_reps = dump['normalized_reps']
+        argument._head_reps = dump['head_reps']
+        argument._children = dump['children']
+        argument._adnominal_event_ids = dump['adnominal_event_ids']
+        argument._sentential_complement_event_ids = dump['sentential_complement_event_ids']
+        event.arguments[case].append(argument)
         logger.debug('Successfully created an argument.')
         return argument
 
@@ -248,4 +299,14 @@ class ArgumentsBuilder(Builder):
             for case, args in sorted(event.head.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
                 for arg in sorted(args, key=lambda _arg: (event.ssid - _arg.sdist, _arg.tid)):
                     arguments[case].append(ArgumentBuilder()(event, case, arg))
+        return arguments
+
+
+class JsonArgumentsBuilder(Builder):
+
+    def __call__(self, event: 'Event', dump: dict) -> Dict[str, List[Argument]]:
+        arguments: Dict[str, List[Argument]] = collections.defaultdict(list)
+        for case, arguments_dump in dump.items():
+            for argument_dump in arguments_dump:
+                arguments[case].append(JsonArgumentBuilder()(event, case, argument_dump))
         return arguments

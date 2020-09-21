@@ -1,6 +1,6 @@
 from logging import getLogger
 import re
-from typing import List, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from pyknp import Tag
 
@@ -27,19 +27,19 @@ class Features(Component):
         negation (bool): If true, this event uses a negative construction.
         state (str): A type of a predicate, which can take either "動態述語 (action)" or "状態述語 (state)."
         complement (bool): If true, this event modifies an event as a sentential complementizer.
-        level (str): The semantic heaviness of a predicate.
+        level (str, optional): The semantic heaviness of a predicate.
 
     """
 
     def __init__(self, event: 'Event', modality: List[str], tense: str, negation: bool, state: str, complement: bool,
-                 level: str):
+                 level: Optional[str] = None):
         self.event: Event = event
         self.modality: List[str] = modality
         self.tense: str = tense
         self.negation: bool = negation
         self.state: str = state
         self.complement: bool = complement
-        self.level: str = level
+        self.level: Optional[str] = level
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
@@ -65,9 +65,8 @@ class Features(Component):
 
 class FeaturesBuilder(Builder):
 
-    def __call__(self, event: 'Event'):
+    def __call__(self, event: 'Event') -> Features:
         logger.debug('Create features.')
-
         func_tag = self._get_functional_tag(event.head)
         features = Features(
             event=event,
@@ -79,7 +78,6 @@ class FeaturesBuilder(Builder):
             level=self._find_level(func_tag),
         )
         event.features = features
-
         logger.debug('Successfully created features.')
         return features
 
@@ -128,3 +126,20 @@ class FeaturesBuilder(Builder):
     @staticmethod
     def _find_level(func_tag: Tag) -> str:
         return func_tag.features.get('レベル', '')
+
+
+class JsonFeaturesBuilder(Builder):
+
+    def __call__(self, event: 'Event', dump: dict) -> Features:
+        logger.debug('Create features.')
+        features = Features(
+            event=event,
+            modality=dump['modality'],
+            tense=dump['tense'],
+            negation=dump['negation'],
+            state=dump['state'],
+            complement=dump['complement'],
+        )
+        event.features = features
+        logger.debug('Successfully created features.')
+        return features

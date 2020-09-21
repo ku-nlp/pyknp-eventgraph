@@ -24,11 +24,23 @@ class Predicate(Component):
 
     """
 
-    def __init__(self, event: 'Event', head: Tag, type_: str):
+    def __init__(self, event: 'Event', head: Optional[Tag], type_: str):
         self.event: Event = event
-        self.head: Tag = head
+        self.head: Optional[Tag] = head
         self.type_: str = type_
         self.head_token: Optional[Token] = None
+
+        # Only used when this component is deserialized from a json file
+        self._surf = None
+        self._normalized_surf = None
+        self._mrphs = None
+        self._normalized_mrphs = None
+        self._reps = None
+        self._normalized_reps = None
+        self._standard_reps = None
+        self._children = None
+        self._adnominal_event_ids = None
+        self._sentential_complement_event_ids = None
 
     @property
     def tag(self) -> Optional[Tag]:
@@ -38,7 +50,10 @@ class Predicate(Component):
     @property
     def surf(self) -> str:
         """A surface string."""
-        return self.mrphs.replace(' ', '')
+        if self._surf is not None:
+            return self._surf
+        else:
+            return self.mrphs.replace(' ', '')
 
     @property
     def normalized_surf(self) -> str:
@@ -48,18 +63,21 @@ class Predicate(Component):
     @property
     def mrphs(self) -> str:
         """A tokenized string."""
-        mrphs = []
-        is_within_standard_repname = False
-        for token in self.head_token.modifiee(include_self=True):
-            for m in token.tag.mrph_list():
-                if '用言表記先頭' in m.fstring:
-                    is_within_standard_repname = True
-                if '用言表記末尾' in m.fstring:
-                    mrphs.append(m.genkei)  # Normalize the last morpheme.
-                    return ' '.join(mrphs)
-                if is_within_standard_repname:
-                    mrphs.append(m.midasi)
-        return ' '.join(mrphs)
+        if self._mrphs is not None:
+            return self._mrphs
+        else:
+            mrphs = []
+            is_within_standard_repname = False
+            for token in self.head_token.modifiee(include_self=True):
+                for m in token.tag.mrph_list():
+                    if '用言表記先頭' in m.fstring:
+                        is_within_standard_repname = True
+                    if '用言表記末尾' in m.fstring:
+                        mrphs.append(m.genkei)  # Normalize the last morpheme.
+                        return ' '.join(mrphs)
+                    if is_within_standard_repname:
+                        mrphs.append(m.midasi)
+            return ' '.join(mrphs)
 
     @property
     def normalized_mrphs(self) -> str:
@@ -69,10 +87,13 @@ class Predicate(Component):
     @property
     def reps(self) -> str:
         """A representative string."""
-        for token in self.head_token.modifiee(include_self=True):
-            if '用言代表表記' in token.tag.features:
-                return token.tag.features['用言代表表記']
-        return self._token_to_text(self.head_token, mode='reps', truncate=True, is_head=True)
+        if self._reps is not None:
+            return self._reps
+        else:
+            for token in self.head_token.modifiee(include_self=True):
+                if '用言代表表記' in token.tag.features:
+                    return token.tag.features['用言代表表記']
+            return self._token_to_text(self.head_token, mode='reps', truncate=True, is_head=True)
 
     @property
     def normalized_reps(self) -> str:
@@ -82,10 +103,13 @@ class Predicate(Component):
     @property
     def standard_reps(self) -> str:
         """A standard representative string."""
-        for token in self.head_token.modifiee(include_self=True):
-            if '標準用言代表表記' in token.tag.features:
-                return token.tag.features['標準用言代表表記']
-        return self.reps
+        if self._standard_reps is not None:
+            return self._standard_reps
+        else:
+            for token in self.head_token.modifiee(include_self=True):
+                if '標準用言代表表記' in token.tag.features:
+                    return token.tag.features['標準用言代表表記']
+            return self.reps
 
     @property
     def type(self) -> str:
@@ -95,35 +119,45 @@ class Predicate(Component):
     @property
     def adnominal_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (adnominal)."""
-        return sorted(
-            event.evid for t in self.head_token.modifiee(include_self=True) for event in t.adnominal_events
-        )
+        if self._adnominal_event_ids is not None:
+            return self._adnominal_event_ids
+        else:
+            return sorted(
+                event.evid for t in self.head_token.modifiee(include_self=True) for event in t.adnominal_events
+            )
 
     @property
     def sentential_complement_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (sentential complement)."""
-        return sorted(
-            event.evid for t in self.head_token.modifiee(include_self=True) for event in t.sentential_complement_events
-        )
+        if self._sentential_complement_event_ids is not None:
+            return self._sentential_complement_event_ids
+        else:
+            return sorted(
+                event.evid for t in self.head_token.modifiee(include_self=True)
+                for event in t.sentential_complement_events
+            )
 
     @property
     def children(self) -> List[dict]:
         """A list of child words."""
-        children = []
-        for token in reversed(self.head_token.modifier()):
-            children.append({
-                'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
-                'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
-                'mrphs': self._token_to_text(token, mode='mrphs', truncate=False),
-                'normalized_mrphs': self._token_to_text(token, mode='mrphs', truncate=True),
-                'reps': self._token_to_text(token, mode='reps', truncate=False),
-                'normalized_reps': self._token_to_text(token, mode='reps', truncate=True),
-                'adnominal_event_ids': [event.evid for event in token.adnominal_events],
-                'sentential_complement_event_ids': [event.evid for event in token.sentential_complement_events],
-                'modifier': '修飾' in token.tag.features,
-                'possessive': token.tag.features.get('係', '') == 'ノ格',
-            })
-        return children
+        if self._children is not None:
+            return self._children
+        else:
+            children = []
+            for token in reversed(self.head_token.modifier()):
+                children.append({
+                    'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
+                    'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
+                    'mrphs': self._token_to_text(token, mode='mrphs', truncate=False),
+                    'normalized_mrphs': self._token_to_text(token, mode='mrphs', truncate=True),
+                    'reps': self._token_to_text(token, mode='reps', truncate=False),
+                    'normalized_reps': self._token_to_text(token, mode='reps', truncate=True),
+                    'adnominal_event_ids': [event.evid for event in token.adnominal_events],
+                    'sentential_complement_event_ids': [event.evid for event in token.sentential_complement_events],
+                    'modifier': '修飾' in token.tag.features,
+                    'possessive': token.tag.features.get('係', '') == 'ノ格',
+                })
+            return children
 
     def _token_to_text(self, token: Token, mode: str = 'mrphs', truncate: bool = False, is_head: bool = False) -> str:
         """Convert a token to a text.
@@ -225,13 +259,31 @@ class PredicateBuilder(Builder):
 
     def __call__(self, event: 'Event') -> Predicate:
         logger.debug('Create a predicate.')
-
         predicate = Predicate(event, event.head, self._find_type(event.head))
         event.predicate = predicate
-
         logger.debug('Successfully created a predicate.')
         return predicate
 
     @staticmethod
     def _find_type(head: Tag) -> str:
         return head.features.get('用言', '')
+
+
+class JsonPredicateBuilder(Builder):
+
+    def __call__(self, event: 'Event', dump: dict) -> Predicate:
+        logger.debug('Create a predicate.')
+        predicate = Predicate(event, None, dump['type'])
+        predicate._surf = dump['surf']
+        predicate._normalized_surf = dump['normalized_surf']
+        predicate._mrphs = dump['mrphs']
+        predicate._normalized_mrphs = dump['normalized_mrphs']
+        predicate._reps = dump['reps']
+        predicate._normalized_reps = dump['normalized_reps']
+        predicate._standard_reps = dump['standard_reps']
+        predicate._children = dump['children']
+        predicate._adnominal_event_ids = dump['adnominal_event_ids']
+        predicate._sentential_complement_event_ids = dump['sentential_complement_event_ids']
+        event.predicate = predicate
+        logger.debug('Successfully created a predicate.')
+        return predicate

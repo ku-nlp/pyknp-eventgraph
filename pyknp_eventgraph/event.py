@@ -6,9 +6,9 @@ from pyknp import Tag, Morpheme
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.argument import Argument, ArgumentsBuilder
-from pyknp_eventgraph.features import Features, FeaturesBuilder
-from pyknp_eventgraph.predicate import Predicate, PredicateBuilder
+from pyknp_eventgraph.predicate import Predicate, PredicateBuilder, JsonPredicateBuilder
+from pyknp_eventgraph.argument import Argument, ArgumentsBuilder, JsonArgumentsBuilder
+from pyknp_eventgraph.features import Features, FeaturesBuilder, JsonFeaturesBuilder
 from pyknp_eventgraph.relation import Relation, filter_relations
 from pyknp_eventgraph.token import Token, group_tokens
 from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
@@ -33,9 +33,9 @@ class Event(Component):
         evid (int): A serial event ID.
         sid (str): An original sentence ID.
         ssid (int): A serial sentence ID.
-        start (Tag): A start tag.
-        head (Tag): A head tag.
-        end (Tag): An end tag.
+        start (Tag, optional): A start tag.
+        head (Tag, optional): A head tag.
+        end (Tag, optional): An end tag.
         predicate (Predicate): A predicate.
         arguments (Dict[str, List[Argument]]): A mapping of cases to arguments.
         outgoing_relations (List[Relation]): A list of relations where this event is the modifier.
@@ -47,7 +47,8 @@ class Event(Component):
 
     """
 
-    def __init__(self, sentence: 'Sentence', evid: int, sid: str, ssid: int, start: Tag, head: Tag, end: Tag):
+    def __init__(self, sentence: 'Sentence', evid: int, sid: str, ssid: int, start: Optional[Tag] = None,
+                 head: Optional[Tag] = None, end: Optional[Tag] = None):
         self.sentence: Sentence = sentence
         self.evid: int = evid
         self.sid: str = sid
@@ -64,80 +65,124 @@ class Event(Component):
         self.children: List[Event] = []
         self.head_token: Optional[Token] = None
 
+        # Only used when this component is deserialized from a json file
+        self._surf = None
+        self._surf_with_mark = None
+        self._mrphs = None
+        self._mrphs_with_mark = None
+        self._normalized_mrphs = None
+        self._normalized_mrphs_with_mark = None
+        self._normalized_mrphs_without_exophora = None
+        self._normalized_mrphs_with_mark_without_exophora = None
+        self._reps = None
+        self._reps_with_mark = None
+        self._normalized_reps = None
+        self._normalized_reps_with_mark = None
+        self._content_rep_list = None
+
     @property
     def surf(self) -> str:
         """A surface string."""
-        return self.surf_()
+        if self._surf is not None:
+            return self._surf
+        else:
+            return self.surf_()
 
     @property
     def surf_with_mark(self) -> str:
         """A surface string with marks."""
-        return self.surf_with_mark_()
-
-    @property
-    def normalized_surf(self) -> str:
-        """A normalized surface string."""
-        return self.normalized_surf_()
-
-    @property
-    def normalized_surf_with_mark(self) -> str:
-        """A normalized surface string with marks."""
-        return self.normalized_surf_with_mark_()
+        if self._surf_with_mark is not None:
+            return self._surf_with_mark
+        else:
+            return self.surf_with_mark_()
 
     @property
     def mrphs(self):
         """A tokenized surface string."""
-        return self.mrphs_()
+        if self._mrphs is not None:
+            return self._mrphs
+        else:
+            return self.mrphs_()
 
     @property
     def mrphs_with_mark(self):
         """A tokenized surface string with marks."""
-        return self.mrphs_with_mark_()
+        if self._mrphs_with_mark is not None:
+            return self._mrphs_with_mark
+        else:
+            return self.mrphs_with_mark_()
 
     @property
     def normalized_mrphs(self):
         """A tokenized/normalized surface string."""
-        return self.normalized_mrphs_()
+        if self._normalized_mrphs is not None:
+            return self._normalized_mrphs
+        else:
+            return self.normalized_mrphs_()
 
     @property
     def normalized_mrphs_with_mark(self):
         """A tokenized/normalized surface string with marks."""
-        return self.normalized_mrphs_with_mark_()
+        if self._normalized_mrphs_with_mark is not None:
+            return self._normalized_mrphs_with_mark
+        else:
+            return self.normalized_mrphs_with_mark_()
 
     @property
     def normalized_mrphs_without_exophora(self):
         """A tokenized/normalized surface string without exophora."""
-        return self.normalized_mrphs_without_exophora_()
+        if self._normalized_mrphs_without_exophora is not None:
+            return self._normalized_mrphs_without_exophora
+        else:
+            return self.normalized_mrphs_without_exophora_()
 
     @property
     def normalized_mrphs_with_mark_without_exophora(self):
         """A tokenized/normalized surface string with marks but without exophora."""
-        return self.normalized_mrphs_with_mark_without_exophora_()
+        if self._normalized_mrphs_with_mark_without_exophora is not None:
+            return self._normalized_mrphs_with_mark_without_exophora
+        else:
+            return self.normalized_mrphs_with_mark_without_exophora_()
 
     @property
     def reps(self):
         """A representative string."""
-        return self.reps_()
+        if self._reps is not None:
+            return self._reps
+        else:
+            return self.reps_()
 
     @property
     def reps_with_mark(self):
         """A representative string with marks."""
-        return self.reps_with_mark_()
+        if self._reps_with_mark is not None:
+            return self._reps_with_mark
+        else:
+            return self.reps_with_mark_()
 
     @property
     def normalized_reps(self):
         """A normalized representative string."""
-        return self.normalized_reps_()
+        if self._normalized_reps is not None:
+            return self._normalized_reps
+        else:
+            return self.normalized_reps_()
 
     @property
     def normalized_reps_with_mark(self):
         """A normalized representative string with marks."""
-        return self.normalized_reps_with_mark_()
+        if self._normalized_reps_with_mark is not None:
+            return self._normalized_reps_with_mark
+        else:
+            return self.normalized_reps_with_mark_()
 
     @property
     def content_rep_list(self) -> List[str]:
         """A list of content words."""
-        return self._content_rep_list()
+        if self._content_rep_list is not None:
+            return self._content_rep_list
+        else:
+            return self.content_rep_list_()
 
     @staticmethod
     def _mrphs_to_surf(mrphs: str) -> str:
@@ -168,24 +213,6 @@ class Event(Component):
 
         """
         return self._mrphs_to_surf(self.mrphs_with_mark_(include_modifiers))
-
-    def normalized_surf_(self, include_modifiers: bool = False) -> str:
-        """A normalized surface string.
-
-        Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
-
-        """
-        return self._mrphs_to_surf(self.normalized_mrphs_(include_modifiers))
-
-    def normalized_surf_with_mark_(self, include_modifiers: bool = False) -> str:
-        """A normalized surface string with marks.
-
-        Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
-
-        """
-        return self._mrphs_to_surf(self.normalized_mrphs_(include_modifiers))
 
     def mrphs_(self, include_modifiers: bool = False):
         """A tokenized surface string.
@@ -277,7 +304,7 @@ class Event(Component):
         """
         return self._to_text('reps', truncate=True, add_mark=True, include_modifiers=include_modifiers)
 
-    def _content_rep_list(self, include_modifiers: bool = False) -> List[str]:
+    def content_rep_list_(self, include_modifiers: bool = False) -> List[str]:
         """A list of content words.
 
         Args:
@@ -572,7 +599,6 @@ class EventBuilder(Builder):
 
     def __call__(self, sentence: 'Sentence', start: Tag, head: Tag, end: Tag):
         logger.debug('Create an event')
-
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid, start, head, end)
         Builder.evid += 1
         PredicateBuilder()(event)
@@ -583,6 +609,37 @@ class EventBuilder(Builder):
         for tid in range(start.tag_id, end.tag_id + 1):
             Builder.stid_event_map[(sentence.ssid, tid)] = event
         sentence.events.append(event)
+
+        logger.debug('Successfully created a event.')
+        return event
+
+
+class JsonEventBuilder(Builder):
+
+    def __call__(self, sentence: 'Sentence', dump: dict) -> Event:
+        logger.debug('Create an event')
+        event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid)
+        event._surf = dump['surf']
+        event._surf_with_mark = dump['surf_with_mark']
+        event._mrphs = dump['mrphs']
+        event._mrphs_with_mark = dump['mrphs_with_mark']
+        event._normalized_mrphs = dump['normalized_mrphs']
+        event._normalized_mrphs_with_mark = dump['normalized_mrphs_with_mark']
+        event._normalized_mrphs_without_exophora = dump['normalized_mrphs_without_exophora']
+        event._normalized_mrphs_with_mark_without_exophora = dump['normalized_mrphs_with_mark_without_exophora']
+        event._reps = dump['reps']
+        event._reps_with_mark = dump['reps_with_mark']
+        event._normalized_reps = dump['normalized_reps']
+        event._normalized_reps_with_mark = dump['normalized_reps_with_mark']
+        event._content_rep_list = dump['content_rep_list']
+        Builder.evid += 1
+        JsonPredicateBuilder()(event, dump['pas']['predicate'])
+        JsonArgumentsBuilder()(event, dump['pas']['argument'])
+        JsonFeaturesBuilder()(event, dump['features'])
+        sentence.events.append(event)
+
+        # Make this sentence and its components accessible from builders.
+        Builder.evid_event_map[event.evid] = event
 
         logger.debug('Successfully created a event.')
         return event
