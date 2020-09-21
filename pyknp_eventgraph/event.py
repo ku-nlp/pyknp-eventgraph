@@ -97,7 +97,7 @@ class Event(Component):
             return self.surf_with_mark_()
 
     @property
-    def mrphs(self):
+    def mrphs(self) -> str:
         """A tokenized surface string."""
         if self._mrphs is not None:
             return self._mrphs
@@ -105,7 +105,7 @@ class Event(Component):
             return self.mrphs_()
 
     @property
-    def mrphs_with_mark(self):
+    def mrphs_with_mark(self) -> str:
         """A tokenized surface string with marks."""
         if self._mrphs_with_mark is not None:
             return self._mrphs_with_mark
@@ -113,7 +113,7 @@ class Event(Component):
             return self.mrphs_with_mark_()
 
     @property
-    def normalized_mrphs(self):
+    def normalized_mrphs(self) -> str:
         """A tokenized/normalized surface string."""
         if self._normalized_mrphs is not None:
             return self._normalized_mrphs
@@ -121,7 +121,7 @@ class Event(Component):
             return self.normalized_mrphs_()
 
     @property
-    def normalized_mrphs_with_mark(self):
+    def normalized_mrphs_with_mark(self) -> str:
         """A tokenized/normalized surface string with marks."""
         if self._normalized_mrphs_with_mark is not None:
             return self._normalized_mrphs_with_mark
@@ -129,7 +129,7 @@ class Event(Component):
             return self.normalized_mrphs_with_mark_()
 
     @property
-    def normalized_mrphs_without_exophora(self):
+    def normalized_mrphs_without_exophora(self) -> str:
         """A tokenized/normalized surface string without exophora."""
         if self._normalized_mrphs_without_exophora is not None:
             return self._normalized_mrphs_without_exophora
@@ -137,7 +137,7 @@ class Event(Component):
             return self.normalized_mrphs_without_exophora_()
 
     @property
-    def normalized_mrphs_with_mark_without_exophora(self):
+    def normalized_mrphs_with_mark_without_exophora(self) -> str:
         """A tokenized/normalized surface string with marks but without exophora."""
         if self._normalized_mrphs_with_mark_without_exophora is not None:
             return self._normalized_mrphs_with_mark_without_exophora
@@ -145,7 +145,7 @@ class Event(Component):
             return self.normalized_mrphs_with_mark_without_exophora_()
 
     @property
-    def reps(self):
+    def reps(self) -> str:
         """A representative string."""
         if self._reps is not None:
             return self._reps
@@ -153,7 +153,7 @@ class Event(Component):
             return self.reps_()
 
     @property
-    def reps_with_mark(self):
+    def reps_with_mark(self) -> str:
         """A representative string with marks."""
         if self._reps_with_mark is not None:
             return self._reps_with_mark
@@ -161,7 +161,7 @@ class Event(Component):
             return self.reps_with_mark_()
 
     @property
-    def normalized_reps(self):
+    def normalized_reps(self) -> str:
         """A normalized representative string."""
         if self._normalized_reps is not None:
             return self._normalized_reps
@@ -169,7 +169,7 @@ class Event(Component):
             return self.normalized_reps_()
 
     @property
-    def normalized_reps_with_mark(self):
+    def normalized_reps_with_mark(self) -> str:
         """A normalized representative string with marks."""
         if self._normalized_reps_with_mark is not None:
             return self._normalized_reps_with_mark
@@ -189,7 +189,7 @@ class Event(Component):
         """Remove unnecessary spaces from a tokenized surface string.
 
         Args:
-            mrphs (str): A tokenized surface string.
+            mrphs: A tokenized surface string.
 
         """
         surf = mrphs.replace(' ', '')
@@ -200,7 +200,7 @@ class Event(Component):
         """A surface string.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._mrphs_to_surf(self.mrphs_(include_modifiers))
@@ -209,16 +209,16 @@ class Event(Component):
         """A surface string with marks.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._mrphs_to_surf(self.mrphs_with_mark_(include_modifiers))
 
-    def mrphs_(self, include_modifiers: bool = False):
+    def mrphs_(self, include_modifiers: bool = False) -> str:
         """A tokenized surface string.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text(truncate=False, add_mark=False, include_modifiers=include_modifiers)
@@ -227,7 +227,7 @@ class Event(Component):
         """A tokenized surface string with marks.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text(truncate=False, add_mark=True, include_modifiers=include_modifiers)
@@ -236,70 +236,70 @@ class Event(Component):
         """A tokenized/normalized surface string.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text(truncate=True, add_mark=False, include_modifiers=include_modifiers)
 
-    def normalized_mrphs_with_mark_(self, include_modifiers: bool = False):
+    def normalized_mrphs_with_mark_(self, include_modifiers: bool = False) -> str:
         """A tokenized/normalized surface string with marks.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text(truncate=True, add_mark=True, include_modifiers=include_modifiers)
 
-    def normalized_mrphs_without_exophora_(self, include_modifiers: bool = False):
+    def normalized_mrphs_without_exophora_(self, include_modifiers: bool = False) -> str:
         """A tokenized/normalized surface string without exophora.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text(truncate=True, add_mark=False, exclude_exophora=True, include_modifiers=include_modifiers)
 
-    def normalized_mrphs_with_mark_without_exophora_(self, include_modifiers: bool = False):
+    def normalized_mrphs_with_mark_without_exophora_(self, include_modifiers: bool = False) -> str:
         """A tokenized/normalized surface string with marks but without exophora.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text(truncate=True, add_mark=True, exclude_exophora=True, include_modifiers=include_modifiers)
 
-    def reps_(self, include_modifiers: bool = False):
+    def reps_(self, include_modifiers: bool = False) -> str:
         """A representative string.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text('reps', truncate=False, add_mark=False, include_modifiers=include_modifiers)
 
-    def reps_with_mark_(self, include_modifiers: bool = False):
+    def reps_with_mark_(self, include_modifiers: bool = False) -> str:
         """A representative string with marks.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text('reps', truncate=False, add_mark=True, include_modifiers=include_modifiers)
 
-    def normalized_reps_(self, include_modifiers: bool = False):
+    def normalized_reps_(self, include_modifiers: bool = False) -> str:
         """A normalized representative string.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text('reps', truncate=True, add_mark=False, include_modifiers=include_modifiers)
 
-    def normalized_reps_with_mark_(self, include_modifiers: bool = False):
+    def normalized_reps_with_mark_(self, include_modifiers: bool = False) -> str:
         """A normalized representative string with marks.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         return self._to_text('reps', truncate=True, add_mark=True, include_modifiers=include_modifiers)
@@ -308,7 +308,7 @@ class Event(Component):
         """A list of content words.
 
         Args:
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         """
         content_rep_list = []
@@ -323,12 +323,12 @@ class Event(Component):
         """Convert this event to a text.
 
         Args:
-            mode (str): A type of token representation, which can take either "mrphs" or "reps".
-            truncate (bool): If true, adjunct words are truncated.
-            add_mark (bool): If true, add special marks. Note that an exophora is enclosed by square brackets even when
+            mode: A type of token representation, which can take either "mrphs" or "reps".
+            truncate: If true, adjunct words are truncated.
+            add_mark: If true, add special marks. Note that an exophora is enclosed by square brackets even when
                 this flag is false.
-            exclude_exophora (bool): If true, exophora will not be used.
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            exclude_exophora: If true, exophora will not be used.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         Returns:
             A resultant string.
@@ -359,8 +359,8 @@ class Event(Component):
         """Collect tokens belonging to this event.
 
         Args:
-            exclude_exophora (bool): If true, exophora will not be used.
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            exclude_exophora: If true, exophora will not be used.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         Returns:
             A list of tokens that belong to this event.
@@ -396,7 +396,7 @@ class Event(Component):
         """Convert a list of tokens to a list of morphemes.
 
         Args:
-            tokens (List[Token]): A list of tokens.
+            tokens: A list of tokens.
 
         Returns:
             A list of morphemes, each of which can be either a :class:`pyknp.juman.morpheme.Morpheme` object or
@@ -426,7 +426,7 @@ class Event(Component):
         """Find a position just before adjunct words start.
 
         Args:
-            tokens_list (List[List[Token]]): A list of tokens grouped by bunsetsu IDs.
+            tokens_list: A list of tokens grouped by bunsetsu IDs.
 
         Returns:
             A position just before adjunct words start.
@@ -465,13 +465,13 @@ class Event(Component):
         """Get a mapping from positions to marks.
 
         Args:
-            tokens_list (List[List[Token]]): A list of tokens grouped by bunsetsu IDs.
-            mrphs_list (List[List[Morpheme_]]): A list of morphemes grouped by bunsetsu IDs.
-            add_mark (bool): If true, add special marks. Note that an exophora is enclosed by square brackets even when
+            tokens_list: A list of tokens grouped by bunsetsu IDs.
+            mrphs_list: A list of morphemes grouped by bunsetsu IDs.
+            add_mark: If true, add special marks. Note that an exophora is enclosed by square brackets even when
                 this flag is false.
-            normalize (bool): If true, the last content word will be normalized.
-            truncated_position (Tuple[int, int]): A position just before adjunct words start.
-            include_modifiers (bool): If true, tokens of events that modify this event will be included.
+            normalize: If true, the last content word will be normalized.
+            truncated_position: A position just before adjunct words start.
+            include_modifiers: If true, tokens of events that modify this event will be included.
 
         Returns:
             A mapping from positions to marks.
@@ -515,10 +515,10 @@ class Event(Component):
         """Format a list of morphemes grouped by bunsetsu IDs to create a text.
 
         Args:
-            mrphs_list (List[List[Morpheme_]]): A list of morphemes grouped by bunsetsu IDs.
-            mode (str): A type of token representation, which can take either "mrphs" or "reps".
-            normalize (bool): If true, the last content word will be normalized.
-            marker (Dict[Tuple[int, int, str], str]): A mapping from positions to marks.
+            mrphs_list: A list of morphemes grouped by bunsetsu IDs.
+            mode: A type of token representation, which can take either "mrphs" or "reps".
+            normalize: If true, the last content word will be normalized.
+            marker: A mapping from positions to marks.
 
         """
         assert mode in {'mrphs', 'reps'}

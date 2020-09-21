@@ -37,12 +37,12 @@ class Sentence(Component):
         self._reps = None
 
     @property
-    def surf(self):
+    def surf(self) -> str:
         """A surface string."""
         return self.mrphs.replace(' ', '')
 
     @property
-    def mrphs(self):
+    def mrphs(self) -> str:
         """A tokenized surface string."""
         if self._mrphs is not None:
             return self._mrphs
@@ -50,7 +50,7 @@ class Sentence(Component):
             return ' '.join(m.midasi for m in self.blist.mrph_list())
 
     @property
-    def reps(self):
+    def reps(self) -> str:
         """A representative string."""
         if self._reps is not None:
             return self._reps

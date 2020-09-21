@@ -8,10 +8,10 @@ def read_knp_result_file(filename: str) -> List[BList]:
     """Read a file of KNP results.
 
     Args:
-        filename (str): A filename.
+        filename: A filename.
 
     Returns:
-        List[BList]: A list of :class:`pyknp.knp.blist.BList` objects.
+        A list of :class:`pyknp.knp.blist.BList` objects.
 
     """
     knp = KNP()

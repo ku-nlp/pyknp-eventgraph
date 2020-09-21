@@ -40,13 +40,13 @@ class EventGraph(Component):
         """Deserialize an EventGraph.
 
         Args:
-            f (IO): A file descriptor.
-            binary (bool): If true, deserialize an EventGraph using Python's pickle utility. Otherwise, deserialize
+            f: A file descriptor.
+            binary: If true, deserialize an EventGraph using Python's pickle utility. Otherwise, deserialize
                 an EventGraph using Python's json utility.
 
         Caution:
             EventGraph deserialized from a JSON file loses several functionality. To keep full functionality,
-                use Python\'s pickle utility for serialization.
+            use Python\'s pickle utility for serialization.
 
         """
         if binary:
@@ -58,13 +58,13 @@ class EventGraph(Component):
         """Save this object using Python's pickle utility for serialization.
 
         Args:
-            path (str): An output file path.
-            binary (bool): If true, serialize this EventGraph using Python's pickle utility. Otherwise, serialize
+            path: An output file path.
+            binary: If true, serialize this EventGraph using Python's pickle utility. Otherwise, serialize
                 this EventGraph using Python's json utility.
 
         Caution:
             EventGraph deserialized from a JSON file loses several functionality. To keep full functionality,
-                use Python\'s pickle utility for serialization.
+            use Python\'s pickle utility for serialization.
 
         """
         if binary:

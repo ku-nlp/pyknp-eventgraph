@@ -78,7 +78,7 @@ class Argument(Component):
         if self._mrphs is not None:
             return self._mrphs
         else:
-            return self._token_to_text(self.head_token, mode='mrphs', truncate=False, is_head=True)
+            return self._token_to_text(self.head_token, mode='mrphs', truncate=False, include_modifiees=True)
 
     @property
     def normalized_mrphs(self) -> str:
@@ -86,7 +86,7 @@ class Argument(Component):
         if self._normalized_mrphs is not None:
             return self._normalized_mrphs
         else:
-            return self._token_to_text(self.head_token, mode='mrphs', truncate=True, is_head=True)
+            return self._token_to_text(self.head_token, mode='mrphs', truncate=True, include_modifiees=True)
 
     @property
     def reps(self) -> str:
@@ -94,7 +94,7 @@ class Argument(Component):
         if self._reps is not None:
             return self._reps
         else:
-            return self._token_to_text(self.head_token, mode='reps', truncate=False, is_head=True)
+            return self._token_to_text(self.head_token, mode='reps', truncate=False, include_modifiees=True)
 
     @property
     def normalized_reps(self) -> str:
@@ -102,7 +102,7 @@ class Argument(Component):
         if self._normalized_reps is not None:
             return self._normalized_reps
         else:
-            return self._token_to_text(self.head_token, mode='reps', truncate=True, is_head=True)
+            return self._token_to_text(self.head_token, mode='reps', truncate=True, include_modifiees=True)
 
     @property
     def head_reps(self) -> str:
@@ -123,7 +123,7 @@ class Argument(Component):
             return self._adnominal_event_ids
         else:
             return sorted(
-                event.evid for t in self.head_token.modifiee(include_self=True) for event in t.adnominal_events
+                event.evid for t in self.head_token.modifiees(include_self=True) for event in t.adnominal_events
             )
 
     @property
@@ -133,7 +133,7 @@ class Argument(Component):
             return self._sentential_complement_event_ids
         else:
             return sorted(
-                event.evid for t in self.head_token.modifiee(include_self=True)
+                event.evid for t in self.head_token.modifiees(include_self=True)
                 for event in t.sentential_complement_events
             )
 
@@ -144,7 +144,7 @@ class Argument(Component):
             return self._children
         else:
             children = []
-            for token in reversed(self.head_token.modifier()):
+            for token in reversed(self.head_token.modifiers()):
                 children.append({
                     'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
                     'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
@@ -159,14 +159,15 @@ class Argument(Component):
                 })
             return children
 
-    def _token_to_text(self, token: Token, mode: str = 'mrphs', truncate: bool = False, is_head: bool = False) -> str:
+    def _token_to_text(self, token: Token, mode: str = 'mrphs', truncate: bool = False,
+                       include_modifiees: bool = False) -> str:
         """Convert a token to a text.
 
         Args:
-            token (Token): A token.
-            mode (str): A type of token representation, which can take either "mrphs" or "reps".
-            truncate (bool): If true, adjunct words are truncated.
-            is_head (bool): If true, parents are used to construct a compound phrase.
+            token: A token.
+            mode: A type of token representation, which can take either "mrphs" or "reps".
+            truncate: If true, adjunct words are truncated.
+            include_modifiees: If true, parents are used to construct a compound phrase.
 
         Returns:
             A resultant string.
@@ -184,8 +185,8 @@ class Argument(Component):
             return f'[{base}]' if truncate else f'[{base} {case}]'
         else:
             mrphs = list(token.tag.mrph_list())
-            if is_head:
-                for parent_token in token.modifiee():
+            if include_modifiees:
+                for parent_token in token.modifiees():
                     mrphs += (parent_token.tag.mrph_list())
             if truncate:
                 mrphs = self._truncate_mrphs(mrphs)
@@ -198,7 +199,7 @@ class Argument(Component):
         """Truncate a list of morphemes.
 
         Args:
-            mrphs (List[Morpheme]): A list of morphemes.
+            mrphs: A list of morphemes.
 
         Returns:
             A list of morphemes.
@@ -219,9 +220,9 @@ class Argument(Component):
         """Convert a list of morphemes to a text.
 
         Args:
-            mrphs (List[Morpheme]): A list of morphemes.
-            mode (str): A type of token representation, which can take either "mrphs" or "reps".
-            normalize (bool): If true, the last content word will be normalized.
+            mrphs: A list of morphemes.
+            mode: A type of token representation, which can take either "mrphs" or "reps".
+            normalize: If true, the last content word will be normalized.
 
         Returns:
             A resultant string.

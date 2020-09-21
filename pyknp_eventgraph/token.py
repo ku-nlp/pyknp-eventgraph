@@ -102,13 +102,13 @@ class Token:
 
     def to_list(self) -> List['Token']:
         """Expand to a list."""
-        return sorted(self.root.modifier(include_self=True))
+        return sorted(self.root.modifiers(include_self=True))
 
-    def modifiee(self, include_self: bool = False) -> List['Token']:
+    def modifiees(self, include_self: bool = False) -> List['Token']:
         """Return a list of tokens modified by this token.
 
         Args:
-            include_self (bool): If true, include this token to the return.
+            include_self: If true, include this token to the return.
 
         """
         modifiee_tokens = []
@@ -123,11 +123,11 @@ class Token:
         add_modifiee(self)
         return modifiee_tokens
 
-    def modifier(self, include_self: bool = False) -> List['Token']:
+    def modifiers(self, include_self: bool = False) -> List['Token']:
         """Return a list of tokens modifying this token.
 
         Args:
-            include_self (bool): If true, include this token to the return.
+            include_self: If true, include this token to the return.
 
         """
         modifier_tokens = []
@@ -147,7 +147,7 @@ def group_tokens(tokens: List[Token]) -> List[List[Token]]:
     """Group tokens by their bunsetsu IDs (bid).
 
     Args:
-        tokens (List[Token]): A list of tokens.
+        tokens: A list of tokens.
 
     Returns:
         A list of tokens grouped by bunsetsu IDs.

@@ -19,7 +19,7 @@ class Builder:
     stid_tag_map: Dict[Tuple[int, int], Tag] = {}
 
     @classmethod
-    def reset(cls):
+    def reset(cls) -> None:
         cls.ssid = 0
         cls.evid = 0
         cls.stid_event_map: Dict[Tuple[int, int], 'Event'] = {}
