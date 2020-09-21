@@ -1,7 +1,7 @@
-pyknp\_eventgraph.features
+pyknp\_eventgraph.argument
 ==========================
 
-.. autoclass:: pyknp_eventgraph.features.Features
+.. autoclass:: pyknp_eventgraph.argument.Argument
    :members:
    :undoc-members:
    :show-inheritance:

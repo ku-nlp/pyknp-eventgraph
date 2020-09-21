@@ -93,7 +93,7 @@ class Token:
             return [r.modifier for r in filter_relations(self.event.incoming_relations, ['補文'], [self.tid])]
 
     @property
-    def root(self):
+    def root(self) -> 'Token':
         """Return the root of this token."""
         root_token = self
         while root_token.parent:

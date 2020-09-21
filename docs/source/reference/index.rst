@@ -8,10 +8,13 @@ API Reference
     :maxdepth: 2
 
     eventgraph
-    event
-    pas
-    features
-    basic_phrase
+    document
     sentence
-    base
+    event
+    predicate
+    argument
+    features
+    relation
     visualizer
+    component
+    token

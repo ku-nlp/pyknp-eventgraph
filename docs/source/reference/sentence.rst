@@ -1,8 +1,8 @@
 pyknp\_eventgraph.sentence
 ==========================
 
-.. automodule:: pyknp_eventgraph.sentence
+.. autoclass:: pyknp_eventgraph.sentence.Sentence
    :members:
    :undoc-members:
    :show-inheritance:
-   :member-order: bysource
+   :member-order: groupwise
