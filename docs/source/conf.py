@@ -47,7 +47,7 @@ templates_path = ['_templates']
 exclude_patterns = ['build']
 
 # If True, set typing.TYPE_CHECKING to True to enable “expensive” typing imports.
-set_type_checking_flag = True
+# set_type_checking_flag = True
 
 # -- Options for HTML output -------------------------------------------------
 
