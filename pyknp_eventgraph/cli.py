@@ -3,7 +3,6 @@ import argparse
 import codecs
 import json
 import sys
-from io import open
 from logging import basicConfig
 
 from pyknp import KNP
@@ -15,13 +14,9 @@ from pyknp_eventgraph import make_image
 def build_eventgraph():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', '-o', default='', help='path to output')
-    parser.add_argument('--binary', '-b', action='store_true', help='whether to save EventGraph as a binary file')
-    parser.add_argument('--verbose', '-v', action='store_true', help='print debug information')
     args = parser.parse_args()
 
-    format_ = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    level = 'DEBUG' if args.verbose else 'WARN'
-    basicConfig(format=format_, level=level)
+    basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     knp = KNP()
     results = []
@@ -34,7 +29,7 @@ def build_eventgraph():
 
     evg = EventGraph.build(results)
     if args.output:
-        evg.save(args.output, args.binary)
+        evg.save(args.output)
     else:
         print(json.dumps(evg.to_dict(), indent=4, ensure_ascii=False))
 
@@ -53,12 +48,7 @@ def visualize_eventgraph():
     level = 'DEBUG' if args.verbose else 'WARN'
     basicConfig(format=format_, level=level)
 
-    if args.binary:
-        f = open(args.IN, 'rb')
-    else:
-        f = open(args.IN, 'r', encoding='utf-8', errors='ignore')
-
-    evg = EventGraph.load(f, binary=args.binary)
+    evg = EventGraph.load(args.IN)
 
     make_image(
         evg=evg,
