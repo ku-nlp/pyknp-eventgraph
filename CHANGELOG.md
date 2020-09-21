@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.0.0]
+- Drastically refactored the construction logic.
+- Added a number of properties for the use as a high-level interface built on pyknp.
+
 ## [0.5.3]
 
 ### Fixed
