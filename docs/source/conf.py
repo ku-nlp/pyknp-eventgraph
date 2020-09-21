@@ -31,6 +31,7 @@ version = open('../../pyknp_eventgraph/VERSION').read().strip()
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints'
