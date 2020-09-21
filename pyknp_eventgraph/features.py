@@ -58,9 +58,7 @@ class Features(Component):
                f'tense: {self.tense}, ' \
                f'negation: {self.negation}, ' \
                f'state: {self.state}, ' \
-               f'complement: {self.complement}, ' \
-               f'level: {self.level}, ' \
-               f'negation: {self.negation})'
+               f'complement: {self.complement})'
 
 
 class FeaturesBuilder(Builder):
