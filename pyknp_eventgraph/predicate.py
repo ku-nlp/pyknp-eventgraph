@@ -31,6 +31,11 @@ class Predicate(Component):
         self.head_token: Optional[Token] = None
 
     @property
+    def tag(self) -> Optional[Tag]:
+        """The tag of the head token."""
+        return self.head_token.tag
+
+    @property
     def surf(self) -> str:
         """A surface string."""
         return self.mrphs.replace(' ', '')

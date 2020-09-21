@@ -2,7 +2,7 @@ import collections
 from logging import getLogger
 from typing import List, Dict, Optional, TYPE_CHECKING
 
-from pyknp import Morpheme
+from pyknp import Morpheme, Tag
 from pyknp import Argument as PyknpArgument
 from pyknp.knp.pas import Argument
 
@@ -33,6 +33,11 @@ class Argument(Component):
         self.case: str = case
         self.arg: PyknpArgument = arg
         self.head_token: Optional[Token] = None
+
+    @property
+    def tag(self) -> Optional[Tag]:
+        """The tag of the head token."""
+        return self.head_token.tag
 
     @property
     def surf(self) -> str:
@@ -67,7 +72,7 @@ class Argument(Component):
     @property
     def head_reps(self) -> str:
         """A head representative string."""
-        if self.head_token and self.head_token.tag:  # Not an omitted argument.
+        if self.head_token.tag:  # Not an exophora.
             head_reps = self.head_token.tag.head_prime_repname or self.head_token.tag.head_repname
             if head_reps:
                 return f'[{head_reps}]' if self.head_token.omitted_case else head_reps

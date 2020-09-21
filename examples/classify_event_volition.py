@@ -23,18 +23,20 @@ def main():
     for event in evg.events[:10]:
         # Ishi requires two information of an event: the predicate's head and the primary nominative.
 
-        # Predicate head: `event.predicate.head_token.tag` is the head token of the predicate of an event.
-        head_tag = event.predicate.head_token.tag
+        # Predicate head: `event.predicate.tag` is the head token of the predicate of an event.
+        head_tag = event.predicate.tag
 
         # Primary nominative: `event.arguments` is a mapping from a case to a list of arguments.
         nominatives = event.arguments.get('ガ', None)
         if nominatives:
             primary_nominative = nominatives[0]  # The first item corresponds to the primal one.
-            if primary_nominative.flag == 'E':  # Exophora
-                nominative_tag_or_midasi = primary_nominative.normalized_surf  # e.g., [著者]
-                nominative_tag_or_midasi = nominative_tag_or_midasi[1:-1]  # e.g., 著者
-            else:  # A tag exists
-                nominative_tag_or_midasi = primary_nominative.head_token.tag
+            if primary_nominative.tag:
+                nominative_tag_or_midasi = primary_nominative.tag
+            else:
+                # Otherwise, the nominative is an exophora.
+                # In this case, pass the information as a string.
+                nominative_tag_or_midasi = primary_nominative.normalized_surf  # e.g., "[著者]"
+                nominative_tag_or_midasi = nominative_tag_or_midasi[1:-1]  # e.g., "著者"
         else:
             nominative_tag_or_midasi = None
 
