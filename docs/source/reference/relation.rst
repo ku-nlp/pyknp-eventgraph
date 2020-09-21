@@ -1,7 +1,7 @@
-pyknp\_eventgraph.features
+pyknp\_eventgraph.relation
 ==========================
 
-.. autoclass:: pyknp_eventgraph.features.Features
+.. autoclass:: pyknp_eventgraph.relation.Relation
    :members:
    :undoc-members:
    :show-inheritance:

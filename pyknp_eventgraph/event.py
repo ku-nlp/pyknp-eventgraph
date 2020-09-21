@@ -1,230 +1,567 @@
 import collections
-import copy
-from typing import List
+from logging import getLogger
+from typing import Tuple, List, Dict, Union, Optional, TYPE_CHECKING
 
-from pyknp import Tag
+from pyknp import Tag, Morpheme
 
-from pyknp_eventgraph.base import Base
-from pyknp_eventgraph.basic_phrase import (
-    BasicPhrase,
-    BasicPhraseList
-)
-from pyknp_eventgraph.features import Features
-from pyknp_eventgraph.pas import PAS
+from pyknp_eventgraph.builder import Builder
+from pyknp_eventgraph.component import Component
+from pyknp_eventgraph.predicate import Predicate, PredicateBuilder, JsonPredicateBuilder
+from pyknp_eventgraph.argument import Argument, ArgumentsBuilder, JsonArgumentsBuilder
+from pyknp_eventgraph.features import Features, FeaturesBuilder, JsonFeaturesBuilder
+from pyknp_eventgraph.relation import Relation, filter_relations
+from pyknp_eventgraph.token import Token, group_tokens
+from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
+
+if TYPE_CHECKING:
+    from pyknp_eventgraph.sentence import Sentence
+
+Morpheme_ = Union[str, Morpheme]
+
+logger = getLogger(__name__)
 
 
-class Event(Base):
-    """A class to manage an event.
+class Event(Component):
+    """Event is the basic information unit of EventGraph.
+    Event is closely related to PAS more application-oriented with respect to the following points:
+      * Semantic heaviness: Some predicates are too semantically light for applications to treat as information units.
+        EventGraph constrains an event to have a semantically heavy predicate.
+      * Rich linguistic features: Linguistic features such as tense and modality are assigned to events.
 
     Attributes:
-        evid (int): The serial event ID.
-        sid (str): The original sentence ID.
-        ssid (int): The serial sentence ID.
-        start (Tag): A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's start.
-        head (Tag): A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's head.
-        end (Tag): A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's end.
-        surf (str): The surface string.
-        surf_with_mark (str): `surf` with special marks.
-        mrphs (str): `surf` with white spaces between morphemes.
-        mrphs_with_mark (str): `mrphs` with special marks.
-        normalized_mrphs (str): The normalized version of `mrphs`.
-        normalized_mrphs_with_mark (str): `normalized_mrphs` with special marks.
-        normalized_mrphs_without_exophora (str): `normalized_mrphs` without exophora arguments.
-        normalized_mrphs_with_mark_without_exophora (str): `normalized_mrphs_with_mark` without exophora arguments.
-        reps (str): The representative string.
-        reps_with_mark (str): `reps` with special marks.
-        normalized_reps (str): The normalized version of `reps`.
-        normalized_reps_with_mark (str): `normalized_reps` with special marks.
-        content_rep_list (List[str]): The collection of representative strings of content words.
-        parent_evid (int): The parent event ID.
-        outgoing_relations (List[Relation]): A list of relations whose modifiers are this event.
-        incoming_relations (List[EventRelation]): A list of relations whose heads are this event.
-        pas (PAS): A :class:`.PAS` object.
-        features (Features): A :class:`.Features` object.
+        sentence (Sentence): A sentence to which this event belongs.
+        evid (int): A serial event ID.
+        sid (str): An original sentence ID.
+        ssid (int): A serial sentence ID.
+        start (Tag, optional): A start tag.
+        head (Tag, optional): A head tag.
+        end (Tag, optional): An end tag.
+        predicate (Predicate): A predicate.
+        arguments (Dict[str, List[Argument]]): A mapping of cases to arguments.
+        outgoing_relations (List[Relation]): A list of relations where this event is the modifier.
+        incoming_relations (List[Relation]): A list of relations where this event is the head.
+        features (Optional[Features]): Linguistic features.
+        parent (Optional[Event]): A parent event.
+        children (List[Event]): A list of child events.
+        head_token (Optional[Token]): A head token.
 
     """
 
-    __evid = 0
+    def __init__(self, sentence: 'Sentence', evid: int, sid: str, ssid: int, start: Optional[Tag] = None,
+                 head: Optional[Tag] = None, end: Optional[Tag] = None):
+        self.sentence: Sentence = sentence
+        self.evid: int = evid
+        self.sid: str = sid
+        self.ssid: int = ssid
+        self.start: Tag = start
+        self.head: Tag = head
+        self.end: Tag = end
+        self.predicate: Optional[Predicate] = None
+        self.arguments: Dict[str, List[Argument]] = collections.defaultdict(list)  # case -> a list of arguments
+        self.outgoing_relations: List[Relation] = []
+        self.incoming_relations: List[Relation] = []
+        self.features: Optional[Features] = None
+        self.parent: Optional[Event] = None
+        self.children: List[Event] = []
+        self.head_token: Optional[Token] = None
 
-    def __init__(self):
-        self.evid = -1
-        self.sid = ''
-        self.ssid = -1
-
-        self.start = None
-        self.head = None
-        self.end = None
-
-        self.surf = ''
-        self.surf_with_mark = ''
-        self.mrphs = ''
-        self.mrphs_with_mark = ''
-        self.normalized_mrphs = ''
-        self.normalized_mrphs_with_mark = ''
-        self.normalized_mrphs_without_exophora = ''
-        self.normalized_mrphs_with_mark_without_exophora = ''
-        self.reps = ''
-        self.reps_with_mark = ''
-        self.normalized_reps = ''
-        self.normalized_reps_with_mark = ''
-        self.content_rep_list = []
-
-        self.parent_evid = -1
-        self.outgoing_relations = []
-        self.incoming_relations = []
-        self.pas = None
-        self.features = None
-
-    @property
-    def adnominal_relations(self) -> List['Relation']:
-        """Adnominal relations whose heads are this event."""
-        return list(filter(lambda r: r.label == '連体修飾', self.incoming_relations))
+        # Only used when this component is deserialized from a json file
+        self._surf = None
+        self._surf_with_mark = None
+        self._mrphs = None
+        self._mrphs_with_mark = None
+        self._normalized_mrphs = None
+        self._normalized_mrphs_with_mark = None
+        self._normalized_mrphs_without_exophora = None
+        self._normalized_mrphs_with_mark_without_exophora = None
+        self._reps = None
+        self._reps_with_mark = None
+        self._normalized_reps = None
+        self._normalized_reps_with_mark = None
+        self._content_rep_list = None
 
     @property
-    def sentential_complement_relations(self):
-        """Sentential complement relations whose heads are this event."""
-        return list(filter(lambda r: r.label == '補文', self.incoming_relations))
-
-    @property
-    def adnominal_events(self) -> List['Event']:
-        """Adnominal events that modifies this event."""
-        return list(map(lambda r: r.modifier, self.adnominal_relations))
-
-    @property
-    def sentential_complement_events(self) -> List['Event']:
-        """Sentential complement events that modifies this event."""
-        return list(map(lambda r: r.modifier, self.sentential_complement_relations))
-
-    @property
-    def is_adnominal(self) -> bool:
-        """``True`` if this event plays a role as an adnominal."""
-        return '連体修飾' in {r.label for r in self.outgoing_relations}
-
-    @property
-    def is_sentential_complement(self) -> bool:
-        """``True`` if this event plays a role as a sentential complement."""
-        return '補文' in {r.label for r in self.outgoing_relations}
-
-    @classmethod
-    def reset_serial_id(cls):
-        """Reset the serial event ID."""
-        cls.__evid = 0
-
-    @classmethod
-    def build(cls, sid: int, ssid: int, start: Tag, head: Tag, end: Tag) -> 'Event':
-        """Create an object from language analysis.
-
-        Args:
-            sid: An original sentence ID.
-            ssid: A serial sentence ID.
-            start: A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's start.
-            head: A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's head.
-            end: A :class:`pyknp.knp.tag.Tag` object corresponding to this clause's end.
-
-        Returns:
-            One :class:`.Event` object.
-
-        """
-        event = Event()
-        event.evid = cls.__evid
-        event.sid = sid
-        event.ssid = ssid
-        event.start = start
-        event.head = head
-        event.end = end
-        event.pas = PAS.build(head)
-        event.features = Features.build(head)
-        Event.__evid += 1
-        return event
-
-    @classmethod
-    def load(cls, dct: dict) -> 'Event':
-        """Create an object from a dictionary.
-
-        Args:
-            dct: A dictionary storing an object.
-
-        Returns:
-            One :class:`.Event` object.
-
-        """
-        event = Event()
-        event.evid = dct['event_id']
-        event.sid = dct['sid']
-        event.ssid = dct['ssid']
-        event.surf = dct['surf']
-        event.surf_with_mark = dct['surf_with_mark']
-        event.mrphs = dct['mrphs']
-        event.mrphs_with_mark = dct['mrphs_with_mark']
-        event.normalized_mrphs = dct['normalized_mrphs']
-        event.normalized_mrphs_with_mark = dct['normalized_mrphs_with_mark']
-        event.normalized_mrphs_without_exophora = dct['normalized_mrphs_without_exophora']
-        event.normalized_mrphs_with_mark_without_exophora = dct['normalized_mrphs_with_mark_without_exophora']
-        event.reps = dct['reps']
-        event.reps_with_mark = dct['reps_with_mark']
-        event.normalized_reps = dct['normalized_reps']
-        event.normalized_reps_with_mark = dct['normalized_reps_with_mark']
-        event.content_rep_list = dct['content_rep_list']
-        event.pas = PAS.load(dct['pas'])
-        event.features = Features.load(dct['features'])
-        Event.__evid = event.evid
-        return event
-
-    def push_bp(self, bp: BasicPhrase):
-        """Push a basic phrase.
-
-        Args:
-            bp: A :class:`.BasicPhrase` object.
-
-        """
-        if any(bp in argument.bpl for argument_list in self.pas.arguments.values() for argument in argument_list):
-            return  # the given basic phrase has been already taken by an argument
-
-        if not bp.is_omitted:
-            bp.set_adnominal_evids(list(map(
-                lambda r: r.modifier_evid,
-                filter(lambda r: r.head_tid == bp.tid, self.adnominal_relations)
-            )))
-            bp.set_sentential_complement_evids(list(map(
-                lambda r: r.modifier_evid,
-                filter(lambda r: r.head_tid == bp.tid, self.sentential_complement_relations)
-            )))
-
-        if bp.case:
-            self.pas.arguments[bp.case][bp.arg_index].push_bp(bp)
+    def surf(self) -> str:
+        """A surface string."""
+        if self._surf is not None:
+            return self._surf
         else:
-            self.pas.predicate.push_bp(bp)
+            return self.surf_()
 
-    def finalize(self):
-        """Finalize this object."""
-        self.pas.finalize()
-        self.features.finalize()
-        for relation in self.outgoing_relations:
-            relation.finalize()
+    @property
+    def surf_with_mark(self) -> str:
+        """A surface string with marks."""
+        if self._surf_with_mark is not None:
+            return self._surf_with_mark
+        else:
+            return self.surf_with_mark_()
 
-        bpl = self.to_basic_phrase_list()
-        self.surf = bpl.to_string(space=False)
-        self.surf_with_mark = bpl.to_string(mark=True, space=False)
-        self.mrphs = bpl.to_string()
-        self.mrphs_with_mark = bpl.to_string(mark=True)
-        self.normalized_mrphs = bpl.to_string(truncate=True)
-        self.normalized_mrphs_with_mark = bpl.to_string(mark=True, truncate=True)
-        self.normalized_mrphs_without_exophora = bpl.to_string(truncate=True, needs_exophora=False)
-        self.normalized_mrphs_with_mark_without_exophora = bpl.to_string(mark=True, truncate=True, needs_exophora=False)
-        self.reps = bpl.to_string('repname', mark=False, truncate=False)
-        self.reps_with_mark = bpl.to_string('repname', mark=True, truncate=False)
-        self.normalized_reps = bpl.to_string('repname', mark=False, truncate=True)
-        self.normalized_reps_with_mark = bpl.to_string('repname', mark=True, truncate=True)
-        self.content_rep_list = bpl.to_content_rep_list()
+    @property
+    def mrphs(self) -> str:
+        """A tokenized surface string."""
+        if self._mrphs is not None:
+            return self._mrphs
+        else:
+            return self.mrphs_()
+
+    @property
+    def mrphs_with_mark(self) -> str:
+        """A tokenized surface string with marks."""
+        if self._mrphs_with_mark is not None:
+            return self._mrphs_with_mark
+        else:
+            return self.mrphs_with_mark_()
+
+    @property
+    def normalized_mrphs(self) -> str:
+        """A tokenized/normalized surface string."""
+        if self._normalized_mrphs is not None:
+            return self._normalized_mrphs
+        else:
+            return self.normalized_mrphs_()
+
+    @property
+    def normalized_mrphs_with_mark(self) -> str:
+        """A tokenized/normalized surface string with marks."""
+        if self._normalized_mrphs_with_mark is not None:
+            return self._normalized_mrphs_with_mark
+        else:
+            return self.normalized_mrphs_with_mark_()
+
+    @property
+    def normalized_mrphs_without_exophora(self) -> str:
+        """A tokenized/normalized surface string without exophora."""
+        if self._normalized_mrphs_without_exophora is not None:
+            return self._normalized_mrphs_without_exophora
+        else:
+            return self.normalized_mrphs_without_exophora_()
+
+    @property
+    def normalized_mrphs_with_mark_without_exophora(self) -> str:
+        """A tokenized/normalized surface string with marks but without exophora."""
+        if self._normalized_mrphs_with_mark_without_exophora is not None:
+            return self._normalized_mrphs_with_mark_without_exophora
+        else:
+            return self.normalized_mrphs_with_mark_without_exophora_()
+
+    @property
+    def reps(self) -> str:
+        """A representative string."""
+        if self._reps is not None:
+            return self._reps
+        else:
+            return self.reps_()
+
+    @property
+    def reps_with_mark(self) -> str:
+        """A representative string with marks."""
+        if self._reps_with_mark is not None:
+            return self._reps_with_mark
+        else:
+            return self.reps_with_mark_()
+
+    @property
+    def normalized_reps(self) -> str:
+        """A normalized representative string."""
+        if self._normalized_reps is not None:
+            return self._normalized_reps
+        else:
+            return self.normalized_reps_()
+
+    @property
+    def normalized_reps_with_mark(self) -> str:
+        """A normalized representative string with marks."""
+        if self._normalized_reps_with_mark is not None:
+            return self._normalized_reps_with_mark
+        else:
+            return self.normalized_reps_with_mark_()
+
+    @property
+    def content_rep_list(self) -> List[str]:
+        """A list of content words."""
+        if self._content_rep_list is not None:
+            return self._content_rep_list
+        else:
+            return self.content_rep_list_()
+
+    @staticmethod
+    def _mrphs_to_surf(mrphs: str) -> str:
+        """Remove unnecessary spaces from a tokenized surface string.
+
+        Args:
+            mrphs: A tokenized surface string.
+
+        """
+        surf = mrphs.replace(' ', '')
+        surf = surf.replace(']', '] ').replace('|', ' | ').replace('▼', '▼ ').replace('■', '■ ').replace('(', ' (')
+        return surf
+
+    def surf_(self, include_modifiers: bool = False) -> str:
+        """A surface string.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._mrphs_to_surf(self.mrphs_(include_modifiers))
+
+    def surf_with_mark_(self, include_modifiers: bool = False) -> str:
+        """A surface string with marks.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._mrphs_to_surf(self.mrphs_with_mark_(include_modifiers))
+
+    def mrphs_(self, include_modifiers: bool = False) -> str:
+        """A tokenized surface string.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text(truncate=False, add_mark=False, include_modifiers=include_modifiers)
+
+    def mrphs_with_mark_(self, include_modifiers: bool = False) -> str:
+        """A tokenized surface string with marks.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text(truncate=False, add_mark=True, include_modifiers=include_modifiers)
+
+    def normalized_mrphs_(self, include_modifiers: bool = False) -> str:
+        """A tokenized/normalized surface string.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text(truncate=True, add_mark=False, include_modifiers=include_modifiers)
+
+    def normalized_mrphs_with_mark_(self, include_modifiers: bool = False) -> str:
+        """A tokenized/normalized surface string with marks.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text(truncate=True, add_mark=True, include_modifiers=include_modifiers)
+
+    def normalized_mrphs_without_exophora_(self, include_modifiers: bool = False) -> str:
+        """A tokenized/normalized surface string without exophora.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text(truncate=True, add_mark=False, exclude_exophora=True, include_modifiers=include_modifiers)
+
+    def normalized_mrphs_with_mark_without_exophora_(self, include_modifiers: bool = False) -> str:
+        """A tokenized/normalized surface string with marks but without exophora.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text(truncate=True, add_mark=True, exclude_exophora=True, include_modifiers=include_modifiers)
+
+    def reps_(self, include_modifiers: bool = False) -> str:
+        """A representative string.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text('reps', truncate=False, add_mark=False, include_modifiers=include_modifiers)
+
+    def reps_with_mark_(self, include_modifiers: bool = False) -> str:
+        """A representative string with marks.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text('reps', truncate=False, add_mark=True, include_modifiers=include_modifiers)
+
+    def normalized_reps_(self, include_modifiers: bool = False) -> str:
+        """A normalized representative string.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text('reps', truncate=True, add_mark=False, include_modifiers=include_modifiers)
+
+    def normalized_reps_with_mark_(self, include_modifiers: bool = False) -> str:
+        """A normalized representative string with marks.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        return self._to_text('reps', truncate=True, add_mark=True, include_modifiers=include_modifiers)
+
+    def content_rep_list_(self, include_modifiers: bool = False) -> List[str]:
+        """A list of content words.
+
+        Args:
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        """
+        content_rep_list = []
+        for token in filter(lambda t: t.tag, self._to_tokens(include_modifiers=include_modifiers)):
+            for mrph in token.tag.mrph_list():
+                if '<内容語>' in mrph.fstring or '<準内容語>' in mrph.fstring:
+                    content_rep_list.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
+        return content_rep_list
+
+    def _to_text(self, mode: str = 'mrphs', truncate: bool = False, add_mark: bool = False,
+                 exclude_exophora: bool = False, include_modifiers: bool = False) -> str:
+        """Convert this event to a text.
+
+        Args:
+            mode: A type of token representation, which can take either "mrphs" or "reps".
+            truncate: If true, adjunct words are truncated.
+            add_mark: If true, add special marks. Note that an exophora is enclosed by square brackets even when
+                this flag is false.
+            exclude_exophora: If true, exophora will not be used.
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        Returns:
+            A resultant string.
+
+        """
+        assert mode in {'mrphs', 'reps'}
+
+        # Create a list of tokens.
+        tokens = self._to_tokens(exclude_exophora=exclude_exophora, include_modifiers=include_modifiers)
+        tokens_list = group_tokens(tokens)
+
+        # Create a list of morphemes.
+        mrphs_list = list(map(self._tokens_to_mrphs, tokens_list))
+
+        # Prepare information to format a text.
+        truncated_position = self._find_truncated_position(tokens_list)
+        marker = self._get_marker(tokens_list, mrphs_list, add_mark, truncate, truncated_position, include_modifiers)
+
+        # Create a text.
+        if truncate:
+            mrphs_list = mrphs_list[:truncated_position[0] + 1]  # Truncate unnecessary morpheme groups.
+            mrphs_list[-1] = mrphs_list[-1][:truncated_position[1] + 1]  # Truncate unnecessary morphemes.
+            return self._format_mrphs_list(mrphs_list, mode, normalize=True, marker=marker)
+        else:
+            return self._format_mrphs_list(mrphs_list, mode, normalize=False, marker=marker)
+
+    def _to_tokens(self, exclude_exophora: bool = False, include_modifiers: bool = False) -> List[Token]:
+        """Collect tokens belonging to this event.
+
+        Args:
+            exclude_exophora: If true, exophora will not be used.
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        Returns:
+            A list of tokens that belong to this event.
+
+        """
+        # Collect head tokens.
+        head_tokens = [self.predicate.head_token]
+        for arguments in self.arguments.values():
+            for argument in arguments:
+                if argument.head_token.omitted_case:
+                    # Omitted arguments -> If `exclude_exophora` is true, invalid
+                    if exclude_exophora and argument.head_token.exophora:
+                        pass
+                    else:
+                        head_tokens.append(argument.head_token)
+                elif argument.head_token.tag.tag_id < self.head.tag_id \
+                        and (argument.head_token.is_event_head or argument.head_token.is_event_end):
+                    # Arguments that play a role as an event head -> invalid
+                    pass
+                elif self.end.tag_id < argument.head_token.tag.tag_id:
+                    # Arguments that appear after the predicate -> invalid
+                    pass
+                else:
+                    head_tokens.append(argument.head_token)
+        if include_modifiers:
+            for relation in filter_relations(self.incoming_relations, labels=['補文', '連体修飾']):
+                head_tokens.extend(relation.modifier._to_tokens(exclude_exophora, include_modifiers))
+
+        # Expand head tokens and resolve duplication.
+        return sorted(list(set(token for head_token in head_tokens for token in head_token.to_list())))
+
+    def _tokens_to_mrphs(self, tokens: List[Token]) -> List[Morpheme_]:
+        """Convert a list of tokens to a list of morphemes.
+
+        Args:
+            tokens: A list of tokens.
+
+        Returns:
+            A list of morphemes, each of which can be either a :class:`pyknp.juman.morpheme.Morpheme` object or
+            a string object. String objects are to represent an exophora or an omitted case.
+
+        """
+        mrphs = []
+        for token in tokens:
+            if token.omitted_case:
+                if token.exophora:
+                    mrphs.append(token.exophora)
+                else:
+                    # Extract the content words not to print a case marker twice.
+                    exists_content_word = False
+                    for mrph in token.tag.mrph_list():
+                        is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
+                        if not is_content_word and exists_content_word:
+                            break
+                        exists_content_word = exists_content_word or is_content_word
+                        mrphs.append(mrph)
+                mrphs.append(token.omitted_case)
+            else:
+                mrphs.extend(list(token.tag.mrph_list()))
+        return mrphs
+
+    def _find_truncated_position(self, tokens_list: List[List[Token]]) -> Tuple[int, int]:
+        """Find a position just before adjunct words start.
+
+        Args:
+            tokens_list: A list of tokens grouped by bunsetsu IDs.
+
+        Returns:
+            A position just before adjunct words start.
+
+        """
+        seen_head = False
+        for group_index, tokens in enumerate(tokens_list):
+            mrph_index_offset = 0
+
+            for token in tokens:
+                seen_head = seen_head or token == self.predicate.head_token
+                if not seen_head:
+                    continue  # Skip words until the token reaches to the predicate's head token.
+
+                mrphs = token.tag.mrph_list()
+                for mrph_index, mrph in reversed(list(enumerate(mrphs))):
+                    if mrph.hinsi == '助動詞' and mrph.genkei == 'です' \
+                            and 0 < mrph_index_offset and mrphs[mrph_index_offset - 1].hinsi == '形容詞':
+                        # adjective + 'です' -> ignore 'です' (e.g., 美しいです -> 美しい)
+                        return group_index, mrph_index_offset + mrph_index - 1
+                    elif mrph.hinsi == '判定詞' and mrph.midasi == 'じゃ' \
+                            and 0 < mrph_index_offset and '<活用語>' in mrphs[mrph_index_offset - 1].fstring:
+                        # adjective or verb +'じゃん' -> ignore 'じゃん' (e.g., 使えないじゃん -> 使えない)
+                        return group_index, mrph_index_offset + mrph_index - 1
+                    if ('<活用語>' in mrph.fstring or '<用言意味表記末尾>' in mrph.fstring) \
+                            and mrph.genkei not in {'のだ', 'んだ'}:
+                        # Check the last word with conjugation except some meaningless words.
+                        return group_index, mrph_index_offset + mrph_index
+                mrph_index_offset += len(mrphs)
+
+        raise ValueError  # "<用言意味表記末尾>" must exist.
+
+    @staticmethod
+    def _get_marker(tokens_list: List[List[Token]], mrphs_list: List[List[Morpheme_]], add_mark: bool, normalize: bool,
+                    truncated_position: Tuple[int, int], include_modifiers: bool) -> Dict[Tuple[int, int, str], str]:
+        """Get a mapping from positions to marks.
+
+        Args:
+            tokens_list: A list of tokens grouped by bunsetsu IDs.
+            mrphs_list: A list of morphemes grouped by bunsetsu IDs.
+            add_mark: If true, add special marks. Note that an exophora is enclosed by square brackets even when
+                this flag is false.
+            normalize: If true, the last content word will be normalized.
+            truncated_position: A position just before adjunct words start.
+            include_modifiers: If true, tokens of events that modify this event will be included.
+
+        Returns:
+            A mapping from positions to marks.
+
+        """
+        marker: Dict[Tuple[int, int, str], str] = {}  # (group_index, mrph_index, "start" or "end") -> mark
+
+        last_tid = -1
+        for group_index, (tokens, mrphs) in enumerate(zip(tokens_list, mrphs_list)):
+            is_omitted = any(token.omitted_case for token in tokens)
+            if is_omitted:
+                marker[(group_index, 0, 'start')] = '['
+                marker[(group_index, len(mrphs) - 1, 'end')] = ']'
+                continue
+
+            if not add_mark:
+                continue
+
+            has_adnominal_event = any(token.adnominal_events for token in tokens)
+            if has_adnominal_event and not include_modifiers:
+                marker[(group_index, 0, 'start')] = '▼'
+
+            has_sentential_complement = any(token.sentential_complement_events for token in tokens)
+            if has_sentential_complement and not include_modifiers:
+                marker[(group_index, 0, 'start')] = '■'
+
+            tid = tokens[0].tid
+            if last_tid + 1 != tid and last_tid != -1 and not has_adnominal_event and not has_sentential_complement:
+                marker[(group_index, 0, 'start')] = '|'
+
+        last_position = (len(mrphs_list) - 1, len(mrphs_list[-1]) - 1)
+        if add_mark and not normalize and truncated_position != last_position:
+            marker[(truncated_position[0], truncated_position[1], 'end')] = '('
+            marker[(len(mrphs_list) - 1, len(mrphs_list[-1]) - 1, 'end')] = ')'
+
+        return marker
+
+    @staticmethod
+    def _format_mrphs_list(mrphs_list: List[List[Morpheme_]], mode: str, normalize: bool,
+                           marker: Dict[Tuple[int, int, str], str]) -> str:
+        """Format a list of morphemes grouped by bunsetsu IDs to create a text.
+
+        Args:
+            mrphs_list: A list of morphemes grouped by bunsetsu IDs.
+            mode: A type of token representation, which can take either "mrphs" or "reps".
+            normalize: If true, the last content word will be normalized.
+            marker: A mapping from positions to marks.
+
+        """
+        assert mode in {'mrphs', 'reps'}
+        ret = []
+        for group_index, mrphs in enumerate(mrphs_list):
+            for mrph_index, mrph in enumerate(mrphs):
+                # Add a mark if necessary.
+                if (group_index, mrph_index, 'start') in marker:
+                    ret.append(marker[(group_index, mrph_index, 'start')])
+                # Add a word.
+                if isinstance(mrph, str):
+                    # Case or exophora.
+                    if mrph in PAS_ORDER:
+                        case = convert_katakana_to_hiragana(mrph)
+                        if mode == 'reps':
+                            case = f'{case}/{case}'
+                        ret.append(case)
+                    else:
+                        ret.append(mrph)
+                else:
+                    if mode == 'reps':
+                        ret.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
+                    else:
+                        last_position = (len(mrphs_list) - 1, len(mrphs) - 1)
+                        if normalize and (group_index, mrph_index) == last_position:
+                            # Change the morpheme to its infinitive (i.e., genkei).
+                            if mrph.hinsi == '助動詞' and mrph.genkei == 'ぬ':
+                                # Exception to prevent transforming "できません" into "できませぬ".
+                                ret.append(mrph.midasi)
+                            else:
+                                ret.append(mrph.genkei)
+                        else:
+                            ret.append(mrph.midasi)
+
+                # Add a mark if necessary.
+                if (group_index, mrph_index, 'end') in marker:
+                    ret.append(marker[(group_index, mrph_index, 'end')])
+
+        return ' '.join(ret).replace('[ ', '[').replace(' ]', ']').replace('( ', '(').replace(' )', ')')
 
     def to_dict(self) -> dict:
-        """Convert this object into a dictionary.
-
-        Returns:
-            One :class:`dict` object.
-
-        """
-        return collections.OrderedDict([
+        """Convert this object into a dictionary."""
+        return dict((
             ('event_id', self.evid),
             ('sid', self.sid),
             ('ssid', self.ssid),
@@ -242,198 +579,67 @@ class Event(Base):
             ('normalized_reps', self.normalized_reps),
             ('normalized_reps_with_mark', self.normalized_reps_with_mark),
             ('content_rep_list', self.content_rep_list),
-            ('pas', self.pas.to_dict()),
+            ('pas', dict((
+                ('predicate', self.predicate.to_dict()),
+                ('argument', {
+                    case: [argument.to_dict() for argument in argument_list if argument.to_dict()]
+                    for case, argument_list in self.arguments.items()
+                    if any(argument.to_dict() for argument in argument_list)
+                })
+            ))),
             ('features', self.features.to_dict())
-        ])
-
-    def to_basic_phrase_list(self, include_modifiers: bool = False) -> BasicPhraseList:
-        """Convert this object into a basic phrase list.
-
-        Args:
-            include_modifiers: Specify ``True`` to include modifiers' basic phrases.
-
-        Returns:
-            A :class:`.BasicPhraseList` object.
-
-        """
-        def is_valid_basic_phrase_list(bpl: BasicPhraseList) -> bool:
-            """Return True if the given basic phrase is used to show this event.
-
-            Args:
-                bpl: A :class`.BasicPhraseList` object.
-
-            Returns:
-                ``True`` if this basic phrase is valid.
-
-            """
-            def is_valid_basic_phrase(bp):
-                if bp.tag and '複合辞' in bp.tag.features:
-                    # ignore 複合辞
-                    return True
-                elif bp.is_omitted:
-                    # always include omitted tokens (extracted by inter-sentential anaphora and exophora resolution)
-                    return True
-                elif bp.tid < self.head.tag_id and (bp.is_event_head or bp.is_event_end):
-                    # filter out clause-head or an clause-end tokens that appears before this clause-head token
-                    return False
-                elif self.end.tag_id < bp.tid:
-                    # filter out tokens that appears after this clause-end token
-                    return False
-                else:
-                    return True
-
-            return all(is_valid_basic_phrase(bp) for bp in bpl)
-
-        bpl = BasicPhraseList()
-        for argument_list in self.pas.arguments.values():
-            for argument in argument_list:
-                if not is_valid_basic_phrase_list(argument.bpl.head):
-                    continue
-                for argument_bp in argument.bpl:
-                    argument_bp = copy.deepcopy(argument_bp)
-                    argument_bp.is_child = True
-                    bpl.push(argument_bp)
-                    if include_modifiers:
-                        for modifier_bp in self._get_modifier_basic_phrase_list(argument_bp):
-                            modifier_bp = copy.deepcopy(modifier_bp)
-                            modifier_bp.case = argument_bp.case  # treat this as a part of the argument
-                            modifier_bp.arg_index = argument_bp.arg_index
-                            modifier_bp.is_child = True
-                            if modifier_bp not in bpl:
-                                bpl.push(modifier_bp)
-        for predicate_bp in self.pas.predicate.bpl:
-            predicate_bp = copy.deepcopy(predicate_bp)
-            bpl.push(predicate_bp)
-            if include_modifiers:
-                for modifier_bp in self._get_modifier_basic_phrase_list(predicate_bp):
-                    modifier_bp = copy.deepcopy(modifier_bp)
-                    modifier_bp.case = predicate_bp.case  # treat this as a part of the predicate
-                    modifier_bp.is_child = True
-                    if modifier_bp not in bpl:
-                        bpl.push(modifier_bp)
-        return bpl
-
-    def _get_modifier_basic_phrase_list(self, bp: BasicPhrase) -> BasicPhraseList:
-        """Get a basic phrase list by collecting basic phrases of modifiers.
-
-        Args:
-            bp: A :class:`.BasicPhrase` object.
-
-        Returns:
-            BasicPhraseList: A :class:`.BasicPhraseList` object.
-
-        """
-        def get_modifier_events_from_event(event):
-            modifier_events = event.adnominal_events + event.sentential_complement_events
-            for modifier_event in modifier_events:
-                modifier_events.extend(get_modifier_events_from_event(modifier_event))
-            return modifier_events
-
-        modifier_bpl = BasicPhraseList()
-        seed_events = list(map(
-            lambda r: r.modifier,
-            filter(lambda r: r.head_tid == bp.tid, self.adnominal_relations + self.sentential_complement_relations)
         ))
-        for seed_event in seed_events:
-            modifier_bpl += seed_event.to_basic_phrase_list()
-            for child_event in get_modifier_events_from_event(seed_event):
-                modifier_bpl += child_event.to_basic_phrase_list()
-        return modifier_bpl
+
+    def to_string(self) -> str:
+        """Convert this object into a string."""
+        return f'Event(evid: {self.evid}, surf: {self.surf})'
 
 
-class Relation(Base):
-    """A class to manage relation information.
+class EventBuilder(Builder):
 
-    Attributes:
-        modifier (Event): The modifier event.
-        head (Event): The head event.
-        modifier_evid (int): The serial event ID of the modifier event.
-        head_evid (int): The serial event ID of the head event.
-        head_tid (int): The serial tag ID of the head event's head tag.
-            A negative value implies that the modifier event does not modify a specific token.
-        label (str): The label.
-        surf (str): The explicit marker.
-        reliable (bool): ``True`` when a syntactic dependency is not ambiguous.
+    def __call__(self, sentence: 'Sentence', start: Tag, head: Tag, end: Tag):
+        logger.debug('Create an event')
+        event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid, start, head, end)
+        Builder.evid += 1
+        PredicateBuilder()(event)
+        ArgumentsBuilder()(event)
+        FeaturesBuilder()(event)
 
-    """
+        # Make this sentence and its components accessible from builders.
+        for tid in range(start.tag_id, end.tag_id + 1):
+            Builder.stid_event_map[(sentence.ssid, tid)] = event
+        sentence.events.append(event)
 
-    def __init__(self):
-        self.modifier = None
-        self.head = None
-        self.modifier_evid = -1
-        self.head_evid = -1
-        self.head_tid = -1
-        self.label = ''
-        self.surf = ''
-        self.reliable = False
+        logger.debug('Successfully created a event.')
+        return event
 
-    @classmethod
-    def build(cls, modifier: Event, head: Event, head_tid: int, label: str, surf: str, reliable: bool) -> 'Relation':
-        """Create an object from language analysis.
 
-        Args:
-            modifier: A modifier event.
-            head: A head event.
-            head_tid: The serial tag ID of a head event's head tag.
-                A negative value implies that the modifier event does not modify a specific token.
-            label: A label.
-            surf: An explicit marker.
-            reliable: ``True`` if a syntactic dependency is not ambiguous.
+class JsonEventBuilder(Builder):
 
-        Returns:
-            One :class:`.Relation` object.
+    def __call__(self, sentence: 'Sentence', dump: dict) -> Event:
+        logger.debug('Create an event')
+        event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid)
+        event._surf = dump['surf']
+        event._surf_with_mark = dump['surf_with_mark']
+        event._mrphs = dump['mrphs']
+        event._mrphs_with_mark = dump['mrphs_with_mark']
+        event._normalized_mrphs = dump['normalized_mrphs']
+        event._normalized_mrphs_with_mark = dump['normalized_mrphs_with_mark']
+        event._normalized_mrphs_without_exophora = dump['normalized_mrphs_without_exophora']
+        event._normalized_mrphs_with_mark_without_exophora = dump['normalized_mrphs_with_mark_without_exophora']
+        event._reps = dump['reps']
+        event._reps_with_mark = dump['reps_with_mark']
+        event._normalized_reps = dump['normalized_reps']
+        event._normalized_reps_with_mark = dump['normalized_reps_with_mark']
+        event._content_rep_list = dump['content_rep_list']
+        Builder.evid += 1
+        JsonPredicateBuilder()(event, dump['pas']['predicate'])
+        JsonArgumentsBuilder()(event, dump['pas']['argument'])
+        JsonFeaturesBuilder()(event, dump['features'])
+        sentence.events.append(event)
 
-        """
-        relation = Relation()
-        relation.modifier = modifier
-        relation.head = head
-        relation.modifier_evid = modifier.evid
-        relation.head_evid = head.evid
-        relation.head_tid = head_tid
-        relation.label = label
-        relation.surf = surf
-        relation.reliable = reliable
-        return relation
+        # Make this sentence and its components accessible from builders.
+        Builder.evid_event_map[event.evid] = event
 
-    @classmethod
-    def load(cls, modifier: Event, head: Event, dct: dict) -> 'Relation':
-        """Create an object from a dictionary.
-
-        Args:
-            modifier: A modifier event.
-            head: A head event.
-            dct: A dictionary storing relation information.
-
-        Returns:
-            One :class:`.Relation` object.
-
-        """
-        relation = Relation()
-        relation.modifier = modifier
-        relation.head = head
-        relation.modifier_evid = modifier.evid
-        relation.head_evid = dct['event_id']
-        relation.label = dct['label']
-        relation.surf = dct['surf']
-        relation.reliable = dct['reliable']
-        relation.head_tid = dct['head_tid']
-        return relation
-
-    def finalize(self):
-        """Finalize this object."""
-        pass
-
-    def to_dict(self) -> dict:
-        """Convert this object into a dictionary.
-
-        Returns:
-            One :class:`dict` object.
-
-        """
-        return collections.OrderedDict([
-            ('event_id', self.head_evid),
-            ('label', self.label),
-            ('surf', self.surf),
-            ('reliable', self.reliable),
-            ('head_tid', self.head_tid)
-        ])
+        logger.debug('Successfully created a event.')
+        return event

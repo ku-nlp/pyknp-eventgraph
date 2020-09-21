@@ -1,87 +1,118 @@
-"""Sentence is a class to manage sentence information."""
-import collections
+from logging import getLogger
+from typing import List, Optional, TYPE_CHECKING
 
-from pyknp import BList
-from pyknp_eventgraph.base import Base
+from pyknp import BList, Tag
+
+from pyknp_eventgraph.builder import Builder
+from pyknp_eventgraph.component import Component
+from pyknp_eventgraph.event import Event, EventBuilder
+
+if TYPE_CHECKING:
+    from pyknp_eventgraph.document import Document
+
+logger = getLogger(__name__)
 
 
-class Sentence(Base):
-    """A class to manage a sentence.
+class Sentence(Component):
+    """A sentence is a collection of events.
 
     Attributes:
-        sid (str): A original sentence ID.
+        document (Document): A document that includes this sentence.
+        sid (str): An original sentence ID.
         ssid (int): A serial sentence ID.
-        blist (BList): A KNP output.
-        surf (str): A surface string.
-        mrphs (str): A surface string with white spaces.
-        reps (str): A representative string.
+        blist (BList, optional): A list of bunsetsu-s. For details, refer to :class:`pyknp.knp.blist.BList`.
+        events (List[Event]): A list of events in this sentence.
 
     """
 
-    def __init__(self):
-        self.sid = ''
-        self.ssid = -1
+    def __init__(self, document: 'Document', sid: str, ssid: int, blist: Optional[BList] = None):
+        self.document: Document = document
+        self.sid: str = sid
+        self.ssid: int = ssid
+        self.blist: BList = blist
+        self.events: List[Event] = []
 
-        self.blist = None
+        # Only used when this component is deserialized from a json file
+        self._mrphs = None
+        self._reps = None
 
-        self.surf = ''
-        self.mrphs = ''
-        self.reps = ''
+    @property
+    def surf(self) -> str:
+        """A surface string."""
+        return self.mrphs.replace(' ', '')
 
-    @classmethod
-    def build(cls, ssid: int, blist: BList) -> 'Sentence':
-        """Create an object from language analysis.
+    @property
+    def mrphs(self) -> str:
+        """A tokenized surface string."""
+        if self._mrphs is not None:
+            return self._mrphs
+        else:
+            return ' '.join(m.midasi for m in self.blist.mrph_list())
 
-        Args:
-            ssid (int): A serial sentence ID.
-            blist (BList): A :class:`pyknp.knp.blist.BList` object.
-
-        Returns:
-            A sentence.
-
-        """
-        sentence = Sentence()
-        sentence.sid = blist.sid
-        sentence.ssid = ssid
-        sentence.blist = blist
-        return sentence
-
-    @classmethod
-    def load(cls, dct: dict) -> 'Sentence':
-        """Create an object from a dictionary.
-
-        Args:
-            dct: A dictionary storing an object.
-
-        Returns:
-            A sentence.
-
-        """
-        sentence = Sentence()
-        sentence.sid = dct['sid']
-        sentence.ssid = dct['ssid']
-        sentence.surf = dct['surf']
-        sentence.mrphs = dct['mrphs']
-        sentence.reps = dct['reps']
-        return sentence
-
-    def finalize(self):
-        """Finalize this object."""
-        self.surf = ''.join(m.midasi for m in self.blist.mrph_list())
-        self.mrphs = ' '.join(m.midasi for m in self.blist.mrph_list())
-        self.reps = ' '.join(m.repname if m.repname else m.midasi + '/' + m.midasi for m in self.blist.mrph_list())
+    @property
+    def reps(self) -> str:
+        """A representative string."""
+        if self._reps is not None:
+            return self._reps
+        else:
+            return ' '.join(m.repname or f'{m.midasi}/{m.midasi}' for m in self.blist.mrph_list())
 
     def to_dict(self) -> dict:
-        """Convert this object into a dictionary.
-
-        Returns:
-            One :class:`dict` object.
-
-        """
-        return collections.OrderedDict([
+        """Convert this object into a dictionary."""
+        return dict((
             ('sid', self.sid),
             ('ssid', self.ssid),
             ('surf', self.surf),
             ('mrphs', self.mrphs),
             ('reps', self.reps),
-        ])
+        ))
+
+    def to_string(self) -> str:
+        """Convert this object into a string."""
+        return f'Sentence(sid: {self.sid}, ssid: {self.ssid}, surf: {self.surf})'
+
+
+class SentenceBuilder(Builder):
+
+    def __call__(self, document: 'Document', blist: BList) -> Sentence:
+        logger.debug('Create a sentence.')
+        sentence = Sentence(document, blist.sid, Builder.ssid, blist)
+        Builder.ssid += 1
+
+        start: Optional[Tag] = None
+        end: Optional[Tag] = None
+        head: Optional[Tag] = None
+        for tag in blist.tag_list():
+            if not start:
+                start = tag
+            if not head and '節-主辞' in tag.features:
+                head = tag
+            if not end and '節-区切' in tag.features:
+                end = tag
+                if head:
+                    EventBuilder()(sentence, start, head, end)
+                    start, end, head = None, None, None
+
+        # Make this sentence and its components accessible from builders.
+        for bid, bnst in enumerate(blist.bnst_list()):
+            for tag in bnst.tag_list():
+                Builder.stid_bid_map[(sentence.ssid, tag.tag_id)] = bid
+                Builder.stid_tag_map[(sentence.ssid, tag.tag_id)] = tag
+
+        document.sentences.append(sentence)
+
+        logger.debug('Successfully created a sentence.')
+        return sentence
+
+
+class JsonSentenceBuilder(Builder):
+
+    def __call__(self, document: 'Document', dump: dict) -> Sentence:
+        logger.debug('Create a sentence.')
+        sentence = Sentence(document, dump['sid'], dump['ssid'])
+        sentence._mrphs = dump['mrphs']
+        sentence._reps = dump['reps']
+        Builder.ssid += 1
+        document.sentences.append(sentence)
+        logger.debug('Successfully created a sentence.')
+        return sentence
