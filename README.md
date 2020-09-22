@@ -6,7 +6,7 @@ Events are linked to each other based on their syntactic and semantic relations.
 
 ## Requirements
 
-- Python 3.6
+- Python 3.6 or later
 - pyknp: 0.4.1
 - graphviz: 0.10.1
 
@@ -50,6 +50,11 @@ print(evg.sentences[1])  # Sentence(sid: 2, ssid: 1, surf: 私はそう確信し
 for sentence in evg.sentences:
     pass
 
+# Print a sentence in different forms.
+sentence = evg.sentences[0]
+print(sentence.mrphs)  # 彼女 は 海外 勤務 が 長い ので 、 英語 が うまい に 違いない 。
+print(sentence.reps)   # 彼女/かのじょ は/は 海外/かいがい 勤務/きんむ が/が 長い/ながい ので/ので 、/、 英語/えいご が/が 上手い/うまい に/に 違い無い/ちがいない 。/。
+
 # Print events.
 print(evg.events[0])  # Event(evid: 0, surf: 海外勤務が長いので、)
 print(evg.events[1])  # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
@@ -76,21 +81,28 @@ print(event.arguments['ガ'])  # [Argument(case: ガ, surf: 勤務が)]
 print(event.features)  # Features(modality: None, tense: 非過去, negation: False, state: 状態述語, complement: False)
 
 # Print relations between events.
-print(evg.relations[0])           # Relation(label: 原因・理由, modifier_evid: 0, head_evid: 1)
-print(evg.relations[0].modifier)  # Event(evid: 0, surf: 海外勤務が長いので、)
-print(evg.relations[0].head)      # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
+relation = evg.relations[0]
+print(relation)           # Relation(label: 原因・理由, modifier_evid: 0, head_evid: 1)
+print(relation.modifier)  # Event(evid: 0, surf: 海外勤務が長いので、)
+print(relation.head)      # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
 
 # Relations are iterable, too.
 for relation in evg.relations:
     pass
 
+# Access to pyknp's objects.
+print(type(sentence.blist))                # <class 'pyknp.knp.blist.BList'>
+print(type(event.predicate.tag))           # <class 'pyknp.knp.tag.Tag'>
+print(type(event.arguments['ガ'][0].tag))  # <class 'pyknp.knp.tag.Tag'>
+print(type(event.arguments['ガ'][0].arg))  # <class 'pyknp.knp.pas.Argument'>
+
 # Convert an EventGraph into a dictionary.
 dct = evg.to_dict()  # {"sentences": ..., "events": ...}
 
-# Save an EventGraph.
+# Save an EventGraph as a JSON file.
 evg.save('evg.json')
 
-# Load an EventGraph.
+# Load an EventGraph from a JSON file.
 with open('evg.json') as f:
     evg_ = EventGraph.load(f)
 
@@ -99,7 +111,9 @@ from pyknp_eventgraph import make_image
 make_image(evg, 'evg.svg')  # Currently, only supports 'svg'.
 ```
 
-## Advanced Usage: Merging modifiers
+## Advanced Usage
+
+### Merging modifiers
 
 By merging a modifier event to the modifiee, users can construct a larger information unit.
 
@@ -120,22 +134,21 @@ relation = evg.relations[0]
 print(relation)           # Relation(label: 連体修飾, modifier_evid: 0, head_evid: 1)
 print(relation.modifier)  # Event(evid: 0, surf: もっととろみが持続する)
 print(relation.head)      # Event(evid: 1, surf: 作り方をして欲しい。)
-print(relation.label)     # 連体修飾
 
 # To merge modifiers' tokens, enable `include_modifiers`.
 print(relation.head.surf)                           # 作り方をして欲しい。
 print(relation.head.surf_(include_modifiers=True))  # もっととろみが持続する作り方をして欲しい。
 
-print(relation.head.mrphs)                           # 作り 方 を して 欲しい 。
+# Other formats also support `include_modifiers`.
 print(relation.head.mrphs_(include_modifiers=True))  # もっと とろみ が 持続 する 作り 方 を して 欲しい 。
-
-print(relation.head.normalized_mrphs)                           # 作り 方 を して 欲しい
 print(relation.head.normalized_mrphs_(include_modifiers=True))  # もっと とろみ が 持続 する 作り 方 を して 欲しい
 ```
 
-## Advanced Usage: Binary serialization
+## Advanced Usage
 
-When an EventGraph is serialized in a JSON format, it will lose some functionality, including modifier merging.
+### Binary serialization
+
+When an EventGraph is serialized in a JSON format, it will lose some functionality, including access to KNP objects and modifier merging.
 To keep full functionality, use Python's pickle utility for serialization.
 
 ```python
