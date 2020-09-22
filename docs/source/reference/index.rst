@@ -15,7 +15,7 @@ API Reference
     argument
     features
     relation
-    component
     token
+    component
     utils
     visualizer

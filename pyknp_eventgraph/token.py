@@ -4,7 +4,8 @@ from typing import List, Tuple, Optional, TYPE_CHECKING
 from pyknp import Tag
 
 from pyknp_eventgraph.builder import Builder
-from pyknp_eventgraph.helper import PAS_ORDER, get_parallel_tags
+from pyknp_eventgraph.component import Component
+from pyknp_eventgraph.helper import PAS_ORDER, get_parallel_tags, convert_katakana_to_hiragana
 from pyknp_eventgraph.relation import filter_relations
 
 if TYPE_CHECKING:
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
     from pyknp_eventgraph.argument import Argument
 
 
-class Token:
+class Token(Component):
     """A wrapper of :class:`pyknp.knp.tag.Tag` to allow exophora to be a "token".
 
     Attributes:
@@ -44,6 +45,8 @@ class Token:
         self.parent: Optional['Token'] = None
         self.children: List['Token'] = []
 
+        self._surf = None
+
     def __hash__(self):
         return hash(self.key)
 
@@ -56,8 +59,32 @@ class Token:
         return self.key < other.key
 
     @property
+    def surf(self) -> str:
+        """A surface string."""
+        if self._surf is None:
+            if self.omitted_case:
+                if self.tag:
+                    # Extract the content words not to print a case marker twice.
+                    mrphs = []
+                    exists_content_word = False
+                    for mrph in self.tag.mrph_list():
+                        is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
+                        if not is_content_word and exists_content_word:
+                            break
+                        exists_content_word = exists_content_word or is_content_word
+                        mrphs.append(mrph)
+                    base = "".join(mrphs)
+                else:
+                    base = self.exophora
+                case = convert_katakana_to_hiragana(self.omitted_case)
+                self._surf = f'[{base}{case}]'
+            else:
+                self._surf = self.tag.midasi
+        return self._surf
+
+    @property
     def key(self) -> Tuple[int, int, int, int]:
-        """Create a key used for sorting."""
+        """A key used for sorting."""
         return PAS_ORDER.get(self.omitted_case, 99), self.ssid, self.bid, self.tid
 
     @property
@@ -99,6 +126,19 @@ class Token:
         while root_token.parent:
             root_token = root_token.parent
         return root_token
+
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary."""
+        return dict((
+            ('ssid', self.ssid),
+            ('bid', self.bid),
+            ('tid', self.tid),
+            ('surf', self.surf),
+        ))
+
+    def to_string(self) -> str:
+        """Convert this object into a string."""
+        return f'Token(ssid: {self.ssid}, bid: {self.bid}, tid: {self.tid}, surf: {self.surf})'
 
     def to_list(self) -> List['Token']:
         """Expand to a list."""
