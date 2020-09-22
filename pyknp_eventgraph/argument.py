@@ -39,7 +39,6 @@ class Argument(Component):
         self.arg: Optional[PyknpArgument] = arg
         self.head_token: Optional[Token] = None
 
-        # Only used when this component is deserialized from a json file
         self._surf = None
         self._normalized_surf = None
         self._mrphs = None
@@ -59,93 +58,84 @@ class Argument(Component):
     @property
     def surf(self) -> str:
         """A surface string."""
-        if self._surf is not None:
-            return self._surf
-        else:
-            return self.mrphs.replace(' ', '')
+        if self._surf is None:
+            self._surf = self.mrphs.replace(' ', '')
+        return self._surf
 
     @property
     def normalized_surf(self) -> str:
         """A normalized surface string."""
-        if self._normalized_surf is not None:
-            return self._normalized_surf
-        else:
-            return self.normalized_mrphs.replace(' ', '')
+        if self._normalized_surf is None:
+            self._normalized_surf = self.normalized_mrphs.replace(' ', '')
+        return self._normalized_surf
 
     @property
     def mrphs(self) -> str:
         """A tokenized surface string."""
-        if self._mrphs is not None:
-            return self._mrphs
-        else:
-            return self._token_to_text(self.head_token, mode='mrphs', truncate=False, include_modifiees=True)
+        if self._mrphs is None:
+            self._mrphs = self._token_to_text(self.head_token, truncate=False, include_modifiees=True)
+        return self._mrphs
 
     @property
     def normalized_mrphs(self) -> str:
         """A tokenized/normalized surface string."""
-        if self._normalized_mrphs is not None:
-            return self._normalized_mrphs
-        else:
-            return self._token_to_text(self.head_token, mode='mrphs', truncate=True, include_modifiees=True)
+        if self._normalized_mrphs is None:
+            self._normalized_mrphs = self._token_to_text(self.head_token, truncate=True, include_modifiees=True)
+        return self._normalized_mrphs
 
     @property
     def reps(self) -> str:
         """A representative string."""
-        if self._reps is not None:
-            return self._reps
-        else:
-            return self._token_to_text(self.head_token, mode='reps', truncate=False, include_modifiees=True)
+        if self._reps is None:
+            self._reps = self._token_to_text(self.head_token, mode='reps', truncate=False, include_modifiees=True)
+        return self._reps
 
     @property
     def normalized_reps(self) -> str:
         """A normalized representative string."""
-        if self._normalized_reps is not None:
-            return self._normalized_reps
-        else:
-            return self._token_to_text(self.head_token, mode='reps', truncate=True, include_modifiees=True)
+        if self._normalized_reps is None:
+            self._normalized_reps = self._token_to_text(self.head_token, mode='reps', truncate=True,
+                                                        include_modifiees=True)
+        return self._normalized_reps
 
     @property
     def head_reps(self) -> str:
         """A head representative string."""
-        if self._head_reps is not None:
-            return self._head_reps
-        else:
+        if self._head_reps is None:
             if self.head_token.tag:  # Not an exophora.
                 head_reps = self.head_token.tag.head_prime_repname or self.head_token.tag.head_repname
                 if head_reps:
-                    return f'[{head_reps}]' if self.head_token.omitted_case else head_reps
-            return self.normalized_reps
+                    self._head_reps = f'[{head_reps}]' if self.head_token.omitted_case else head_reps
+            else:
+                self._head_reps = self.normalized_reps
+        return self._head_reps
 
     @property
     def adnominal_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (adnominal)."""
-        if self._adnominal_event_ids is not None:
-            return self._adnominal_event_ids
-        else:
-            return sorted(
+        if self._adnominal_event_ids is None:
+            self._adnominal_event_ids = sorted(
                 event.evid for t in self.head_token.modifiees(include_self=True) for event in t.adnominal_events
             )
+        return self._adnominal_event_ids
 
     @property
     def sentential_complement_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (sentential complement)."""
-        if self._sentential_complement_event_ids is not None:
-            return self._sentential_complement_event_ids
-        else:
-            return sorted(
+        if self._sentential_complement_event_ids is None:
+            self._sentential_complement_event_ids = sorted(
                 event.evid for t in self.head_token.modifiees(include_self=True)
                 for event in t.sentential_complement_events
             )
+        return self._sentential_complement_event_ids
 
     @property
     def children(self) -> List[dict]:
         """A list of child words."""
-        if self._children is not None:
-            return self._children
-        else:
-            children = []
+        if self._children is None:
+            self._children = []
             for token in reversed(self.head_token.modifiers()):
-                children.append({
+                self._children.append({
                     'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
                     'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
                     'mrphs': self._token_to_text(token, mode='mrphs', truncate=False),
@@ -157,7 +147,7 @@ class Argument(Component):
                     'modifier': '修飾' in token.tag.features,
                     'possessive': token.tag.features.get('係', '') == 'ノ格',
                 })
-            return children
+        return self._children
 
     def _token_to_text(self, token: Token, mode: str = 'mrphs', truncate: bool = False,
                        include_modifiees: bool = False) -> str:
@@ -168,9 +158,6 @@ class Argument(Component):
             mode: A type of token representation, which can take either "mrphs" or "reps".
             truncate: If true, adjunct words are truncated.
             include_modifiees: If true, parents are used to construct a compound phrase.
-
-        Returns:
-            A resultant string.
 
         """
         assert mode in {'mrphs', 'reps'}
@@ -201,9 +188,6 @@ class Argument(Component):
         Args:
             mrphs: A list of morphemes.
 
-        Returns:
-            A list of morphemes.
-
         """
         content_mrphs = []
         seen_content_word = False
@@ -223,9 +207,6 @@ class Argument(Component):
             mrphs: A list of morphemes.
             mode: A type of token representation, which can take either "mrphs" or "reps".
             normalize: If true, the last content word will be normalized.
-
-        Returns:
-            A resultant string.
 
         """
         assert mode in {'mrphs', 'reps'}

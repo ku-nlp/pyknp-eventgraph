@@ -111,9 +111,7 @@ class Token:
             include_self: If true, include this token to the return.
 
         """
-        modifiee_tokens = []
-        if include_self:
-            modifiee_tokens.append(self)
+        modifiee_tokens = [self] if include_self else []
 
         def add_modifiee(token: Token):
             if token.parent:
@@ -130,9 +128,7 @@ class Token:
             include_self: If true, include this token to the return.
 
         """
-        modifier_tokens = []
-        if include_self:
-            modifier_tokens.append(self)
+        modifier_tokens = [self] if include_self else []
 
         def add_modifier(token: Token):
             for child_token in token.children:

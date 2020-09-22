@@ -30,7 +30,6 @@ class Predicate(Component):
         self.type_: str = type_
         self.head_token: Optional[Token] = None
 
-        # Only used when this component is deserialized from a json file
         self._surf = None
         self._normalized_surf = None
         self._mrphs = None
@@ -50,10 +49,9 @@ class Predicate(Component):
     @property
     def surf(self) -> str:
         """A surface string."""
-        if self._surf is not None:
-            return self._surf
-        else:
-            return self.mrphs.replace(' ', '')
+        if self._surf is None:
+            self._surf = self.mrphs.replace(' ', '')
+        return self._surf
 
     @property
     def normalized_surf(self) -> str:
@@ -63,9 +61,7 @@ class Predicate(Component):
     @property
     def mrphs(self) -> str:
         """A tokenized string."""
-        if self._mrphs is not None:
-            return self._mrphs
-        else:
+        if self._mrphs is None:
             mrphs = []
             is_within_standard_repname = False
             for token in self.head_token.modifiees(include_self=True):
@@ -77,7 +73,8 @@ class Predicate(Component):
                         return ' '.join(mrphs)
                     if is_within_standard_repname:
                         mrphs.append(m.midasi)
-            return ' '.join(mrphs)
+            self._mrphs = ' '.join(mrphs)
+        return self._mrphs
 
     @property
     def normalized_mrphs(self) -> str:
@@ -87,13 +84,14 @@ class Predicate(Component):
     @property
     def reps(self) -> str:
         """A representative string."""
-        if self._reps is not None:
-            return self._reps
-        else:
+        if self._reps is None:
             for token in self.head_token.modifiees(include_self=True):
                 if '用言代表表記' in token.tag.features:
-                    return token.tag.features['用言代表表記']
-            return self._token_to_text(self.head_token, mode='reps', truncate=True, include_modifiees=True)
+                    self._reps = token.tag.features['用言代表表記']
+                    break
+            else:
+                self._reps = self._token_to_text(self.head_token, mode='reps', truncate=True, include_modifiees=True)
+        return self._reps
 
     @property
     def normalized_reps(self) -> str:
@@ -103,13 +101,14 @@ class Predicate(Component):
     @property
     def standard_reps(self) -> str:
         """A standard representative string."""
-        if self._standard_reps is not None:
-            return self._standard_reps
-        else:
+        if self._standard_reps is None:
             for token in self.head_token.modifiees(include_self=True):
                 if '標準用言代表表記' in token.tag.features:
-                    return token.tag.features['標準用言代表表記']
-            return self.reps
+                    self._standard_reps = token.tag.features['標準用言代表表記']
+                    break
+            else:
+                self._standard_reps = self.reps
+        return self._standard_reps
 
     @property
     def type(self) -> str:
@@ -119,33 +118,29 @@ class Predicate(Component):
     @property
     def adnominal_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (adnominal)."""
-        if self._adnominal_event_ids is not None:
-            return self._adnominal_event_ids
-        else:
-            return sorted(
+        if self._adnominal_event_ids is None:
+            self._adnominal_event_ids = sorted(
                 event.evid for t in self.head_token.modifiees(include_self=True) for event in t.adnominal_events
             )
+        return self._adnominal_event_ids
 
     @property
     def sentential_complement_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (sentential complement)."""
-        if self._sentential_complement_event_ids is not None:
-            return self._sentential_complement_event_ids
-        else:
-            return sorted(
+        if self._sentential_complement_event_ids is None:
+            self._sentential_complement_event_ids = sorted(
                 event.evid for t in self.head_token.modifiees(include_self=True)
                 for event in t.sentential_complement_events
             )
+        return self._sentential_complement_event_ids
 
     @property
     def children(self) -> List[dict]:
         """A list of child words."""
-        if self._children is not None:
-            return self._children
-        else:
-            children = []
+        if self._children is None:
+            self._children = []
             for token in reversed(self.head_token.modifiers()):
-                children.append({
+                self._children.append({
                     'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
                     'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
                     'mrphs': self._token_to_text(token, mode='mrphs', truncate=False),
@@ -157,7 +152,7 @@ class Predicate(Component):
                     'modifier': '修飾' in token.tag.features,
                     'possessive': token.tag.features.get('係', '') == 'ノ格',
                 })
-            return children
+        return self._children
 
     def _token_to_text(self, token: Token, mode: str = 'mrphs', truncate: bool = False,
                        include_modifiees: bool = False) -> str:
@@ -168,9 +163,6 @@ class Predicate(Component):
             mode: A type of token representation, which can take either "mrphs" or "reps".
             truncate: If true, adjunct words are truncated.
             include_modifiees: If true, parents are used to construct a compound phrase.
-
-        Returns:
-            A resultant string.
 
         """
         assert mode in {'mrphs', 'reps'}
@@ -190,9 +182,6 @@ class Predicate(Component):
 
         Args:
             mrphs: A list of morphemes.
-
-        Returns:
-            A list of morphemes.
 
         """
         for i, mrph in reversed(list(enumerate(mrphs))):
@@ -215,9 +204,6 @@ class Predicate(Component):
             mrphs: A list of morphemes.
             mode: A type of token representation, which can take either "mrphs" or "reps".
             normalize: If true, the last content word will be normalized.
-
-        Returns:
-            A resultant string.
 
         """
         assert mode in {'mrphs', 'reps'}
