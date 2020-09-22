@@ -65,9 +65,6 @@ def filter_relations(relations: List[Relation], labels: List[str] = None, head_t
         labels: A list of valid labels.
         head_tids: A list of valid head tag IDs.
 
-    Returns:
-        A list of relations.
-
     """
     ret = []
     for relation in relations:

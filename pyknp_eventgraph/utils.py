@@ -11,7 +11,7 @@ def read_knp_result_file(filename: str) -> List[BList]:
         filename: A filename.
 
     Returns:
-        A list of :class:`pyknp.knp.blist.BList` objects.
+        A list of :class:`.BList` objects.
 
     """
     knp = KNP()

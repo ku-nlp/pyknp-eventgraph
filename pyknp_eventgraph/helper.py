@@ -3,12 +3,7 @@ from typing import List
 
 from pyknp import Tag
 
-PAS_ORDER = {
-    'ガ２': 0,
-    'ガ': 1,
-    'ヲ': 2,
-    'ニ': 3
-}
+PAS_ORDER = {'ガ２': 0, 'ガ': 1, 'ヲ': 2, 'ニ': 3}
 
 
 def get_parallel_tags(tag: Tag) -> List[Tag]:

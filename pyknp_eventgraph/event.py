@@ -65,7 +65,6 @@ class Event(Component):
         self.children: List[Event] = []
         self.head_token: Optional[Token] = None
 
-        # Only used when this component is deserialized from a json file
         self._surf = None
         self._surf_with_mark = None
         self._mrphs = None
@@ -83,115 +82,97 @@ class Event(Component):
     @property
     def surf(self) -> str:
         """A surface string."""
-        if self._surf is not None:
-            return self._surf
-        else:
-            return self.surf_()
+        if self._surf is None:
+            self._surf = self.surf_()
+        return self._surf
 
     @property
     def surf_with_mark(self) -> str:
         """A surface string with marks."""
-        if self._surf_with_mark is not None:
-            return self._surf_with_mark
-        else:
-            return self.surf_with_mark_()
+        if self._surf_with_mark is None:
+            self._surf_with_mark = self.surf_with_mark_()
+        return self._surf_with_mark
 
     @property
     def mrphs(self) -> str:
         """A tokenized surface string."""
-        if self._mrphs is not None:
-            return self._mrphs
-        else:
-            return self.mrphs_()
+        if self._mrphs is None:
+            self._mrphs = self.mrphs_()
+        return self._mrphs
 
     @property
     def mrphs_with_mark(self) -> str:
         """A tokenized surface string with marks."""
-        if self._mrphs_with_mark is not None:
-            return self._mrphs_with_mark
-        else:
-            return self.mrphs_with_mark_()
+        if self._mrphs_with_mark is None:
+            self._mrphs_with_mark = self.mrphs_with_mark_()
+        return self._mrphs_with_mark
 
     @property
     def normalized_mrphs(self) -> str:
         """A tokenized/normalized surface string."""
-        if self._normalized_mrphs is not None:
-            return self._normalized_mrphs
-        else:
-            return self.normalized_mrphs_()
+        if self._normalized_mrphs is None:
+            self._normalized_mrphs = self.normalized_mrphs_()
+        return self._normalized_mrphs
 
     @property
     def normalized_mrphs_with_mark(self) -> str:
         """A tokenized/normalized surface string with marks."""
-        if self._normalized_mrphs_with_mark is not None:
-            return self._normalized_mrphs_with_mark
-        else:
-            return self.normalized_mrphs_with_mark_()
+        if self._normalized_mrphs_with_mark is None:
+            self._normalized_mrphs_with_mark = self.normalized_mrphs_with_mark_()
+        return self._normalized_mrphs_with_mark
 
     @property
     def normalized_mrphs_without_exophora(self) -> str:
         """A tokenized/normalized surface string without exophora."""
-        if self._normalized_mrphs_without_exophora is not None:
-            return self._normalized_mrphs_without_exophora
-        else:
-            return self.normalized_mrphs_without_exophora_()
+        if self._normalized_mrphs_without_exophora is None:
+            self._normalized_mrphs_without_exophora = self.normalized_mrphs_without_exophora_()
+        return self._normalized_mrphs_without_exophora
 
     @property
     def normalized_mrphs_with_mark_without_exophora(self) -> str:
         """A tokenized/normalized surface string with marks but without exophora."""
-        if self._normalized_mrphs_with_mark_without_exophora is not None:
-            return self._normalized_mrphs_with_mark_without_exophora
-        else:
-            return self.normalized_mrphs_with_mark_without_exophora_()
+        if self._normalized_mrphs_with_mark_without_exophora is None:
+            self._normalized_mrphs_with_mark_without_exophora = self.normalized_mrphs_with_mark_without_exophora_()
+        return self._normalized_mrphs_with_mark_without_exophora
 
     @property
     def reps(self) -> str:
         """A representative string."""
-        if self._reps is not None:
-            return self._reps
-        else:
-            return self.reps_()
+        if self._reps is None:
+            self._reps = self.reps_()
+        return self._reps
 
     @property
     def reps_with_mark(self) -> str:
         """A representative string with marks."""
-        if self._reps_with_mark is not None:
-            return self._reps_with_mark
-        else:
-            return self.reps_with_mark_()
+        if self._reps_with_mark is None:
+            self._reps_with_mark = self.reps_with_mark_()
+        return self._reps_with_mark
 
     @property
     def normalized_reps(self) -> str:
         """A normalized representative string."""
-        if self._normalized_reps is not None:
-            return self._normalized_reps
-        else:
-            return self.normalized_reps_()
+        if self._normalized_reps is None:
+            self._normalized_reps = self.normalized_reps_()
+        return self._normalized_reps
 
     @property
     def normalized_reps_with_mark(self) -> str:
         """A normalized representative string with marks."""
-        if self._normalized_reps_with_mark is not None:
-            return self._normalized_reps_with_mark
-        else:
-            return self.normalized_reps_with_mark_()
+        if self._normalized_reps_with_mark is None:
+            self._normalized_reps_with_mark = self.normalized_reps_with_mark_()
+        return self._normalized_reps_with_mark
 
     @property
     def content_rep_list(self) -> List[str]:
         """A list of content words."""
-        if self._content_rep_list is not None:
-            return self._content_rep_list
-        else:
-            return self.content_rep_list_()
+        if self._content_rep_list is None:
+            self._content_rep_list = self.content_rep_list_()
+        return self._content_rep_list
 
     @staticmethod
     def _mrphs_to_surf(mrphs: str) -> str:
-        """Remove unnecessary spaces from a tokenized surface string.
-
-        Args:
-            mrphs: A tokenized surface string.
-
-        """
+        """Remove unnecessary spaces from a tokenized surface string."""
         surf = mrphs.replace(' ', '')
         surf = surf.replace(']', '] ').replace('|', ' | ').replace('▼', '▼ ').replace('■', '■ ').replace('(', ' (')
         return surf
@@ -330,9 +311,6 @@ class Event(Component):
             exclude_exophora: If true, exophora will not be used.
             include_modifiers: If true, tokens of events that modify this event will be included.
 
-        Returns:
-            A resultant string.
-
         """
         assert mode in {'mrphs', 'reps'}
 
@@ -462,7 +440,7 @@ class Event(Component):
     @staticmethod
     def _get_marker(tokens_list: List[List[Token]], mrphs_list: List[List[Morpheme_]], add_mark: bool, normalize: bool,
                     truncated_position: Tuple[int, int], include_modifiers: bool) -> Dict[Tuple[int, int, str], str]:
-        """Get a mapping from positions to marks.
+        """Get a mapping from a position to a mark.
 
         Args:
             tokens_list: A list of tokens grouped by bunsetsu IDs.
@@ -600,15 +578,15 @@ class EventBuilder(Builder):
     def __call__(self, sentence: 'Sentence', start: Tag, head: Tag, end: Tag):
         logger.debug('Create an event')
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid, start, head, end)
-        Builder.evid += 1
         PredicateBuilder()(event)
         ArgumentsBuilder()(event)
         FeaturesBuilder()(event)
+        sentence.events.append(event)
+        Builder.evid += 1
 
         # Make this sentence and its components accessible from builders.
         for tid in range(start.tag_id, end.tag_id + 1):
             Builder.stid_event_map[(sentence.ssid, tid)] = event
-        sentence.events.append(event)
 
         logger.debug('Successfully created a event.')
         return event
@@ -632,11 +610,11 @@ class JsonEventBuilder(Builder):
         event._normalized_reps = dump['normalized_reps']
         event._normalized_reps_with_mark = dump['normalized_reps_with_mark']
         event._content_rep_list = dump['content_rep_list']
-        Builder.evid += 1
         JsonPredicateBuilder()(event, dump['pas']['predicate'])
         JsonArgumentsBuilder()(event, dump['pas']['argument'])
         JsonFeaturesBuilder()(event, dump['features'])
         sentence.events.append(event)
+        Builder.evid += 1
 
         # Make this sentence and its components accessible from builders.
         Builder.evid_event_map[event.evid] = event

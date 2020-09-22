@@ -1,4 +1,3 @@
-"""Sentence is a class to manage sentence information."""
 from logging import getLogger
 from typing import List, TYPE_CHECKING
 

@@ -32,7 +32,25 @@ class EventGraph(Component):
 
     @classmethod
     def build(cls, blist: List[BList]) -> 'EventGraph':
-        """Build an EventGraph from language analysis by :class:`pyknp.knp.knp.KNP`."""
+        """Build an EventGraph from language analysis by KNP.
+
+        Args:
+            blist: A list of bunsetsu lists, each of which is a result of analysis performed by KNP on a sentence.
+
+        Example::
+
+            from pyknp import KNP
+            from pyknp_eventgraph import EventGraph
+
+            # Parse a document.
+            document = ['彼女は海外勤務が長いので、英語がうまいに違いない。', '私はそう確信していた。']
+            knp = KNP()
+            blists = [knp.parse(sentence) for sentence in document]
+
+            # Build an EventGraph.
+            evg = EventGraph.build(analysis)
+
+        """
         return EventGraphBuilder()(blist)
 
     @classmethod
@@ -44,9 +62,21 @@ class EventGraph(Component):
             binary: If true, deserialize an EventGraph using Python's pickle utility. Otherwise, deserialize
                 an EventGraph using Python's json utility.
 
+        Example::
+
+            from pyknp_eventgraph import EventGraph
+
+            # Load an EventGraph serialized in a JSON format.
+            with open('evg.json', 'r') as f:
+                evg = EventGraph.load(f, binary=False)
+
+            # Load an EventGraph serialized by Python's pickle utility.
+            with open('evg.pkl', 'rb') as f:
+                evg = EventGraph.load(f, binary=True)
+
         Caution:
-            EventGraph deserialized from a JSON file loses several functionality. To keep full functionality,
-            use Python\'s pickle utility for serialization.
+            EventGraph deserialized from a JSON file loses several functionality.
+            To keep full functionality, use Python\'s pickle utility for serialization.
 
         """
         if binary:
@@ -55,7 +85,7 @@ class EventGraph(Component):
             return JsonEventGraphBuilder()(f)
 
     def save(self, path: str, binary: bool = False) -> None:
-        """Save this object using Python's pickle utility for serialization.
+        """Save this EventGraph.
 
         Args:
             path: An output file path.
@@ -113,12 +143,24 @@ class EventGraphBuilder(Builder):
     def __call__(self, blists: List[BList]) -> EventGraph:
         logger.debug('Create an EventGraph.')
         Builder.reset()
+
         evg = EventGraph()
+
+        # Assign a document to the EventGraph.
+        # A document is a collection of sentences, and a sentence is a collection of events.
         DocumentBuilder()(evg, blists)
-        for event in evg.events:
-            RelationsBuilder()(event)
+
+        # Assign tokens to events.
+        # This process must be performed after constructing a document
+        # because an event may have a token recognized by inter-sentential cataphora resolution.
         for event in evg.events:
             TokenBuilder()(event)
+
+        # Assign event-to-event relations to events.
+        # This process must be performed after constructing a document.
+        for event in evg.events:
+            RelationsBuilder()(event)
+
         logger.debug('Successfully created an EventGraph.')
         logger.debug(evg)
         return evg
@@ -144,14 +186,21 @@ class JsonEventGraphBuilder(Builder):
                     '(https://pyknp-eventgraph.readthedocs.io/en/latest/reference/eventgraph.html'
                     '#pyknp_eventgraph.eventgraph.EventGraph.load)')
         Builder.reset()
-        evg = EventGraph()
         dump = json.load(f)
+
+        evg = EventGraph()
+
+        # Assign a document to the EventGraph.
+        # A document is a collection of sentences, and a sentence is a collection of events.
         JsonDocumentBuilder()(evg, dump)
+
+        # Assign event-to-event relations to events.
         for event_dump in dump['events']:
             for relation_dump in event_dump['rel']:
                 modifier_evid = event_dump['event_id']
                 head_evid = relation_dump['event_id']
                 JsonRelationBuilder()(modifier_evid, head_evid, relation_dump)
+
         logger.debug('Successfully created an EventGraph.')
         logger.debug(evg)
         return evg
