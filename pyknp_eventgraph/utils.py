@@ -5,7 +5,7 @@ from pyknp import KNP, BList
 
 
 def read_knp_result_file(filename: str) -> List[BList]:
-    """Read a file of KNP results.
+    """Read a KNP result file.
 
     Args:
         filename: A filename.

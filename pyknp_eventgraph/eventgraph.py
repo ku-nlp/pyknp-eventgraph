@@ -48,7 +48,7 @@ class EventGraph(Component):
             blists = [knp.parse(sentence) for sentence in document]
 
             # Build an EventGraph.
-            evg = EventGraph.build(analysis)
+            evg = EventGraph.build(blists)
 
         """
         return EventGraphBuilder()(blist)
