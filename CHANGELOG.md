@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.1.0]
+
+### Changed
+- Introduce PAS class, which manages a predicate and its arguments.
+
 ## [6.0.1]
 
 ### Changed

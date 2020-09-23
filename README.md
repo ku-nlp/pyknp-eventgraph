@@ -74,8 +74,9 @@ print(event.normalized_reps)   # 海外/かいがい 勤務/きんむ が/が �
 print(event.content_rep_list)  # ['海外/かいがい', '勤務/きんむ', '長い/ながい']
 
 # Print an event's PAS information.
-print(event.predicate)        # Predicate(type: 形, surf: 長い)
-print(event.arguments['ガ'])  # [Argument(case: ガ, surf: 勤務が)]
+print(event.pas)                  # PAS(predicate: 長い/ながい, arguments: 勤務/きんむ (ガ))
+print(event.pas.predicate)        # Predicate(type: 形, surf: 長い)
+print(event.pas.arguments['ガ'])  # [Argument(case: ガ, surf: 勤務が)]
 
 # Print an event's features.
 print(event.features)  # Features(modality: None, tense: 非過去, negation: False, state: 状態述語, complement: False)
@@ -91,10 +92,10 @@ for relation in evg.relations:
     pass
 
 # Access to pyknp's objects.
-print(type(sentence.blist))                # <class 'pyknp.knp.blist.BList'>
-print(type(event.predicate.tag))           # <class 'pyknp.knp.tag.Tag'>
-print(type(event.arguments['ガ'][0].tag))  # <class 'pyknp.knp.tag.Tag'>
-print(type(event.arguments['ガ'][0].arg))  # <class 'pyknp.knp.pas.Argument'>
+print(type(sentence.blist))                    # <class 'pyknp.knp.blist.BList'>
+print(type(event.pas.predicate.tag))           # <class 'pyknp.knp.tag.Tag'>
+print(type(event.pas.arguments['ガ'][0].tag))  # <class 'pyknp.knp.tag.Tag'>
+print(type(event.pas.arguments['ガ'][0].arg))  # <class 'pyknp.knp.pas.Argument'>
 
 # Convert an EventGraph into a dictionary.
 dct = evg.to_dict()  # {"sentences": ..., "events": ...}

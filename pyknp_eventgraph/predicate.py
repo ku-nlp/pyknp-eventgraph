@@ -8,26 +8,26 @@ from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.token import Token
 
 if TYPE_CHECKING:
-    from pyknp_eventgraph.event import Event
+    from pyknp_eventgraph.pas import PAS
 
 logger = getLogger(__name__)
 
 
 class Predicate(Component):
-    """A predicate is the core of an event.
+    """A predicate is the core of a　PAS.
 
     Attributes:
-        event (Event): An event that this predicate belongs.
+        pas (PAS): A PAS that this predicate belongs.
         head (Tag): A head tag.
         type_ (str): A type of this predicate.
         head_token (Optional[Token]): A head token.
 
     """
 
-    def __init__(self, event: 'Event', head: Optional[Tag], type_: str):
-        self.event: Event = event
-        self.head: Optional[Tag] = head
+    def __init__(self, pas: 'PAS', type_: str, head: Optional[Tag] = None):
+        self.pas: PAS = pas
         self.type_: str = type_
+        self.head: Optional[Tag] = head
         self.head_token: Optional[Token] = None
 
         self._surf = None
@@ -244,10 +244,10 @@ class Predicate(Component):
 
 class PredicateBuilder(Builder):
 
-    def __call__(self, event: 'Event') -> Predicate:
+    def __call__(self, pas: 'PAS') -> Predicate:
         logger.debug('Create a predicate.')
-        predicate = Predicate(event, event.head, self._find_type(event.head))
-        event.predicate = predicate
+        predicate = Predicate(pas, self._find_type(pas.event.head), pas.event.head)
+        pas.predicate = predicate
         logger.debug('Successfully created a predicate.')
         return predicate
 
@@ -258,9 +258,9 @@ class PredicateBuilder(Builder):
 
 class JsonPredicateBuilder(Builder):
 
-    def __call__(self, event: 'Event', dump: dict) -> Predicate:
+    def __call__(self, pas: 'PAS', dump: dict) -> Predicate:
         logger.debug('Create a predicate.')
-        predicate = Predicate(event, None, dump['type'])
+        predicate = Predicate(pas, dump['type'])
         predicate._surf = dump['surf']
         predicate._normalized_surf = dump['normalized_surf']
         predicate._mrphs = dump['mrphs']
@@ -271,6 +271,6 @@ class JsonPredicateBuilder(Builder):
         predicate._children = dump['children']
         predicate._adnominal_event_ids = dump['adnominal_event_ids']
         predicate._sentential_complement_event_ids = dump['sentential_complement_event_ids']
-        event.predicate = predicate
+        pas.predicate = predicate
         logger.debug('Successfully created a predicate.')
         return predicate

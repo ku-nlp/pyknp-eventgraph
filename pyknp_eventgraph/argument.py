@@ -2,17 +2,17 @@ import collections
 from logging import getLogger
 from typing import List, Dict, Optional, TYPE_CHECKING
 
-from pyknp import Morpheme, Tag
 from pyknp import Argument as PyknpArgument
+from pyknp import Morpheme, Tag
 from pyknp.knp.pas import Argument
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.token import Token
 from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
+from pyknp_eventgraph.token import Token
 
 if TYPE_CHECKING:
-    from pyknp_eventgraph.event import Event
+    from pyknp_eventgraph.pas import PAS
 
 logger = getLogger(__name__)
 
@@ -21,7 +21,7 @@ class Argument(Component):
     """An argument supplements its predicate's information.
 
     Attributes:
-        event (Event): An event that this argument belongs.
+        pas (PAS): A PAS that this argument belongs.
         case (str): A case.
         eid (int): An entity ID.
         flag (str): A flag.
@@ -30,8 +30,8 @@ class Argument(Component):
 
     """
 
-    def __init__(self, event: 'Event', case: str, eid: int, flag: str, sdist: int, arg: Optional[PyknpArgument] = None):
-        self.event: Event = event
+    def __init__(self, pas: 'PAS', case: str, eid: int, flag: str, sdist: int, arg: Optional[PyknpArgument] = None):
+        self.pas: 'PAS' = pas
         self.case: str = case
         self.eid: int = eid
         self.flag: str = flag
@@ -245,19 +245,19 @@ class Argument(Component):
 
 class ArgumentBuilder(Builder):
 
-    def __call__(self, event: 'Event', case: str, arg: PyknpArgument) -> Argument:
+    def __call__(self, pas: 'PAS', case: str, arg: PyknpArgument) -> Argument:
         logger.debug('Create an argument')
-        argument = Argument(event, case, arg.eid, arg.flag, arg.sdist, arg)
-        event.arguments[case].append(argument)
+        argument = Argument(pas, case, arg.eid, arg.flag, arg.sdist, arg)
+        pas.arguments[case].append(argument)
         logger.debug('Successfully created an argument.')
         return argument
 
 
 class JsonArgumentBuilder(Builder):
 
-    def __call__(self, event: 'Event', case: str, dump: dict) -> Argument:
+    def __call__(self, pas: 'PAS', case: str, dump: dict) -> Argument:
         logger.debug('Create an argument')
-        argument = Argument(event, case, dump['eid'], dump['flag'], dump['sdist'])
+        argument = Argument(pas, case, dump['eid'], dump['flag'], dump['sdist'])
         argument._surf = dump['surf']
         argument._normalized_surf = dump['normalized_surf']
         argument._mrphs = dump['mrphs']
@@ -268,27 +268,27 @@ class JsonArgumentBuilder(Builder):
         argument._children = dump['children']
         argument._adnominal_event_ids = dump['adnominal_event_ids']
         argument._sentential_complement_event_ids = dump['sentential_complement_event_ids']
-        event.arguments[case].append(argument)
+        pas.arguments[case].append(argument)
         logger.debug('Successfully created an argument.')
         return argument
 
 
 class ArgumentsBuilder(Builder):
 
-    def __call__(self, event: 'Event') -> Dict[str, List[Argument]]:
+    def __call__(self, pas: 'PAS') -> Dict[str, List[Argument]]:
         arguments: Dict[str, List[Argument]] = collections.defaultdict(list)
-        if event.head.pas:
-            for case, args in sorted(event.head.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
-                for arg in sorted(args, key=lambda _arg: (event.ssid - _arg.sdist, _arg.tid)):
-                    arguments[case].append(ArgumentBuilder()(event, case, arg))
+        if pas.pas:
+            for case, args in sorted(pas.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
+                for arg in sorted(args, key=lambda _arg: (pas.ssid - _arg.sdist, _arg.tid)):
+                    arguments[case].append(ArgumentBuilder()(pas, case, arg))
         return arguments
 
 
 class JsonArgumentsBuilder(Builder):
 
-    def __call__(self, event: 'Event', dump: dict) -> Dict[str, List[Argument]]:
+    def __call__(self, pas: 'PAS', dump: dict) -> Dict[str, List[Argument]]:
         arguments: Dict[str, List[Argument]] = collections.defaultdict(list)
         for case, arguments_dump in dump.items():
             for argument_dump in arguments_dump:
-                arguments[case].append(JsonArgumentBuilder()(event, case, argument_dump))
+                arguments[case].append(JsonArgumentBuilder()(pas, case, argument_dump))
         return arguments

@@ -5,6 +5,7 @@ from pyknp_eventgraph.eventgraph import EventGraph
 from pyknp_eventgraph.document import Document
 from pyknp_eventgraph.sentence import Sentence
 from pyknp_eventgraph.event import Event
+from pyknp_eventgraph.pas import PAS
 from pyknp_eventgraph.predicate import Predicate
 from pyknp_eventgraph.argument import Argument
 from pyknp_eventgraph.features import Features

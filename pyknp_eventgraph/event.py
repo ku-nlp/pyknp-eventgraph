@@ -1,4 +1,3 @@
-import collections
 from logging import getLogger
 from typing import Tuple, List, Dict, Union, Optional, TYPE_CHECKING
 
@@ -6,12 +5,11 @@ from pyknp import Tag, Morpheme
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.predicate import Predicate, PredicateBuilder, JsonPredicateBuilder
-from pyknp_eventgraph.argument import Argument, ArgumentsBuilder, JsonArgumentsBuilder
 from pyknp_eventgraph.features import Features, FeaturesBuilder, JsonFeaturesBuilder
+from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
+from pyknp_eventgraph.pas import PAS, PASBuilder, JsonPASBuilder
 from pyknp_eventgraph.relation import Relation, filter_relations
 from pyknp_eventgraph.token import Token, group_tokens
-from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.sentence import Sentence
@@ -36,8 +34,7 @@ class Event(Component):
         start (Tag, optional): A start tag.
         head (Tag, optional): A head tag.
         end (Tag, optional): An end tag.
-        predicate (Predicate): A predicate.
-        arguments (Dict[str, List[Argument]]): A mapping of cases to arguments.
+        pas (PAS, optional): A predicate argument structure.
         outgoing_relations (List[Relation]): A list of relations where this event is the modifier.
         incoming_relations (List[Relation]): A list of relations where this event is the head.
         features (Optional[Features]): Linguistic features.
@@ -56,8 +53,7 @@ class Event(Component):
         self.start: Tag = start
         self.head: Tag = head
         self.end: Tag = end
-        self.predicate: Optional[Predicate] = None
-        self.arguments: Dict[str, List[Argument]] = collections.defaultdict(list)  # case -> a list of arguments
+        self.pas: Optional[PAS] = None
         self.outgoing_relations: List[Relation] = []
         self.incoming_relations: List[Relation] = []
         self.features: Optional[Features] = None
@@ -345,8 +341,8 @@ class Event(Component):
 
         """
         # Collect head tokens.
-        head_tokens = [self.predicate.head_token]
-        for arguments in self.arguments.values():
+        head_tokens = [self.pas.predicate.head_token]
+        for arguments in self.pas.arguments.values():
             for argument in arguments:
                 if argument.head_token.omitted_case:
                     # Omitted arguments -> If `exclude_exophora` is true, invalid
@@ -415,7 +411,7 @@ class Event(Component):
             mrph_index_offset = 0
 
             for token in tokens:
-                seen_head = seen_head or token == self.predicate.head_token
+                seen_head = seen_head or token == self.pas.predicate.head_token
                 if not seen_head:
                     continue  # Skip words until the token reaches to the predicate's head token.
 
@@ -557,14 +553,7 @@ class Event(Component):
             ('normalized_reps', self.normalized_reps),
             ('normalized_reps_with_mark', self.normalized_reps_with_mark),
             ('content_rep_list', self.content_rep_list),
-            ('pas', dict((
-                ('predicate', self.predicate.to_dict()),
-                ('argument', {
-                    case: [argument.to_dict() for argument in argument_list if argument.to_dict()]
-                    for case, argument_list in self.arguments.items()
-                    if any(argument.to_dict() for argument in argument_list)
-                })
-            ))),
+            ('pas', self.pas.to_dict()),
             ('features', self.features.to_dict())
         ))
 
@@ -578,8 +567,7 @@ class EventBuilder(Builder):
     def __call__(self, sentence: 'Sentence', start: Tag, head: Tag, end: Tag):
         logger.debug('Create an event')
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid, start, head, end)
-        PredicateBuilder()(event)
-        ArgumentsBuilder()(event)
+        PASBuilder()(event)
         FeaturesBuilder()(event)
         sentence.events.append(event)
         Builder.evid += 1
@@ -610,8 +598,7 @@ class JsonEventBuilder(Builder):
         event._normalized_reps = dump['normalized_reps']
         event._normalized_reps_with_mark = dump['normalized_reps_with_mark']
         event._content_rep_list = dump['content_rep_list']
-        JsonPredicateBuilder()(event, dump['pas']['predicate'])
-        JsonArgumentsBuilder()(event, dump['pas']['argument'])
+        JsonPASBuilder()(event, dump['pas'])
         JsonFeaturesBuilder()(event, dump['features'])
         sentence.events.append(event)
         Builder.evid += 1
