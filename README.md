@@ -81,11 +81,13 @@ print(event.pas.arguments['ガ'])  # [Argument(case: ガ, surf: 勤務が)]
 # Print an event's features.
 print(event.features)  # Features(modality: None, tense: 非過去, negation: False, state: 状態述語, complement: False)
 
-# Print relations between events.
+# Print a relation between two events.
 relation = evg.relations[0]
 print(relation)           # Relation(label: 原因・理由, modifier_evid: 0, head_evid: 1)
 print(relation.modifier)  # Event(evid: 0, surf: 海外勤務が長いので、)
 print(relation.head)      # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
+print(relation.label)     # 原因・理由
+print(relation.surf)      # ので
 
 # Relations are iterable, too.
 for relation in evg.relations:
@@ -126,17 +128,16 @@ document = ['もっととろみが持続する作り方をして欲しい。']
 knp = KNP()
 analysis = [knp.parse(sentence) for sentence in document]
 
-# Print some information.
 evg = EventGraph.build(analysis)
 print(evg)  # EventGraph(#sentences: 1, #events: 2, #relations: 1)
 
-# Investigate what the relation is.
+# Investigate the relation.
 relation = evg.relations[0]
 print(relation)           # Relation(label: 連体修飾, modifier_evid: 0, head_evid: 1)
 print(relation.modifier)  # Event(evid: 0, surf: もっととろみが持続する)
 print(relation.head)      # Event(evid: 1, surf: 作り方をして欲しい。)
 
-# To merge modifiers' tokens, enable `include_modifiers`.
+# To merge modifier events, enable `include_modifiers`.
 print(relation.head.surf)                           # 作り方をして欲しい。
 print(relation.head.surf_(include_modifiers=True))  # もっととろみが持続する作り方をして欲しい。
 
