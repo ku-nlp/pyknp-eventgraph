@@ -23,11 +23,11 @@ def main():
     for event in evg.events[:10]:
         # Ishi requires two information of an event: the predicate's head and the primary nominative.
 
-        # Predicate head: `event.predicate.tag` is the head token of the predicate of an event.
-        head_tag = event.predicate.tag
+        # Predicate head: `event.pas.predicate.tag` is the head token of the predicate of an event.
+        head_tag = event.pas.predicate.tag
 
-        # Primary nominative: `event.arguments` is a mapping from a case to a list of arguments.
-        nominatives = event.arguments.get('ガ', None)
+        # Primary nominative: `event.pas.arguments` is a mapping from a case to a list of arguments.
+        nominatives = event.pas.arguments.get('ガ', None)
         if nominatives:
             primary_nominative = nominatives[0]  # The first item corresponds to the primal one.
             if primary_nominative.tag:

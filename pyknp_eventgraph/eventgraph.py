@@ -8,9 +8,9 @@ from pyknp import BList
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.document import Document, DocumentBuilder, JsonDocumentBuilder
-from pyknp_eventgraph.sentence import Sentence
 from pyknp_eventgraph.event import Event
 from pyknp_eventgraph.relation import Relation, RelationsBuilder, JsonRelationBuilder
+from pyknp_eventgraph.sentence import Sentence
 from pyknp_eventgraph.token import TokenBuilder
 
 logger = getLogger(__name__)

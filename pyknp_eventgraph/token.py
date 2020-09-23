@@ -200,7 +200,7 @@ class TokenBuilder(Builder):
     def __call__(self, event: 'Event'):
         # Greedily dispatch tokens to arguments.
         argument_head_tokens: List[Token] = []  # Used to stop recursion when we assign tokens to the predicate.
-        for arguments in event.arguments.values():
+        for arguments in event.pas.arguments.values():
             for argument in arguments:
                 head = self.dispatch_token_to_argument(argument)
                 argument_head_tokens.append(head)
@@ -211,11 +211,11 @@ class TokenBuilder(Builder):
         self._resolve_duplication(argument_head_tokens)
 
         # Dispatch tokens to a predicate.
-        self.dispatch_token_to_predicate(event.predicate, sentinels=argument_head_tokens)
+        self.dispatch_token_to_predicate(event.pas.predicate, sentinels=argument_head_tokens)
 
     def dispatch_token_to_argument(self, argument: 'Argument') -> Token:
-        event = argument.event
-        ssid = argument.event.ssid - argument.arg.sdist
+        event = argument.pas.event
+        ssid = argument.pas.ssid - argument.arg.sdist
         tid = argument.arg.tid
         bid = Builder.stid_bid_map.get((ssid, tid), -1)
         tag = Builder.stid_tag_map.get((ssid, tid), None)
@@ -233,18 +233,18 @@ class TokenBuilder(Builder):
         return head_token
 
     def dispatch_token_to_predicate(self, predicate: 'Predicate', sentinels: List[Token]) -> Token:
-        event = predicate.event
-        ssid = predicate.event.ssid
-        tid = predicate.event.head.tag_id
+        event = predicate.pas.event
+        ssid = predicate.pas.event.ssid
+        tid = predicate.head.tag_id
         bid = Builder.stid_bid_map.get((ssid, tid), -1)
         tag = Builder.stid_tag_map.get((ssid, tid), None)
 
         head_token = Token(event, tag, ssid, bid, tid)
         self.add_children(head_token, ssid, sentinels=sentinels)
-        if predicate.event.head != predicate.event.end:
-            next_tid = predicate.event.end.tag_id
+        if predicate.pas.event.head != predicate.pas.event.end:
+            next_tid = predicate.pas.event.end.tag_id
             next_bid = Builder.stid_bid_map.get((ssid, next_tid), -1)
-            head_parent_token = Token(event, predicate.event.end, ssid, next_bid, next_tid)
+            head_parent_token = Token(event, predicate.pas.event.end, ssid, next_bid, next_tid)
             self.add_children(head_parent_token, ssid, sentinels=sentinels + [head_token])
             self.add_compound_phrase_component(head_parent_token, ssid)
             head_token.parent = head_parent_token

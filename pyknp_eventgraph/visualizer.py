@@ -140,12 +140,12 @@ class Node:
     @property
     def pas(self) -> str:
         """The PAS of this node."""
-        pred = self.event.predicate.standard_reps
-        if self.event.predicate.type_:
-            pred += f':{self.event.predicate.type_}'
+        pred = self.event.pas.predicate.standard_reps
+        if self.event.pas.predicate.type_:
+            pred += f':{self.event.pas.predicate.type_}'
         args = []
-        for case in sorted(self.event.arguments, key=lambda x: PAS_ORDER.get(x, 99)):
-            arg = self.event.arguments[case][0]
+        for case in sorted(self.event.pas.arguments, key=lambda x: PAS_ORDER.get(x, 99)):
+            arg = self.event.pas.arguments[case][0]
             if '外の関係' not in case:
                 args.append(f'{arg.head_reps}:{case}')
         return ', '.join([pred] + args)

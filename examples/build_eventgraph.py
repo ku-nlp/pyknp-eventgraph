@@ -26,10 +26,11 @@ def main():
     print('*** Events ***')
     for event in evg.events:
         print(event)
-        print(' -', event.predicate)
-        for arguments in event.arguments.values():
+        print(' -', event.pas)
+        print('  *', event.pas.predicate)
+        for arguments in event.pas.arguments.values():
             for argument in arguments:
-                print(' -', argument)
+                print('  *', argument)
         print(' -', event.features)
         print('')
 

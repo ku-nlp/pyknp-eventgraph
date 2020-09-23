@@ -11,6 +11,7 @@ API Reference
     document
     sentence
     event
+    pas
     predicate
     argument
     features

@@ -1,5 +1,5 @@
-from logging import getLogger
 import re
+from logging import getLogger
 from typing import List, Optional, TYPE_CHECKING
 
 from pyknp import Tag
