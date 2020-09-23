@@ -76,6 +76,11 @@ class Event(Component):
         self._content_rep_list = None
 
     @property
+    def event_id(self) -> int:
+        """An alias to evid."""
+        return self.evid
+
+    @property
     def surf(self) -> str:
         """A surface string."""
         if self._surf is None:
