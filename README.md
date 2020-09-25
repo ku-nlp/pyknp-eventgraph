@@ -7,8 +7,8 @@ Events are linked to each other based on their syntactic and semantic relations.
 ## Requirements
 
 - Python 3.6 or later
-- pyknp: 0.4.1
-- graphviz: 0.10.1
+- pyknp
+- graphviz
 
 ## Installation
 
