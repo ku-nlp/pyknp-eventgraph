@@ -1,7 +1,7 @@
 import json
 import pickle
 from logging import getLogger
-from typing import List, IO, Optional
+from typing import List, Union, TextIO, BinaryIO, Optional
 
 from pyknp import BList
 
@@ -17,10 +17,9 @@ logger = getLogger(__name__)
 
 
 class EventGraph(Component):
-    """EventGraph provides a high-level interface that facilitates NLP application development.
-    The core concept of EventGraph is event, a language information unit that is closely related to predicate-argument
-    structure but more application-oriented. Events are linked to each other based on their syntactic and semantic
-    relations.
+    """EventGraph provides a high-level interface that facilitates NLP application development. The core concept of
+    EventGraph is event, a language information unit that is closely related to predicate-argument structure but more
+    application-oriented. Events are linked to each other based on their syntactic and semantic relations.
 
     Attributes:
         document (Document): A document on which this EventGraph is built.
@@ -54,7 +53,7 @@ class EventGraph(Component):
         return EventGraphBuilder()(blist)
 
     @classmethod
-    def load(cls, f: IO, binary: bool = False) -> 'EventGraph':
+    def load(cls, f: Union[TextIO, BinaryIO], binary: bool = False) -> 'EventGraph':
         """Deserialize an EventGraph.
 
         Args:
@@ -132,10 +131,10 @@ class EventGraph(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'EventGraph(' \
+        return f'<EventGraph, ' \
                f'#sentences: {len(self.sentences)}, ' \
                f'#events: {len(self.events)}, ' \
-               f'#relations: {len(self.relations)})'
+               f'#relations: {len(self.relations)}>'
 
 
 class EventGraphBuilder(Builder):
@@ -168,7 +167,7 @@ class EventGraphBuilder(Builder):
 
 class PickleEventGraphBuilder(Builder):
 
-    def __call__(self, f: IO) -> EventGraph:
+    def __call__(self, f: BinaryIO) -> EventGraph:
         logger.debug('Create an EventGraph by loading a pickled file.')
         evg = pickle.load(f)
         assert isinstance(evg, EventGraph)
@@ -179,7 +178,7 @@ class PickleEventGraphBuilder(Builder):
 
 class JsonEventGraphBuilder(Builder):
 
-    def __call__(self, f: IO) -> EventGraph:
+    def __call__(self, f: TextIO) -> EventGraph:
         logger.debug('Create an EventGraph by loading a JSON file.')
         logger.info('EventGraph deserialized from a JSON file loses several functionality. '
                     'To keep full functionality, use Python\'s pickle utility for serialization. '

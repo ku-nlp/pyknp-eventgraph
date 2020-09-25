@@ -66,7 +66,7 @@ class Sentence(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'Sentence(sid: {self.sid}, ssid: {self.ssid}, surf: {self.surf})'
+        return f'<Sentence, sid: {self.sid}, ssid: {self.ssid}, surf: {self.surf}>'
 
 
 class SentenceBuilder(Builder):

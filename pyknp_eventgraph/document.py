@@ -36,7 +36,7 @@ class Document(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'Document(#sentences: {len(self.sentences)})'
+        return f'<Document, #sentences: {len(self.sentences)}>'
 
 
 class DocumentBuilder(Builder):

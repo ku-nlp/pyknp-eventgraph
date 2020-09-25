@@ -1,5 +1,5 @@
 import collections
-from typing import List, Tuple, Optional, TYPE_CHECKING
+from typing import List, Tuple, Optional, NoReturn, TYPE_CHECKING
 
 from pyknp import Tag
 
@@ -127,19 +127,6 @@ class Token(Component):
             root_token = root_token.parent
         return root_token
 
-    def to_dict(self) -> dict:
-        """Convert this object into a dictionary."""
-        return dict((
-            ('ssid', self.ssid),
-            ('bid', self.bid),
-            ('tid', self.tid),
-            ('surf', self.surf),
-        ))
-
-    def to_string(self) -> str:
-        """Convert this object into a string."""
-        return f'Token(ssid: {self.ssid}, bid: {self.bid}, tid: {self.tid}, surf: {self.surf})'
-
     def to_list(self) -> List['Token']:
         """Expand to a list."""
         return sorted(self.root.modifiers(include_self=True))
@@ -177,6 +164,19 @@ class Token(Component):
 
         add_modifier(self)
         return sorted(modifier_tokens)
+
+    def to_dict(self) -> dict:
+        """Convert this object into a dictionary."""
+        return dict((
+            ('ssid', self.ssid),
+            ('bid', self.bid),
+            ('tid', self.tid),
+            ('surf', self.surf),
+        ))
+
+    def to_string(self) -> str:
+        """Convert this object into a string."""
+        return f'<Token, ssid: {self.ssid}, bid: {self.bid}, tid: {self.tid}, surf: {self.surf}>'
 
 
 def group_tokens(tokens: List[Token]) -> List[List[Token]]:
@@ -253,7 +253,7 @@ class TokenBuilder(Builder):
         predicate.head_token = head_token
         return head_token
 
-    def add_compound_phrase_component(self, token: Token, ssid: int) -> None:
+    def add_compound_phrase_component(self, token: Token, ssid: int) -> NoReturn:
         next_tag = Builder.stid_tag_map.get((ssid, token.tag.tag_id + 1), None)
         if next_tag and '複合辞' in next_tag.features and '補文ト' not in next_tag.features:
             next_tid = token.tag.tag_id + 1
@@ -264,7 +264,7 @@ class TokenBuilder(Builder):
             token.parent = parent_token
             parent_token.children.append(token)
 
-    def add_children(self, parent_token: Token, ssid: int, sentinels: List[Token] = None):
+    def add_children(self, parent_token: Token, ssid: int, sentinels: List[Token] = None) -> NoReturn:
         sentinel_tags = {sentinel.tag for sentinel in sentinels} if sentinels else {}
         for child_tag in parent_token.tag.children:  # type: Tag
             if child_tag in sentinel_tags or '節-主辞' in child_tag.features or '節-区切' in child_tag.features:
@@ -277,10 +277,10 @@ class TokenBuilder(Builder):
             parent_token.children.append(child_token)
 
     @staticmethod
-    def _resolve_duplication(heads: List[Token]) -> None:
+    def _resolve_duplication(heads: List[Token]) -> NoReturn:
         head_keys = {head.key[1:] for head in heads}  # key[0] is case information
 
-        def resolver(children: List[Token]) -> None:
+        def resolver(children: List[Token]) -> NoReturn:
             for i in reversed(range(len(children))):
                 child_token = children[i]
                 if child_token.omitted_case:

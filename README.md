@@ -24,7 +24,7 @@ or
 $ python setup.py install
 ```
 
-## Quick Start
+## Quick Tour
 
 ### Step 1: Create an EventGraph
 
@@ -42,7 +42,7 @@ analysis = [knp.parse(sentence) for sentence in document]
 
 # Create an EventGraph.
 evg = EventGraph.build(analysis)
-print(evg)  # EventGraph(#sentences: 2, #events: 3, #relations: 1)
+print(evg)  # <EventGraph, #sentences: 2, #events: 3, #relations: 1>
 ```
 
 ### Step 2: Extract Information
@@ -56,8 +56,8 @@ Users can obtain various information about language analysis via a simple interf
 sentences = evg.sentences
 print(sentences)
 # [
-#   Sentence(sid: 1, ssid: 0, surf: 彼女は海外勤務が長いので、英語がうまいに違いない。),
-#   Sentence(sid: 2, ssid: 1, surf: 私はそう確信していた。)
+#   <Sentence, sid: 1, ssid: 0, surf: 彼女は海外勤務が長いので、英語がうまいに違いない。>,
+#   <Sentence, sid: 2, ssid: 1, surf: 私はそう確信していた。>
 # ]
 
 # Convert a sentence into various forms.
@@ -74,9 +74,9 @@ print(sentence.reps)   # 彼女/かのじょ は/は 海外/かいがい 勤務/
 events = evg.events
 print(events)
 # [
-#   Event(evid: 0, surf: 海外勤務が長いので、)
-#   Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
-#   Event(evid: 2, surf: 私はそう確信していた。)
+#   <Event, evid: 0, surf: 海外勤務が長いので、>,
+#   <Event, evid: 1, surf: 彼女は英語がうまいに違いない。>,
+#   <Event, evid: 2, surf: 私はそう確信していた。>
 # ]
 
 # Convert an event into various forms.
@@ -90,13 +90,13 @@ print(event.content_rep_list)  # ['海外/かいがい', '勤務/きんむ', '�
 
 # Extract an event's PAS.
 pas = event.pas
-print(pas)                  # PAS(predicate: 長い/ながい, arguments: 勤務/きんむ (ガ))
-print(pas.predicate)        # Predicate(type: 形, surf: 長い)
-print(pas.arguments['ガ'])  # [Argument(case: ガ, surf: 勤務が)]
+print(pas)            # <PAS, predicate: 長い/ながい, arguments: {ガ: 勤務/きんむ}>
+print(pas.predicate)  # <Predicate, type: 形, surf: 長い>
+print(pas.arguments)  # defaultdict(<class 'list'>, {'ガ': [<Argument, case: ガ, surf: 勤務が>]})
 
 # Extract an event's features.
 features = event.features
-print(features)  # Features(modality: None, tense: 非過去, negation: False, state: 状態述語, complement: False)
+print(features)  # <Features, modality: None, tense: 非過去, negation: False, state: 状態述語, complement: False>
 ```
 
 #### Step 2.3: Event-to-event Relation
@@ -104,14 +104,14 @@ print(features)  # Features(modality: None, tense: 非過去, negation: False, s
 ```python
 # Extract event-to-event relations.
 relations = evg.relations
-print(relations)  # [Relation(label: 原因・理由, modifier_evid: 0, head_evid: 1)]
+print(relations)  # [<Relation, label: 原因・理由, modifier_evid: 0, head_evid: 1>]
 
 # Take a closer look at an event-to-event relation
 relation = relations[0]
 print(relation.label)     # 原因・理由
 print(relation.surf)      # ので
-print(relation.modifier)  # Event(evid: 0, surf: 海外勤務が長いので、)
-print(relation.head)      # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
+print(relation.modifier)  # <Event, evid: 0, surf: 海外勤務が長いので、>
+print(relation.head)      # <Event, evid: 1, surf: 彼女は英語がうまいに違いない。>
 ```
 
 ### Step 3: Seve/Load an EventGraph
@@ -151,13 +151,13 @@ knp = KNP()
 analysis = [knp.parse(sentence) for sentence in document]
 
 evg = EventGraph.build(analysis)
-print(evg)  # EventGraph(#sentences: 1, #events: 2, #relations: 1)
+print(evg)  # <EventGraph, #sentences: 1, #events: 2, #relations: 1>
 
 # Investigate the relation.
 relation = evg.relations[0]
-print(relation)           # Relation(label: 連体修飾, modifier_evid: 0, head_evid: 1)
-print(relation.modifier)  # Event(evid: 0, surf: もっととろみが持続する)
-print(relation.head)      # Event(evid: 1, surf: 作り方をして欲しい。)
+print(relation)           # <Relation, label: 連体修飾, modifier_evid: 0, head_evid: 1>
+print(relation.modifier)  # <Event, evid: 0, surf: もっととろみが持続する>
+print(relation.head)      # <Event, evid: 1, surf: 作り方をして欲しい。>
 
 # To merge modifier events, enable `include_modifiers`.
 print(relation.head.surf)                           # 作り方をして欲しい。

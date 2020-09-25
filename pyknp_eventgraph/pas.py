@@ -54,8 +54,8 @@ class PAS(Component):
         for case, argument_list in self.arguments.items():
             for argument in argument_list:
                 if argument.head_reps:
-                    arguments.append(f'{argument.head_reps} ({case})')
-        return f'PAS(predicate: {predicate}, arguments: {", ".join(arguments) if arguments else "None"})'
+                    arguments.append(f'{case}: {argument.head_reps}')
+        return f'<PAS, predicate: {predicate}, arguments: {"{" + ", ".join(arguments) + "}" if arguments else "None"}>'
 
 
 class PASBuilder(Builder):

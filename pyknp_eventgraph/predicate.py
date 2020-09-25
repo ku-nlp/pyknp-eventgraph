@@ -239,7 +239,7 @@ class Predicate(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'Predicate(type: {self.type_}, surf: {self.surf})'
+        return f'<Predicate, type: {self.type_}, surf: {self.surf}>'
 
 
 class PredicateBuilder(Builder):

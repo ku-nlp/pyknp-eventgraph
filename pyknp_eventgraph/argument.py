@@ -4,7 +4,6 @@ from typing import List, Dict, Optional, TYPE_CHECKING
 
 from pyknp import Argument as PyknpArgument
 from pyknp import Morpheme, Tag
-from pyknp.knp.pas import Argument
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
@@ -240,7 +239,7 @@ class Argument(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'Argument(case: {self.case}, surf: {self.surf})'
+        return f'<Argument, case: {self.case}, surf: {self.surf}>'
 
 
 class ArgumentBuilder(Builder):

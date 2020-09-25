@@ -53,7 +53,7 @@ class Relation(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'Relation(label: {self.label}, modifier_evid: {self.modifier.evid}, head_evid: {self.head.evid})'
+        return f'<Relation, label: {self.label}, modifier_evid: {self.modifier.evid}, head_evid: {self.head.evid}>'
 
 
 def filter_relations(relations: List[Relation], labels: List[str] = None, head_tids: List[int] = None) \

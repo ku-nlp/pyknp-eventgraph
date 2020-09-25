@@ -564,7 +564,7 @@ class Event(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'Event(evid: {self.evid}, surf: {self.surf})'
+        return f'<Event, evid: {self.evid}, surf: {self.surf}>'
 
 
 class EventBuilder(Builder):

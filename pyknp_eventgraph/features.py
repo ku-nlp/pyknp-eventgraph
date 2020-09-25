@@ -53,12 +53,12 @@ class Features(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'Features(' \
+        return f'<Features, ' \
                f'modality: {", ".join(self.modality) if self.modality else "None"}, ' \
                f'tense: {self.tense}, ' \
                f'negation: {self.negation}, ' \
                f'state: {self.state}, ' \
-               f'complement: {self.complement})'
+               f'complement: {self.complement}>'
 
 
 class FeaturesBuilder(Builder):
