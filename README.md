@@ -24,7 +24,11 @@ or
 $ python setup.py install
 ```
 
-## Basic Usage
+## Quick Start
+
+### Step 1: Create an EventGraph
+
+An EventGraph is built on language analysis given in a KNP format.
 
 ```python
 # Add imports.
@@ -38,33 +42,44 @@ analysis = [knp.parse(sentence) for sentence in document]
 
 # Create an EventGraph.
 evg = EventGraph.build(analysis)
-
-# Print the EventGraph.
 print(evg)  # EventGraph(#sentences: 2, #events: 3, #relations: 1)
+```
 
-# Print sentences.
-print(evg.sentences[0])  # Sentence(sid: 1, ssid: 0, surf: 彼女は海外勤務が長いので、英語がうまいに違いない。)
-print(evg.sentences[1])  # Sentence(sid: 2, ssid: 1, surf: 私はそう確信していた。)
+### Step 2: Extract Information
 
-# Sentences are iterable.
-for sentence in evg.sentences:
-    pass
+Users can obtain various information about language analysis via a simple interface.
 
-# Print a sentence in different forms.
+#### Step 2.1: Sentence
+
+```python
+# Extract sentences.
+sentences = evg.sentences
+print(sentences)
+# [
+#   Sentence(sid: 1, ssid: 0, surf: 彼女は海外勤務が長いので、英語がうまいに違いない。),
+#   Sentence(sid: 2, ssid: 1, surf: 私はそう確信していた。)
+# ]
+
+# Convert a sentence into various forms.
 sentence = evg.sentences[0]
+print(sentence.surf)   # 彼女は海外勤務が長いので、英語がうまいに違いない。
 print(sentence.mrphs)  # 彼女 は 海外 勤務 が 長い ので 、 英語 が うまい に 違いない 。
 print(sentence.reps)   # 彼女/かのじょ は/は 海外/かいがい 勤務/きんむ が/が 長い/ながい ので/ので 、/、 英語/えいご が/が 上手い/うまい に/に 違い無い/ちがいない 。/。
+```
 
-# Print events.
-print(evg.events[0])  # Event(evid: 0, surf: 海外勤務が長いので、)
-print(evg.events[1])  # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
-print(evg.events[2])  # Event(evid: 2, surf: 私はそう確信していた。)
+#### Step 2.2: Event
 
-# Events are also iterable.
-for event in evg.events:
-    pass
+```python
+# Extract events.
+events = evg.events
+print(events)
+# [
+#   Event(evid: 0, surf: 海外勤務が長いので、)
+#   Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
+#   Event(evid: 2, surf: 私はそう確信していた。)
+# ]
 
-# Print an event in different forms.
+# Convert an event into various forms.
 event = evg.events[0]
 print(event.surf)              # 海外勤務が長いので、
 print(event.mrphs)             # 海外 勤務 が 長い ので 、
@@ -73,43 +88,50 @@ print(event.reps)              # 海外/かいがい 勤務/きんむ が/が �
 print(event.normalized_reps)   # 海外/かいがい 勤務/きんむ が/が 長い/ながい
 print(event.content_rep_list)  # ['海外/かいがい', '勤務/きんむ', '長い/ながい']
 
-# Print an event's PAS information.
-print(event.pas)                  # PAS(predicate: 長い/ながい, arguments: 勤務/きんむ (ガ))
-print(event.pas.predicate)        # Predicate(type: 形, surf: 長い)
-print(event.pas.arguments['ガ'])  # [Argument(case: ガ, surf: 勤務が)]
+# Extract an event's PAS.
+pas = event.pas
+print(pas)                  # PAS(predicate: 長い/ながい, arguments: 勤務/きんむ (ガ))
+print(pas.predicate)        # Predicate(type: 形, surf: 長い)
+print(pas.arguments['ガ'])  # [Argument(case: ガ, surf: 勤務が)]
 
-# Print an event's features.
-print(event.features)  # Features(modality: None, tense: 非過去, negation: False, state: 状態述語, complement: False)
+# Extract an event's features.
+features = event.features
+print(features)  # Features(modality: None, tense: 非過去, negation: False, state: 状態述語, complement: False)
+```
 
-# Print a relation between two events.
-relation = evg.relations[0]
-print(relation)           # Relation(label: 原因・理由, modifier_evid: 0, head_evid: 1)
-print(relation.modifier)  # Event(evid: 0, surf: 海外勤務が長いので、)
-print(relation.head)      # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
+#### Step 2.3: Event-to-event Relation
+
+```python
+# Extract event-to-event relations.
+relations = evg.relations
+print(relations)  # [Relation(label: 原因・理由, modifier_evid: 0, head_evid: 1)]
+
+# Take a closer look at an event-to-event relation
+relation = relations[0]
 print(relation.label)     # 原因・理由
 print(relation.surf)      # ので
+print(relation.modifier)  # Event(evid: 0, surf: 海外勤務が長いので、)
+print(relation.head)      # Event(evid: 1, surf: 彼女は英語がうまいに違いない。)
+```
 
-# Relations are iterable, too.
-for relation in evg.relations:
-    pass
+### Step 3: Seve/Load an EventGraph
 
-# Access to pyknp's objects.
-print(type(sentence.blist))                    # <class 'pyknp.knp.blist.BList'>
-print(type(event.pas.predicate.tag))           # <class 'pyknp.knp.tag.Tag'>
-print(type(event.pas.arguments['ガ'][0].tag))  # <class 'pyknp.knp.tag.Tag'>
-print(type(event.pas.arguments['ガ'][0].arg))  # <class 'pyknp.knp.pas.Argument'>
+Users can save and load an EventGraph by serializing it as a JSON object.
 
-# Convert an EventGraph into a dictionary.
-dct = evg.to_dict()  # {"sentences": ..., "events": ...}
-
+```python
 # Save an EventGraph as a JSON file.
 evg.save('evg.json')
 
 # Load an EventGraph from a JSON file.
 with open('evg.json') as f:
-    evg_ = EventGraph.load(f)
+    evg = EventGraph.load(f)
+```
 
-# Visualize an EventGraph.
+### Step 4: Visualize an EventGraph
+
+Users can visualize an EventGraph using [graphviz](https://graphviz.org/).
+
+```python
 from pyknp_eventgraph import make_image
 make_image(evg, 'evg.svg')  # Currently, only supports 'svg'.
 ```
@@ -145,8 +167,6 @@ print(relation.head.surf_(include_modifiers=True))  # もっととろみが持�
 print(relation.head.mrphs_(include_modifiers=True))  # もっと とろみ が 持続 する 作り 方 を して 欲しい 。
 print(relation.head.normalized_mrphs_(include_modifiers=True))  # もっと とろみ が 持続 する 作り 方 を して 欲しい
 ```
-
-## Advanced Usage
 
 ### Binary serialization
 
