@@ -1,0 +1,320 @@
+{
+    "sentences": [
+        {
+            "sid": "1",
+            "ssid": 0,
+            "surf": "わかるとすでにあるって意味ある?",
+            "mrphs": "わかる と すでに ある って 意味 ある ?",
+            "reps": "分かる/わかる と/と 既に/すでに 有る/ある って/って 意味/いみ 有る/ある ?/?"
+        }
+    ],
+    "events": [
+        {
+            "event_id": 0,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 1,
+                    "label": "補文",
+                    "surf": "〜と",
+                    "reliable": false,
+                    "head_tid": 2
+                }
+            ],
+            "surf": "わかると",
+            "surf_with_mark": "わかる (と)",
+            "mrphs": "わかる と",
+            "mrphs_with_mark": "わかる (と)",
+            "normalized_mrphs": "わかる",
+            "normalized_mrphs_with_mark": "わかる",
+            "normalized_mrphs_without_exophora": "わかる",
+            "normalized_mrphs_with_mark_without_exophora": "わかる",
+            "reps": "分かる/わかる と/と",
+            "reps_with_mark": "分かる/わかる (と/と)",
+            "normalized_reps": "分かる/わかる",
+            "normalized_reps_with_mark": "分かる/わかる",
+            "content_rep_list": [
+                "分かる/わかる"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "わかる",
+                    "normalized_surf": "わかる",
+                    "mrphs": "わかる",
+                    "normalized_mrphs": "わかる",
+                    "reps": "分かる/わかる",
+                    "normalized_reps": "分かる/わかる",
+                    "standard_reps": "分かる/わかる",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {}
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "動態述語",
+                "complement": true
+            }
+        },
+        {
+            "event_id": 1,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 3,
+                    "label": "係り受け",
+                    "surf": "",
+                    "reliable": false,
+                    "head_tid": -1
+                }
+            ],
+            "surf": "すでにあるって",
+            "surf_with_mark": "すでに■ ある (って)",
+            "mrphs": "すでに ある って",
+            "mrphs_with_mark": "すでに ■ ある (って)",
+            "normalized_mrphs": "すでに ある",
+            "normalized_mrphs_with_mark": "すでに ■ ある",
+            "normalized_mrphs_without_exophora": "すでに ある",
+            "normalized_mrphs_with_mark_without_exophora": "すでに ■ ある",
+            "reps": "既に/すでに 有る/ある って/って",
+            "reps_with_mark": "既に/すでに ■ 有る/ある (って/って)",
+            "normalized_reps": "既に/すでに 有る/ある",
+            "normalized_reps_with_mark": "既に/すでに ■ 有る/ある",
+            "content_rep_list": [
+                "既に/すでに",
+                "有る/ある"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "ある",
+                    "normalized_surf": "ある",
+                    "mrphs": "ある",
+                    "normalized_mrphs": "ある",
+                    "reps": "有る/ある",
+                    "normalized_reps": "有る/ある",
+                    "standard_reps": "有る/ある",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [
+                        0
+                    ],
+                    "children": []
+                },
+                "argument": {
+                    "ト": [
+                        {
+                            "surf": "わかると",
+                            "normalized_surf": "わかる",
+                            "mrphs": "わかる と",
+                            "normalized_mrphs": "わかる",
+                            "reps": "分かる/わかる と/と",
+                            "normalized_reps": "分かる/わかる",
+                            "head_reps": "分かる/わかる",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ],
+                    "修飾": [
+                        {
+                            "surf": "すでに",
+                            "normalized_surf": "すでに",
+                            "mrphs": "すでに",
+                            "normalized_mrphs": "すでに",
+                            "reps": "既に/すでに",
+                            "normalized_reps": "既に/すでに",
+                            "head_reps": "既に/すでに",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "状態述語",
+                "complement": false
+            }
+        },
+        {
+            "event_id": 2,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 3,
+                    "label": "連体修飾",
+                    "surf": "",
+                    "reliable": true,
+                    "head_tid": 5
+                }
+            ],
+            "surf": "意味ある",
+            "surf_with_mark": "意味ある",
+            "mrphs": "意味 ある",
+            "mrphs_with_mark": "意味 ある",
+            "normalized_mrphs": "意味 ある",
+            "normalized_mrphs_with_mark": "意味 ある",
+            "normalized_mrphs_without_exophora": "意味 ある",
+            "normalized_mrphs_with_mark_without_exophora": "意味 ある",
+            "reps": "意味/いみ 有る/ある",
+            "reps_with_mark": "意味/いみ 有る/ある",
+            "normalized_reps": "意味/いみ 有る/ある",
+            "normalized_reps_with_mark": "意味/いみ 有る/ある",
+            "content_rep_list": [
+                "意味/いみ",
+                "有る/ある"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "ある",
+                    "normalized_surf": "ある",
+                    "mrphs": "ある",
+                    "normalized_mrphs": "ある",
+                    "reps": "有る/ある",
+                    "normalized_reps": "有る/ある",
+                    "standard_reps": "有る/ある",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "意味",
+                            "normalized_surf": "意味",
+                            "mrphs": "意味",
+                            "normalized_mrphs": "意味",
+                            "reps": "意味/いみ",
+                            "normalized_reps": "意味/いみ",
+                            "head_reps": "意味/いみ",
+                            "eid": null,
+                            "flag": "N",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ],
+                    "外の関係": [
+                        {
+                            "surf": "?",
+                            "normalized_surf": "?",
+                            "mrphs": "?",
+                            "normalized_mrphs": "?",
+                            "reps": "?/?",
+                            "normalized_reps": "?/?",
+                            "head_reps": "?/?",
+                            "eid": null,
+                            "flag": "N",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "状態述語",
+                "complement": false
+            }
+        },
+        {
+            "event_id": 3,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [],
+            "surf": "?",
+            "surf_with_mark": "▼ ?",
+            "mrphs": "?",
+            "mrphs_with_mark": "▼ ?",
+            "normalized_mrphs": "?",
+            "normalized_mrphs_with_mark": "▼ ?",
+            "normalized_mrphs_without_exophora": "?",
+            "normalized_mrphs_with_mark_without_exophora": "▼ ?",
+            "reps": "?/?",
+            "reps_with_mark": "▼ ?/?",
+            "normalized_reps": "?/?",
+            "normalized_reps_with_mark": "▼ ?/?",
+            "content_rep_list": [
+                "?/?"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "?",
+                    "normalized_surf": "?",
+                    "mrphs": "?",
+                    "normalized_mrphs": "?",
+                    "reps": "?/?",
+                    "normalized_reps": "?/?",
+                    "standard_reps": "?/?",
+                    "type": "判",
+                    "adnominal_event_ids": [
+                        2
+                    ],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "あるって",
+                            "normalized_surf": "ある",
+                            "mrphs": "ある って",
+                            "normalized_mrphs": "ある",
+                            "reps": "有る/ある って/って",
+                            "normalized_reps": "有る/ある",
+                            "head_reps": "有る/ある",
+                            "eid": null,
+                            "flag": "N",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": [
+                                {
+                                    "surf": "すでに",
+                                    "normalized_surf": "すでに",
+                                    "mrphs": "すでに",
+                                    "normalized_mrphs": "すでに",
+                                    "reps": "既に/すでに",
+                                    "normalized_reps": "既に/すでに",
+                                    "adnominal_event_ids": [],
+                                    "sentential_complement_event_ids": [],
+                                    "modifier": true,
+                                    "possessive": false
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "状態述語",
+                "complement": false
+            }
+        }
+    ]
+}
