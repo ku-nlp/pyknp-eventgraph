@@ -105,8 +105,7 @@ class Argument(Component):
                 head_reps = self.head_token.tag.head_prime_repname or self.head_token.tag.head_repname
                 if head_reps:
                     self._head_reps = f'[{head_reps}]' if self.head_token.omitted_case else head_reps
-            else:
-                self._head_reps = self.normalized_reps
+            self._head_reps = self._head_reps or self.normalized_reps
         return self._head_reps
 
     @property

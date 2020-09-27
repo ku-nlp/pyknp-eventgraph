@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.1.1]
+
+### Fixed
+- Fixed a bug in head_reps assignment.
+
 ## [6.1.0]
 
 ### Changed
