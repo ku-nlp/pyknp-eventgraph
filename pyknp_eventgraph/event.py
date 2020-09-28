@@ -413,30 +413,45 @@ class Event(Component):
         """
         seen_head = False
         for group_index, tokens in enumerate(tokens_list):
-            mrph_index_offset = 0
+            # Ignore tokens of a omitted case because they never become a predicate.
+            if any(token.omitted_case for token in tokens):
+                continue
 
+            mrph_index_offset = 0
             for token in tokens:
+                # Convert a token into a morpheme list.
+                mrphs = token.tag.mrph_list()
+
+                # Skip tokens until the current token reaches to the predicate's head token.
                 seen_head = seen_head or token == self.pas.predicate.head_token
                 if not seen_head:
-                    continue  # Skip words until the token reaches to the predicate's head token.
+                    mrph_index_offset += len(mrphs)
+                    continue
 
-                mrphs = token.tag.mrph_list()
+                # Find a position to be truncated.
                 for mrph_index, mrph in reversed(list(enumerate(mrphs))):
-                    if mrph.hinsi == '助動詞' and mrph.genkei == 'です' \
-                            and 0 < mrph_index_offset and mrphs[mrph_index_offset - 1].hinsi == '形容詞':
+                    if mrph.hinsi == '助動詞' \
+                            and mrph.genkei == 'です' \
+                            and 0 < mrph_index \
+                            and mrphs[mrph_index - 1].hinsi == '形容詞':
                         # adjective + 'です' -> ignore 'です' (e.g., 美しいです -> 美しい)
                         return group_index, mrph_index_offset + mrph_index - 1
-                    elif mrph.hinsi == '判定詞' and mrph.midasi == 'じゃ' \
-                            and 0 < mrph_index_offset and '<活用語>' in mrphs[mrph_index_offset - 1].fstring:
+
+                    if mrph.hinsi == '判定詞' \
+                            and mrph.midasi == 'じゃ' \
+                            and 0 < mrph_index \
+                            and '<活用語>' in mrphs[mrph_index - 1].fstring:
                         # adjective or verb +'じゃん' -> ignore 'じゃん' (e.g., 使えないじゃん -> 使えない)
                         return group_index, mrph_index_offset + mrph_index - 1
+
                     if ('<活用語>' in mrph.fstring or '<用言意味表記末尾>' in mrph.fstring) \
                             and mrph.genkei not in {'のだ', 'んだ'}:
                         # Check the last word with conjugation except some meaningless words.
                         return group_index, mrph_index_offset + mrph_index
+
                 mrph_index_offset += len(mrphs)
-        else:
-            return len(tokens_list) - 1, mrph_index_offset - 1  # Return the last position.
+
+        return len(tokens_list) - 1, sum(len(token.tag.mrph_list()) for token in tokens_list[-1]) - 1
 
     @staticmethod
     def _get_marker(tokens_list: List[List[Token]], mrphs_list: List[List[Morpheme_]], add_mark: bool, normalize: bool,

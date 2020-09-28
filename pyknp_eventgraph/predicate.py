@@ -184,16 +184,16 @@ class Predicate(Component):
             mrphs: A list of morphemes.
 
         """
-        for i, mrph in reversed(list(enumerate(mrphs))):
-            if mrph.hinsi == '助動詞' and mrph.genkei == 'です' and 0 < i and mrphs[i - 1].hinsi == '形容詞':
+        for index, mrph in reversed(list(enumerate(mrphs))):
+            if mrph.hinsi == '助動詞' and mrph.genkei == 'です' and 0 < index and mrphs[index - 1].hinsi == '形容詞':
                 # adjective + 'です' -> ignore 'です' (e.g., 美しいです -> 美しい)
-                return mrphs[:i]
-            elif mrph.hinsi == '判定詞' and mrph.midasi == 'じゃ' and 0 < i and '<活用語>' in mrphs[i - 1].fstring:
+                return mrphs[:index]
+            elif mrph.hinsi == '判定詞' and mrph.midasi == 'じゃ' and 0 < index and '<活用語>' in mrphs[index - 1].fstring:
                 # adjective or verb +'じゃん' -> ignore 'じゃん' (e.g., 使えないじゃん -> 使えない)
-                return mrphs[:i]
+                return mrphs[:index]
             elif ('<活用語>' in mrph.fstring or '<用言意味表記末尾>' in mrph.fstring) and mrph.genkei not in {'のだ', 'んだ'}:
                 # check the last word with conjugation except some meaningless words
-                return mrphs[:i + 1]
+                return mrphs[:index + 1]
         return mrphs
 
     @staticmethod
