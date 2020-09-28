@@ -1,0 +1,214 @@
+{
+    "sentences": [
+        {
+            "sid": "1",
+            "ssid": 0,
+            "surf": "やっぱりジブリのような風景を縫って、近所の山崎の蒸溜所に工場見学。",
+            "mrphs": "やっぱり ジブリ の ような 風景 を 縫って 、 近所 の 山崎 の 蒸溜所 に 工場 見学 。",
+            "reps": "やっぱり/やっぱり ジブリ/ジブリ の/の ような/ような 風景/ふうけい を/を 縫う/ぬう 、/、 近所/きんじょ の/の 山崎/やまさき の/の 蒸溜所/蒸溜所 に/に 工場/こうじょう 見学/けんがく 。/。"
+        }
+    ],
+    "events": [
+        {
+            "event_id": 0,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 1,
+                    "label": "係り受け",
+                    "surf": "",
+                    "reliable": true,
+                    "head_tid": -1
+                }
+            ],
+            "surf": "縫って、",
+            "surf_with_mark": "縫って (、)",
+            "mrphs": "縫って 、",
+            "mrphs_with_mark": "縫って (、)",
+            "normalized_mrphs": "縫う",
+            "normalized_mrphs_with_mark": "縫う",
+            "normalized_mrphs_without_exophora": "縫う",
+            "normalized_mrphs_with_mark_without_exophora": "縫う",
+            "reps": "縫う/ぬう 、/、",
+            "reps_with_mark": "縫う/ぬう (、/、)",
+            "normalized_reps": "縫う/ぬう",
+            "normalized_reps_with_mark": "縫う/ぬう",
+            "content_rep_list": [
+                "縫う/ぬう"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "縫う",
+                    "normalized_surf": "縫う",
+                    "mrphs": "縫う",
+                    "normalized_mrphs": "縫う",
+                    "reps": "縫う/ぬう",
+                    "normalized_reps": "縫う/ぬう",
+                    "standard_reps": "縫う/ぬう",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {}
+            },
+            "features": {
+                "modality": [],
+                "tense": "unknown",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        },
+        {
+            "event_id": 1,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [],
+            "surf": "やっぱりジブリのような風景を近所の山崎の蒸溜所に工場見学。",
+            "surf_with_mark": "やっぱりジブリのような風景を | 近所の山崎の蒸溜所に工場見学 (。)",
+            "mrphs": "やっぱり ジブリ の ような 風景 を 近所 の 山崎 の 蒸溜所 に 工場 見学 。",
+            "mrphs_with_mark": "やっぱり ジブリ の ような 風景 を | 近所 の 山崎 の 蒸溜所 に 工場 見学 (。)",
+            "normalized_mrphs": "やっぱり ジブリ の ような 風景 を 近所 の 山崎 の 蒸溜所 に 工場 見学",
+            "normalized_mrphs_with_mark": "やっぱり ジブリ の ような 風景 を | 近所 の 山崎 の 蒸溜所 に 工場 見学",
+            "normalized_mrphs_without_exophora": "やっぱり ジブリ の ような 風景 を 近所 の 山崎 の 蒸溜所 に 工場 見学",
+            "normalized_mrphs_with_mark_without_exophora": "やっぱり ジブリ の ような 風景 を | 近所 の 山崎 の 蒸溜所 に 工場 見学",
+            "reps": "やっぱり/やっぱり ジブリ/ジブリ の/の ような/ような 風景/ふうけい を/を 近所/きんじょ の/の 山崎/やまさき の/の 蒸溜所/蒸溜所 に/に 工場/こうじょう 見学/けんがく 。/。",
+            "reps_with_mark": "やっぱり/やっぱり ジブリ/ジブリ の/の ような/ような 風景/ふうけい を/を | 近所/きんじょ の/の 山崎/やまさき の/の 蒸溜所/蒸溜所 に/に 工場/こうじょう 見学/けんがく (。/。)",
+            "normalized_reps": "やっぱり/やっぱり ジブリ/ジブリ の/の ような/ような 風景/ふうけい を/を 近所/きんじょ の/の 山崎/やまさき の/の 蒸溜所/蒸溜所 に/に 工場/こうじょう 見学/けんがく",
+            "normalized_reps_with_mark": "やっぱり/やっぱり ジブリ/ジブリ の/の ような/ような 風景/ふうけい を/を | 近所/きんじょ の/の 山崎/やまさき の/の 蒸溜所/蒸溜所 に/に 工場/こうじょう 見学/けんがく",
+            "content_rep_list": [
+                "やっぱり/やっぱり",
+                "ジブリ/ジブリ",
+                "風景/ふうけい",
+                "近所/きんじょ",
+                "山崎/やまさき",
+                "蒸溜所/蒸溜所",
+                "工場/こうじょう",
+                "見学/けんがく"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "見学",
+                    "normalized_surf": "見学",
+                    "mrphs": "見学",
+                    "normalized_mrphs": "見学",
+                    "reps": "見学/けんがく",
+                    "normalized_reps": "見学/けんがく",
+                    "standard_reps": "見学/けんがく",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": [
+                        {
+                            "surf": "工場",
+                            "normalized_surf": "工場",
+                            "mrphs": "工場",
+                            "normalized_mrphs": "工場",
+                            "reps": "工場/こうじょう",
+                            "normalized_reps": "工場/こうじょう",
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "modifier": false,
+                            "possessive": false
+                        }
+                    ]
+                },
+                "argument": {
+                    "ヲ": [
+                        {
+                            "surf": "風景を",
+                            "normalized_surf": "風景",
+                            "mrphs": "風景 を",
+                            "normalized_mrphs": "風景",
+                            "reps": "風景/ふうけい を/を",
+                            "normalized_reps": "風景/ふうけい",
+                            "head_reps": "風景/ふうけい",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": [
+                                {
+                                    "surf": "ジブリのような",
+                                    "normalized_surf": "ジブリ",
+                                    "mrphs": "ジブリ の ような",
+                                    "normalized_mrphs": "ジブリ",
+                                    "reps": "ジブリ/ジブリ の/の ような/ような",
+                                    "normalized_reps": "ジブリ/ジブリ",
+                                    "adnominal_event_ids": [],
+                                    "sentential_complement_event_ids": [],
+                                    "modifier": false,
+                                    "possessive": false
+                                },
+                                {
+                                    "surf": "やっぱり",
+                                    "normalized_surf": "やっぱり",
+                                    "mrphs": "やっぱり",
+                                    "normalized_mrphs": "やっぱり",
+                                    "reps": "やっぱり/やっぱり",
+                                    "normalized_reps": "やっぱり/やっぱり",
+                                    "adnominal_event_ids": [],
+                                    "sentential_complement_event_ids": [],
+                                    "modifier": true,
+                                    "possessive": false
+                                }
+                            ]
+                        }
+                    ],
+                    "ニ": [
+                        {
+                            "surf": "蒸溜所に",
+                            "normalized_surf": "蒸溜所",
+                            "mrphs": "蒸溜所 に",
+                            "normalized_mrphs": "蒸溜所",
+                            "reps": "蒸溜所/蒸溜所 に/に",
+                            "normalized_reps": "蒸溜所/蒸溜所",
+                            "head_reps": "蒸溜所/蒸溜所",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": [
+                                {
+                                    "surf": "山崎の",
+                                    "normalized_surf": "山崎",
+                                    "mrphs": "山崎 の",
+                                    "normalized_mrphs": "山崎",
+                                    "reps": "山崎/やまさき の/の",
+                                    "normalized_reps": "山崎/やまさき",
+                                    "adnominal_event_ids": [],
+                                    "sentential_complement_event_ids": [],
+                                    "modifier": false,
+                                    "possessive": true
+                                },
+                                {
+                                    "surf": "近所の",
+                                    "normalized_surf": "近所",
+                                    "mrphs": "近所 の",
+                                    "normalized_mrphs": "近所",
+                                    "reps": "近所/きんじょ の/の",
+                                    "normalized_reps": "近所/きんじょ",
+                                    "adnominal_event_ids": [],
+                                    "sentential_complement_event_ids": [],
+                                    "modifier": false,
+                                    "possessive": true
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "unknown",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        }
+    ]
+}

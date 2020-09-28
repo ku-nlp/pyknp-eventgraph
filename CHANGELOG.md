@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.1.2]
+
+### Fixed
+- Fixed a bug in the logic to normalize event strings.
+- Fixed a bug in the logic to add "|" marks.
+
 ## [6.1.1]
 
 ### Fixed
