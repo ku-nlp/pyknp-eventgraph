@@ -435,8 +435,8 @@ class Event(Component):
                         # Check the last word with conjugation except some meaningless words.
                         return group_index, mrph_index_offset + mrph_index
                 mrph_index_offset += len(mrphs)
-
-        raise ValueError  # "<用言意味表記末尾>" must exist.
+        else:
+            return len(tokens_list) - 1, mrph_index_offset - 1  # Return the last position.
 
     @staticmethod
     def _get_marker(tokens_list: List[List[Token]], mrphs_list: List[List[Morpheme_]], add_mark: bool, normalize: bool,
