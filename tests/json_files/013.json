@@ -1,0 +1,310 @@
+{
+    "sentences": [
+        {
+            "sid": "w201006-0416624875-51",
+            "ssid": 0,
+            "surf": "やっぱりシンプルにトップページにある程度記事が読めた方が見ている方も分かりやすいんじゃないかと思って。",
+            "mrphs": "やっぱり シンプルに トップ ページ に ある 程度 記事 が 読めた 方 が 見て いる 方 も 分かり やすい んじゃ ない か と 思って 。",
+            "reps": "やっぱり/やっぱり シンプルだ/しんぷるだ トップ/とっぷ 頁/ぺーじ に/に 或る/ある 程度/ていど 記事/きじ が/が 読める/よめる 方/ほう が/が 見る/みる いる/いる 方/ほう も/も 分かる/わかる やすい/やすい んだ/んじゃ ない/ない か/か と/と 思う/おもう 。/。"
+        }
+    ],
+    "events": [
+        {
+            "event_id": 0,
+            "sid": "w201006-0416624875-51",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 1,
+                    "label": "係り受け",
+                    "surf": "",
+                    "reliable": false,
+                    "head_tid": -1
+                }
+            ],
+            "surf": "トップページにある程度",
+            "surf_with_mark": "トップページにある程度",
+            "mrphs": "トップ ページ に ある 程度",
+            "mrphs_with_mark": "トップ ページ に ある 程度",
+            "normalized_mrphs": "トップ ページ に ある 程度",
+            "normalized_mrphs_with_mark": "トップ ページ に ある 程度",
+            "normalized_mrphs_without_exophora": "トップ ページ に ある 程度",
+            "normalized_mrphs_with_mark_without_exophora": "トップ ページ に ある 程度",
+            "reps": "トップ/とっぷ 頁/ぺーじ に/に 或る/ある 程度/ていど",
+            "reps_with_mark": "トップ/とっぷ 頁/ぺーじ に/に 或る/ある 程度/ていど",
+            "normalized_reps": "トップ/とっぷ 頁/ぺーじ に/に 或る/ある 程度/ていど",
+            "normalized_reps_with_mark": "トップ/とっぷ 頁/ぺーじ に/に 或る/ある 程度/ていど",
+            "content_rep_list": [
+                "トップ/とっぷ",
+                "或る/ある",
+                "程度/ていど"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "",
+                    "normalized_surf": "",
+                    "mrphs": "",
+                    "normalized_mrphs": "",
+                    "reps": "程度/ていど",
+                    "normalized_reps": "程度/ていど",
+                    "standard_reps": "程度/ていど",
+                    "type": "",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": [
+                        {
+                            "surf": "ある",
+                            "normalized_surf": "ある",
+                            "mrphs": "ある",
+                            "normalized_mrphs": "ある",
+                            "reps": "或る/ある",
+                            "normalized_reps": "或る/ある",
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "modifier": false,
+                            "possessive": false
+                        },
+                        {
+                            "surf": "ページに",
+                            "normalized_surf": "ページに",
+                            "mrphs": "ページ に",
+                            "normalized_mrphs": "ページ に",
+                            "reps": "頁/ぺーじ に/に",
+                            "normalized_reps": "頁/ぺーじ に/に",
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "modifier": false,
+                            "possessive": false
+                        },
+                        {
+                            "surf": "トップ",
+                            "normalized_surf": "トップ",
+                            "mrphs": "トップ",
+                            "normalized_mrphs": "トップ",
+                            "reps": "トップ/とっぷ",
+                            "normalized_reps": "トップ/とっぷ",
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "modifier": false,
+                            "possessive": false
+                        }
+                    ]
+                },
+                "argument": {}
+            },
+            "features": {
+                "modality": [],
+                "tense": "unknown",
+                "negation": false,
+                "state": "",
+                "complement": false
+            }
+        },
+        {
+            "event_id": 1,
+            "sid": "w201006-0416624875-51",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 2,
+                    "label": "連体修飾",
+                    "surf": "",
+                    "reliable": false,
+                    "head_tid": 8
+                }
+            ],
+            "surf": "シンプルに記事が読めた",
+            "surf_with_mark": "シンプルに | 記事が読めた",
+            "mrphs": "シンプルに 記事 が 読めた",
+            "mrphs_with_mark": "シンプルに | 記事 が 読めた",
+            "normalized_mrphs": "シンプルに 記事 が 読める",
+            "normalized_mrphs_with_mark": "シンプルに | 記事 が 読める",
+            "normalized_mrphs_without_exophora": "シンプルに 記事 が 読める",
+            "normalized_mrphs_with_mark_without_exophora": "シンプルに | 記事 が 読める",
+            "reps": "シンプルだ/しんぷるだ 記事/きじ が/が 読める/よめる",
+            "reps_with_mark": "シンプルだ/しんぷるだ | 記事/きじ が/が 読める/よめる",
+            "normalized_reps": "シンプルだ/しんぷるだ 記事/きじ が/が 読める/よめる",
+            "normalized_reps_with_mark": "シンプルだ/しんぷるだ | 記事/きじ が/が 読める/よめる",
+            "content_rep_list": [
+                "シンプルだ/しんぷるだ",
+                "読める/よめる"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "",
+                    "normalized_surf": "",
+                    "mrphs": "",
+                    "normalized_mrphs": "",
+                    "reps": "読める/よめる",
+                    "normalized_reps": "読める/よめる",
+                    "standard_reps": "読める/よめる",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": [
+                        {
+                            "surf": "シンプルに",
+                            "normalized_surf": "シンプルだ",
+                            "mrphs": "シンプルに",
+                            "normalized_mrphs": "シンプルだ",
+                            "reps": "シンプルだ/しんぷるだ",
+                            "normalized_reps": "シンプルだ/しんぷるだ",
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "modifier": true,
+                            "possessive": false
+                        }
+                    ]
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "記事が",
+                            "normalized_surf": "記事",
+                            "mrphs": "記事 が",
+                            "normalized_mrphs": "記事",
+                            "reps": "記事/きじ が/が",
+                            "normalized_reps": "記事/きじ",
+                            "head_reps": "記事/きじ",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "過去",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        },
+        {
+            "event_id": 2,
+            "sid": "w201006-0416624875-51",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 3,
+                    "label": "係り受け",
+                    "surf": "",
+                    "reliable": true,
+                    "head_tid": -1
+                }
+            ],
+            "surf": "方が見ている方も",
+            "surf_with_mark": "▼ 方が見ている (方も)",
+            "mrphs": "方 が 見て いる 方 も",
+            "mrphs_with_mark": "▼ 方 が 見て いる (方 も)",
+            "normalized_mrphs": "方 が 見て いる",
+            "normalized_mrphs_with_mark": "▼ 方 が 見て いる",
+            "normalized_mrphs_without_exophora": "方 が 見て いる",
+            "normalized_mrphs_with_mark_without_exophora": "▼ 方 が 見て いる",
+            "reps": "方/ほう が/が 見る/みる いる/いる 方/ほう も/も",
+            "reps_with_mark": "▼ 方/ほう が/が 見る/みる いる/いる (方/ほう も/も)",
+            "normalized_reps": "方/ほう が/が 見る/みる いる/いる",
+            "normalized_reps_with_mark": "▼ 方/ほう が/が 見る/みる いる/いる",
+            "content_rep_list": [
+                "方/ほう",
+                "方/ほう"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "いる",
+                    "normalized_surf": "いる",
+                    "mrphs": "いる",
+                    "normalized_mrphs": "いる",
+                    "reps": "見る/みる~テ形+いる/いる",
+                    "normalized_reps": "見る/みる~テ形+いる/いる",
+                    "standard_reps": "方/ほう",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "方が",
+                            "normalized_surf": "方",
+                            "mrphs": "方 が",
+                            "normalized_mrphs": "方",
+                            "reps": "方/ほう が/が",
+                            "normalized_reps": "方/ほう",
+                            "head_reps": "方/ほう",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [
+                                1
+                            ],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        },
+        {
+            "event_id": 3,
+            "sid": "w201006-0416624875-51",
+            "ssid": 0,
+            "rel": [],
+            "surf": "やっぱり分かりやすいんじゃないかと思って。",
+            "surf_with_mark": "やっぱり | 分かりやすいんじゃない (かと思って。)",
+            "mrphs": "やっぱり 分かり やすい んじゃ ない か と 思って 。",
+            "mrphs_with_mark": "やっぱり | 分かり やすい んじゃ ない (か と 思って 。)",
+            "normalized_mrphs": "やっぱり 分かり やすい んじゃ ない",
+            "normalized_mrphs_with_mark": "やっぱり | 分かり やすい んじゃ ない",
+            "normalized_mrphs_without_exophora": "やっぱり 分かり やすい んじゃ ない",
+            "normalized_mrphs_with_mark_without_exophora": "やっぱり | 分かり やすい んじゃ ない",
+            "reps": "やっぱり/やっぱり 分かる/わかる やすい/やすい んだ/んじゃ ない/ない か/か と/と 思う/おもう 。/。",
+            "reps_with_mark": "やっぱり/やっぱり | 分かる/わかる やすい/やすい んだ/んじゃ ない/ない (か/か と/と 思う/おもう 。/。)",
+            "normalized_reps": "やっぱり/やっぱり 分かる/わかる やすい/やすい んだ/んじゃ ない/ない",
+            "normalized_reps_with_mark": "やっぱり/やっぱり | 分かる/わかる やすい/やすい んだ/んじゃ ない/ない",
+            "content_rep_list": [
+                "やっぱり/やっぱり",
+                "分かる/わかる",
+                "思う/おもう"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "",
+                    "normalized_surf": "",
+                    "mrphs": "",
+                    "normalized_mrphs": "",
+                    "reps": "分かる/わかる+やすい/やすい",
+                    "normalized_reps": "分かる/わかる+やすい/やすい",
+                    "standard_reps": "分かる/わかる+やすい/やすい",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {}
+            },
+            "features": {
+                "modality": [
+                    "認識-証拠性",
+                    "推量・伝聞"
+                ],
+                "tense": "非過去",
+                "negation": false,
+                "state": "状態述語",
+                "complement": true
+            }
+        }
+    ]
+}
