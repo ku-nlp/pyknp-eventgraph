@@ -477,9 +477,12 @@ class Event(Component):
             if has_sentential_complement and not include_modifiers:
                 marker[(group_index, 0, 'start')] = '■'
 
-            tid = tokens[0].tid
-            if last_tid + 1 != tid and last_tid != -1 and not has_adnominal_event and not has_sentential_complement:
-                marker[(group_index, 0, 'start')] = '|'
+            mrph_index = 0
+            for token in tokens:
+                if last_tid != -1 and last_tid + 1 != token.tid and (group_index, mrph_index, 'start') not in marker:
+                    marker[group_index, mrph_index, 'start'] = '|'
+                last_tid = token.tid
+                mrph_index += len(token.tag.mrph_list())
 
         last_position = (len(mrphs_list) - 1, len(mrphs_list[-1]) - 1)
         if add_mark and not normalize and truncated_position != last_position:
