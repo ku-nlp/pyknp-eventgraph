@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 class Token(Component):
     """A wrapper of :class:`pyknp.knp.tag.Tag` to allow exophora to be a "token".
+    Token is a bidirectional linked list: each of tokens has its parent and children.
 
     Attributes:
         event (Event): An event that has this token.
@@ -72,8 +73,8 @@ class Token(Component):
                         if not is_content_word and exists_content_word:
                             break
                         exists_content_word = exists_content_word or is_content_word
-                        mrphs.append(mrph)
-                    base = "".join(mrphs)
+                        mrphs.append(mrph.midasi)
+                    base = ''.join(mrphs)
                 else:
                     base = self.exophora
                 case = convert_katakana_to_hiragana(self.omitted_case)
@@ -190,9 +191,19 @@ def group_tokens(tokens: List[Token]) -> List[List[Token]]:
 
     """
     bucket = collections.defaultdict(list)
+    omitted_token_bid = -1
     for token in sorted(tokens):
-        bucket[(token.ssid, token.bid)].append(token)
-    return [v for v in bucket.values()]  # In Python 3.6+, dictionaries are insertion ordered.
+        ssid = token.ssid
+        # Assign a unique bid for a token representing a omitted case.
+        # This is necessary when a user merges multiple events into a single string by enabling `include_modifier`.
+        # In such a case, the same omitted cases may appear several times, and they may have the same ssid and bid.
+        if token.omitted_case:
+            bid = omitted_token_bid
+            omitted_token_bid -= 1
+        else:
+            bid = token.bid
+        bucket[(ssid, bid)].append(token)
+    return list(bucket.values())  # In Python 3.6+, dictionaries are insertion ordered.
 
 
 class TokenBuilder(Builder):

@@ -294,7 +294,7 @@ class Event(Component):
 
         """
         content_rep_list = []
-        for token in filter(lambda t: t.tag, self._to_tokens(include_modifiers=include_modifiers)):
+        for token in filter(lambda t: t.tag, self._collect_tokens(include_modifiers=include_modifiers)):
             for mrph in token.tag.mrph_list():
                 if '<内容語>' in mrph.fstring or '<準内容語>' in mrph.fstring:
                     content_rep_list.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
@@ -315,8 +315,8 @@ class Event(Component):
         """
         assert mode in {'mrphs', 'reps'}
 
-        # Create a list of tokens.
-        tokens = self._to_tokens(exclude_exophora=exclude_exophora, include_modifiers=include_modifiers)
+        # Create a list of tokens to show.
+        tokens = self._collect_tokens(exclude_exophora=exclude_exophora, include_modifiers=include_modifiers)
         tokens_list = group_tokens(tokens)
 
         # Create a list of morphemes.
@@ -334,7 +334,7 @@ class Event(Component):
         else:
             return self._format_mrphs_list(mrphs_list, mode, normalize=False, marker=marker)
 
-    def _to_tokens(self, exclude_exophora: bool = False, include_modifiers: bool = False) -> List[Token]:
+    def _collect_tokens(self, exclude_exophora: bool = False, include_modifiers: bool = False) -> List[Token]:
         """Collect tokens belonging to this event.
 
         Args:
@@ -366,7 +366,7 @@ class Event(Component):
                     head_tokens.append(argument.head_token)
         if include_modifiers:
             for relation in filter_relations(self.incoming_relations, labels=['補文', '連体修飾']):
-                head_tokens.extend(relation.modifier._to_tokens(exclude_exophora, include_modifiers))
+                head_tokens.extend(relation.modifier._collect_tokens(exclude_exophora, include_modifiers))
 
         # Expand head tokens and resolve duplication.
         return sorted(list(set(token for head_token in head_tokens for token in head_token.to_list())))
