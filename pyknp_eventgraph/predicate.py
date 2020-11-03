@@ -18,9 +18,9 @@ class Predicate(Component):
 
     Attributes:
         pas (PAS): A PAS that this predicate belongs.
-        head (Tag): A head tag.
+        head (:class:`pyknp.knp.tag.Tag`): A head tag.
         type_ (str): A type of this predicate.
-        head_token (Optional[Token]): A head token.
+        head_token (Token, optional): A head token.
 
     """
 

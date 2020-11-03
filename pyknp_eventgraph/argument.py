@@ -25,6 +25,7 @@ class Argument(Component):
         eid (int): An entity ID.
         flag (str): A flag.
         sdist (int): The sentence distance between this argument and the predicate.
+        arg (:class:`pyknp.knp.pas.Argument`, optional): An Argument object in pyknp.
         head_token (Token, optional): A head token.
 
     """

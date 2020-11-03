@@ -102,8 +102,8 @@ class EventGraph(Component):
         else:
             logger.info('EventGraph deserialized from a JSON file loses several functionality. '
                         'To keep full functionality, use Python\'s pickle utility for serialization. '
-                        '(https://pyknp-eventgraph.readthedocs.io/en/latest/reference/eventgraph.html'
-                        '#pyknp_eventgraph.eventgraph.EventGraph.save)')
+                        'For details, refer to https://pyknp-eventgraph.readthedocs.io/en/latest/reference/'
+                        'eventgraph.html#pyknp_eventgraph.eventgraph.EventGraph.save.')
             with open(path, 'w') as f:
                 json.dump(self.to_dict(), f, ensure_ascii=False, indent=8)
 
@@ -182,8 +182,8 @@ class JsonEventGraphBuilder(Builder):
         logger.debug('Create an EventGraph by loading a JSON file.')
         logger.info('EventGraph deserialized from a JSON file loses several functionality. '
                     'To keep full functionality, use Python\'s pickle utility for serialization. '
-                    '(https://pyknp-eventgraph.readthedocs.io/en/latest/reference/eventgraph.html'
-                    '#pyknp_eventgraph.eventgraph.EventGraph.load)')
+                    'For details, refer to https://pyknp-eventgraph.readthedocs.io/en/latest/reference/eventgraph.html'
+                    '#pyknp_eventgraph.eventgraph.EventGraph.load.')
         Builder.reset()
         dump = json.load(f)
 

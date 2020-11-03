@@ -21,26 +21,26 @@ logger = getLogger(__name__)
 
 class Event(Component):
     """Event is the basic information unit of EventGraph.
-    Event is closely related to PAS more application-oriented with respect to the following points:
+    Event is closely related to PAS but more application-oriented with respect to the following points:
       * Semantic heaviness: Some predicates are too semantically light for applications to treat as information units.
         EventGraph constrains an event to have a semantically heavy predicate.
       * Rich linguistic features: Linguistic features such as tense and modality are assigned to events.
 
     Attributes:
-        sentence (Sentence): A sentence to which this event belongs.
+        sentence (:class:`.Sentence`): A sentence to which this event belongs.
         evid (int): A serial event ID.
         sid (str): An original sentence ID.
         ssid (int): A serial sentence ID.
-        start (Tag, optional): A start tag.
-        head (Tag, optional): A head tag.
-        end (Tag, optional): An end tag.
+        start (:class:`pyknp.knp.tag.Tag`, optional): A start tag.
+        head (:class:`pyknp.knp.tag.Tag`, optional): A head tag.
+        end (:class:`pyknp.knp.tag.Tag`, optional): An end tag.
         pas (PAS, optional): A predicate argument structure.
         outgoing_relations (List[Relation]): A list of relations where this event is the modifier.
         incoming_relations (List[Relation]): A list of relations where this event is the head.
-        features (Optional[Features]): Linguistic features.
-        parent (Optional[Event]): A parent event.
+        features (Features, optional): Linguistic features.
+        parent (Event, optional): A parent event.
         children (List[Event]): A list of child events.
-        head_token (Optional[Token]): A head token.
+        head_token (Token, optional): A head token.
 
     """
 

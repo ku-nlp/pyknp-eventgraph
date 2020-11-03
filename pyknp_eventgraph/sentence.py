@@ -20,7 +20,7 @@ class Sentence(Component):
         document (Document): A document that includes this sentence.
         sid (str): An original sentence ID.
         ssid (int): A serial sentence ID.
-        blist (BList, optional): A list of bunsetsu-s. For details, refer to :class:`.BList`.
+        blist (:class:`pyknp.knp.blist.BList`, optional): A list of bunsetsu-s.
         events (List[Event]): A list of events in this sentence.
 
     """

@@ -22,9 +22,9 @@ class PAS(Component):
         event (Event): An event that this PAS belongs.
         sid (str): An original sentence ID.
         ssid (int): A serial sentence ID.
-        pas (PyknpPAS, optional): A PAS object in pyknp.
+        pas (:class:`pyknp.knp.pas.Pas`, optional): A PAS object in pyknp.
         predicate (Predicate): A predicate.
-        arguments (Dict[str, List[Argument]]): A mapping of cases to arguments.
+        arguments (Dict[str, List[Argument]]): A mapping of a case to arguments.
 
     """
 
