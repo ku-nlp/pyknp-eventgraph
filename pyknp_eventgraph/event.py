@@ -9,7 +9,7 @@ from pyknp_eventgraph.features import Features, FeaturesBuilder, JsonFeaturesBui
 from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
 from pyknp_eventgraph.pas import PAS, PASBuilder, JsonPASBuilder
 from pyknp_eventgraph.relation import Relation, filter_relations
-from pyknp_eventgraph.token import Token, group_tokens
+from pyknp_eventgraph.base_phrase import BasePhrase, group_base_phrases
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.sentence import Sentence
@@ -40,7 +40,7 @@ class Event(Component):
         features (Features, optional): Linguistic features.
         parent (Event, optional): A parent event.
         children (List[Event]): A list of child events.
-        head_token (Token, optional): A head token.
+        head_base_phrase (Token, optional): A head token.
 
     """
 
@@ -59,7 +59,7 @@ class Event(Component):
         self.features: Optional[Features] = None
         self.parent: Optional[Event] = None
         self.children: List[Event] = []
-        self.head_token: Optional[Token] = None
+        self.head_base_phrase: Optional[BasePhrase] = None
 
         self._surf = None
         self._surf_with_mark = None
@@ -294,8 +294,8 @@ class Event(Component):
 
         """
         content_rep_list = []
-        for token in filter(lambda t: t.tag, self._collect_tokens(include_modifiers=include_modifiers)):
-            for mrph in token.tag.mrph_list():
+        for base_phrase in filter(lambda t: t.tag, self._collect_base_phrases(include_modifiers=include_modifiers)):
+            for mrph in base_phrase.tag.mrph_list():
                 if '<内容語>' in mrph.fstring or '<準内容語>' in mrph.fstring:
                     content_rep_list.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
         return content_rep_list
@@ -315,16 +315,17 @@ class Event(Component):
         """
         assert mode in {'mrphs', 'reps'}
 
-        # Create a list of tokens to show.
-        tokens = self._collect_tokens(exclude_exophora=exclude_exophora, include_modifiers=include_modifiers)
-        tokens_list = group_tokens(tokens)
+        # Create a list of base phrases to show.
+        base_phrases = self._collect_base_phrases(exclude_exophora, include_modifiers)
+        grouped_base_phrases = group_base_phrases(base_phrases)
 
         # Create a list of morphemes.
-        mrphs_list = list(map(self._tokens_to_mrphs, tokens_list))
+        mrphs_list = list(map(self._base_phrases_to_mrphs, grouped_base_phrases))
 
         # Prepare information to format a text.
-        truncated_position = self._find_truncated_position(tokens_list)
-        marker = self._get_marker(tokens_list, mrphs_list, add_mark, truncate, truncated_position, include_modifiers)
+        truncated_position = self._find_truncated_position(grouped_base_phrases)
+        marker = self._get_marker(grouped_base_phrases, mrphs_list, add_mark, truncate, truncated_position,
+                                  include_modifiers)
 
         # Create a text.
         if truncate:
@@ -334,48 +335,50 @@ class Event(Component):
         else:
             return self._format_mrphs_list(mrphs_list, mode, normalize=False, marker=marker)
 
-    def _collect_tokens(self, exclude_exophora: bool = False, include_modifiers: bool = False) -> List[Token]:
-        """Collect tokens belonging to this event.
+    def _collect_base_phrases(self, exclude_exophora: bool = False, include_modifiers: bool = False) -> List[BasePhrase]:
+        """Collect base phrases belonging to this event.
 
         Args:
             exclude_exophora: If true, exophora will not be used.
             include_modifiers: If true, tokens of events that modify this event will be included.
 
         Returns:
-            A list of tokens that belong to this event.
+            A list of base phrases that belong to this event.
 
         """
-        # Collect head tokens.
-        head_tokens = [self.pas.predicate.head_token]
+        # Collect head base phrases.
+        head_base_phrases = [self.pas.predicate.head_base_phrase]
         for arguments in self.pas.arguments.values():
             for argument in arguments:
-                if argument.head_token.omitted_case:
+                if argument.head_base_phrase.omitted_case:
                     # Omitted arguments -> If `exclude_exophora` is true, invalid
-                    if exclude_exophora and argument.head_token.exophora:
+                    if exclude_exophora and argument.head_base_phrase.exophora:
                         pass
                     else:
-                        head_tokens.append(argument.head_token)
-                elif argument.head_token.tag.tag_id < self.head.tag_id \
-                        and (argument.head_token.is_event_head or argument.head_token.is_event_end):
+                        head_base_phrases.append(argument.head_base_phrase)
+                elif argument.head_base_phrase.tag.tag_id < self.head.tag_id \
+                        and (argument.head_base_phrase.is_event_head or argument.head_base_phrase.is_event_end):
                     # Arguments that play a role as an event head -> invalid
                     pass
-                elif self.end.tag_id < argument.head_token.tag.tag_id:
+                elif self.end.tag_id < argument.head_base_phrase.tag.tag_id:
                     # Arguments that appear after the predicate -> invalid
                     pass
                 else:
-                    head_tokens.append(argument.head_token)
+                    head_base_phrases.append(argument.head_base_phrase)
         if include_modifiers:
             for relation in filter_relations(self.incoming_relations, labels=['補文', '連体修飾']):
-                head_tokens.extend(relation.modifier._collect_tokens(exclude_exophora, include_modifiers))
+                head_base_phrases.extend(relation.modifier._collect_base_phrases(exclude_exophora, include_modifiers))
 
-        # Expand head tokens and resolve duplication.
-        return sorted(list(set(token for head_token in head_tokens for token in head_token.to_list())))
+        # Expand head base phrases and resolve duplication.
+        return sorted(list(set(
+            base_phrase for head_base_phrase in head_base_phrases for base_phrase in head_base_phrase.to_list()
+        )))
 
-    def _tokens_to_mrphs(self, tokens: List[Token]) -> List[Morpheme_]:
-        """Convert a list of tokens to a list of morphemes.
+    def _base_phrases_to_mrphs(self, base_phrases: List[BasePhrase]) -> List[Morpheme_]:
+        """Convert a list of base phrases to a list of morphemes.
 
         Args:
-            tokens: A list of tokens.
+            base_phrases: A list of base phrases.
 
         Returns:
             A list of morphemes, each of which can be either a :class:`pyknp.juman.morpheme.Morpheme` object or
@@ -383,47 +386,47 @@ class Event(Component):
 
         """
         mrphs = []
-        for token in tokens:
-            if token.omitted_case:
-                if token.exophora:
-                    mrphs.append(token.exophora)
+        for base_phrase in base_phrases:
+            if base_phrase.omitted_case:
+                if base_phrase.exophora:
+                    mrphs.append(base_phrase.exophora)
                 else:
                     # Extract the content words not to print a case marker twice.
                     exists_content_word = False
-                    for mrph in token.tag.mrph_list():
+                    for mrph in base_phrase.tag.mrph_list():
                         is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
                         if not is_content_word and exists_content_word:
                             break
                         exists_content_word = exists_content_word or is_content_word
                         mrphs.append(mrph)
-                mrphs.append(token.omitted_case)
+                mrphs.append(base_phrase.omitted_case)
             else:
-                mrphs.extend(list(token.tag.mrph_list()))
+                mrphs.extend(list(base_phrase.tag.mrph_list()))
         return mrphs
 
-    def _find_truncated_position(self, tokens_list: List[List[Token]]) -> Tuple[int, int]:
+    def _find_truncated_position(self, grouped_base_phrases: List[List[BasePhrase]]) -> Tuple[int, int]:
         """Find a position just before adjunct words start.
 
         Args:
-            tokens_list: A list of tokens grouped by bunsetsu IDs.
+            grouped_base_phrases: A list of base phrases grouped by bunsetsu IDs.
 
         Returns:
             A position just before adjunct words start.
 
         """
         seen_head = False
-        for group_index, tokens in enumerate(tokens_list):
-            # Ignore tokens of a omitted case because they never become a predicate.
-            if any(token.omitted_case for token in tokens):
+        for group_index, base_phrases in enumerate(grouped_base_phrases):
+            # Ignore base phrases of a omitted case because they never become a predicate.
+            if any(base_phrase.omitted_case for base_phrase in base_phrases):
                 continue
 
             mrph_index_offset = 0
-            for token in tokens:
-                # Convert a token into a morpheme list.
-                mrphs = token.tag.mrph_list()
+            for base_phrase in base_phrases:
+                # Convert a base phrase into a morpheme list.
+                mrphs = base_phrase.tag.mrph_list()
 
-                # Skip tokens until the current token reaches to the predicate's head token.
-                seen_head = seen_head or token == self.pas.predicate.head_token
+                # Skip base phrases until the current base phrase reaches to the predicate's head base phrase.
+                seen_head = seen_head or base_phrase == self.pas.predicate.head_base_phrase
                 if not seen_head:
                     mrph_index_offset += len(mrphs)
                     continue
@@ -451,15 +454,19 @@ class Event(Component):
 
                 mrph_index_offset += len(mrphs)
 
-        return len(tokens_list) - 1, sum(len(token.tag.mrph_list()) for token in tokens_list[-1]) - 1
+        return (
+            len(grouped_base_phrases) - 1,
+            sum(len(base_phrase.tag.mrph_list()) for base_phrase in grouped_base_phrases[-1]) - 1
+        )
 
     @staticmethod
-    def _get_marker(tokens_list: List[List[Token]], mrphs_list: List[List[Morpheme_]], add_mark: bool, normalize: bool,
-                    truncated_position: Tuple[int, int], include_modifiers: bool) -> Dict[Tuple[int, int, str], str]:
+    def _get_marker(grouped_base_phrases: List[List[BasePhrase]], mrphs_list: List[List[Morpheme_]], add_mark: bool,
+                    normalize: bool, truncated_position: Tuple[int, int], include_modifiers: bool) \
+            -> Dict[Tuple[int, int, str], str]:
         """Get a mapping from a position to a mark.
 
         Args:
-            tokens_list: A list of tokens grouped by bunsetsu IDs.
+            grouped_base_phrases: A list of base phrases grouped by bunsetsu IDs.
             mrphs_list: A list of morphemes grouped by bunsetsu IDs.
             add_mark: If true, add special marks. Note that an exophora is enclosed by square brackets even when
                 this flag is false.
@@ -474,8 +481,8 @@ class Event(Component):
         marker: Dict[Tuple[int, int, str], str] = {}  # (group_index, mrph_index, "start" or "end") -> mark
 
         last_tid = -1
-        for group_index, (tokens, mrphs) in enumerate(zip(tokens_list, mrphs_list)):
-            is_omitted = any(token.omitted_case for token in tokens)
+        for group_index, (base_phrases, mrphs) in enumerate(zip(grouped_base_phrases, mrphs_list)):
+            is_omitted = any(base_phrase.omitted_case for base_phrase in base_phrases)
             if is_omitted:
                 marker[(group_index, 0, 'start')] = '['
                 marker[(group_index, len(mrphs) - 1, 'end')] = ']'
@@ -484,20 +491,21 @@ class Event(Component):
             if not add_mark:
                 continue
 
-            has_adnominal_event = any(token.adnominal_events for token in tokens)
+            has_adnominal_event = any(base_phrase.adnominal_events for base_phrase in base_phrases)
             if has_adnominal_event and not include_modifiers:
                 marker[(group_index, 0, 'start')] = '▼'
 
-            has_sentential_complement = any(token.sentential_complement_events for token in tokens)
+            has_sentential_complement = any(base_phrase.sentential_complement_events for base_phrase in base_phrases)
             if has_sentential_complement and not include_modifiers:
                 marker[(group_index, 0, 'start')] = '■'
 
             mrph_index = 0
-            for token in tokens:
-                if last_tid != -1 and last_tid + 1 != token.tid and (group_index, mrph_index, 'start') not in marker:
+            for base_phrase in base_phrases:
+                if last_tid != -1 and last_tid + 1 != base_phrase.tid \
+                        and (group_index, mrph_index, 'start') not in marker:
                     marker[group_index, mrph_index, 'start'] = '|'
-                last_tid = token.tid
-                mrph_index += len(token.tag.mrph_list())
+                last_tid = base_phrase.tid
+                mrph_index += len(base_phrase.tag.mrph_list())
 
         last_position = (len(mrphs_list) - 1, len(mrphs_list[-1]) - 1)
         if add_mark and not normalize and truncated_position != last_position:

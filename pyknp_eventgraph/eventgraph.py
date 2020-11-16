@@ -11,7 +11,7 @@ from pyknp_eventgraph.document import Document, DocumentBuilder, JsonDocumentBui
 from pyknp_eventgraph.event import Event
 from pyknp_eventgraph.relation import Relation, RelationsBuilder, JsonRelationBuilder
 from pyknp_eventgraph.sentence import Sentence
-from pyknp_eventgraph.token import TokenBuilder
+from pyknp_eventgraph.base_phrase import BasePhraseBuilder
 
 logger = getLogger(__name__)
 
@@ -149,11 +149,11 @@ class EventGraphBuilder(Builder):
         # A document is a collection of sentences, and a sentence is a collection of events.
         DocumentBuilder()(evg, blists)
 
-        # Assign tokens to events.
+        # Assign basic phrases to events.
         # This process must be performed after constructing a document
-        # because an event may have a token recognized by inter-sentential cataphora resolution.
+        # because an event may have a basic phrase recognized by inter-sentential cataphora resolution.
         for event in evg.events:
-            TokenBuilder()(event)
+            BasePhraseBuilder()(event)
 
         # Assign event-to-event relations to events.
         # This process must be performed after constructing a document.
