@@ -26,7 +26,6 @@ def evg():
         if line.strip() == 'EOS':
             results.append(knp.result(chunk))
             chunk = ''
-
     evg_ = EventGraph.build(results)
     if args.output:
         evg_.save(args.output)

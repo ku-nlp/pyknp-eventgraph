@@ -6,6 +6,7 @@ from pyknp import BList, Tag
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.event import Event, EventBuilder
+from pyknp_eventgraph.helper import convert_mrphs_to_surf
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.document import Document
@@ -20,9 +21,8 @@ class Sentence(Component):
         document (Document): A document that includes this sentence.
         sid (str): An original sentence ID.
         ssid (int): A serial sentence ID.
-        blist (BList, optional): A list of bunsetsu-s. For details, refer to :class:`.BList`.
+        blist (:class:`pyknp.knp.blist.BList`, optional): A list of bunsetsu-s.
         events (List[Event]): A list of events in this sentence.
-
     """
 
     def __init__(self, document: 'Document', sid: str, ssid: int, blist: Optional[BList] = None):
@@ -38,7 +38,7 @@ class Sentence(Component):
     @property
     def surf(self) -> str:
         """A surface string."""
-        return self.mrphs.replace(' ', '')
+        return convert_mrphs_to_surf(self.mrphs)
 
     @property
     def mrphs(self) -> str:
@@ -56,13 +56,7 @@ class Sentence(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('sid', self.sid),
-            ('ssid', self.ssid),
-            ('surf', self.surf),
-            ('mrphs', self.mrphs),
-            ('reps', self.reps),
-        ))
+        return dict(sid=self.sid, ssid=self.ssid, surf=self.surf, mrphs=self.mrphs, reps=self.reps)
 
     def to_string(self) -> str:
         """Convert this object into a string."""
@@ -86,16 +80,14 @@ class SentenceBuilder(Builder):
                 end = tag
                 if head:
                     EventBuilder()(sentence, start, head, end)
-                    start, end, head = None, None, None
+                start, end, head = None, None, None
         document.sentences.append(sentence)
         Builder.ssid += 1
-
         # Make this sentence and its components accessible from builders.
         for bid, bnst in enumerate(blist.bnst_list()):
             for tag in bnst.tag_list():
                 Builder.stid_bid_map[(sentence.ssid, tag.tag_id)] = bid
                 Builder.stid_tag_map[(sentence.ssid, tag.tag_id)] = tag
-
         logger.debug('Successfully created a sentence.')
         return sentence
 

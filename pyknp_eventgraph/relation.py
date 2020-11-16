@@ -23,14 +23,13 @@ class Relation(Component):
     Attributes:
         modifier (Event): A modifier event.
         head (Event): A head event.
-        label (str): A relation label. Syntactic relation labels include "連体修飾 (adnominal relation),"
-            "補文 (sentential complement)," "並列 (parallel)", and "係り受け (dependency)." On the other hand,
-            discourse relation labels include "原因・理由 (cause/reason)," "目的 (purpose)," "条件 (condition),"
-            "根拠 (ground)," "対比 (contrast)," and "逆接 (concession)."
+        label (str): A relation label. Syntactic relation labels include "連体修飾 (adnominal relation,"
+            "補文 (sentential complement," "並列 (parallel)", and "係り受け (dependency)." On the other hand,
+            discourse relation labels include "原因・理由 (cause/reason," "目的 (purpose," "条件 (condition,"
+            "根拠 (ground," "対比 (contrast," and "逆接 (concession)."
         surf (str): A surface string.
         head_tid (int): A tag ID.
         reliable (bool): If true, a syntactic dependency is not ambiguous.
-
     """
 
     def __init__(self, modifier: 'Event', head: 'Event', label: str, surf: str, head_tid: int, reliable: bool):
@@ -43,28 +42,30 @@ class Relation(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('event_id', self.head.evid),
-            ('label', self.label),
-            ('surf', self.surf),
-            ('reliable', self.reliable),
-            ('head_tid', self.head_tid)
-        ))
+        return dict(
+            event_id=self.head.evid,
+            label=self.label,
+            surf=self.surf,
+            reliable=self.reliable,
+            head_tid=self.head_tid
+        )
 
     def to_string(self) -> str:
         """Convert this object into a string."""
         return f'<Relation, label: {self.label}, modifier_evid: {self.modifier.evid}, head_evid: {self.head.evid}>'
 
 
-def filter_relations(relations: List[Relation], labels: List[str] = None, head_tids: List[int] = None) \
-        -> List[Relation]:
+def filter_relations(
+        relations: List[Relation],
+        labels: List[str] = None,
+        head_tids: List[int] = None
+) -> List[Relation]:
     """Filter relations.
 
     Args:
         relations: A list of relations.
         labels: A list of valid labels.
         head_tids: A list of valid head tag IDs.
-
     """
     ret = []
     for relation in relations:

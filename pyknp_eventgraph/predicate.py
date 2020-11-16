@@ -5,7 +5,8 @@ from pyknp import Tag, Morpheme
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.token import Token
+from pyknp_eventgraph.base_phrase import BasePhrase
+from pyknp_eventgraph.helper import convert_mrphs_to_surf
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.pas import PAS
@@ -18,17 +19,16 @@ class Predicate(Component):
 
     Attributes:
         pas (PAS): A PAS that this predicate belongs.
-        head (Tag): A head tag.
+        head (:class:`pyknp.knp.tag.Tag`): A head tag.
         type_ (str): A type of this predicate.
-        head_token (Optional[Token]): A head token.
-
+        head_base_phrase (Token, optional): A head token.
     """
 
     def __init__(self, pas: 'PAS', type_: str, head: Optional[Tag] = None):
         self.pas: PAS = pas
         self.type_: str = type_
         self.head: Optional[Tag] = head
-        self.head_token: Optional[Token] = None
+        self.head_base_phrase: Optional[BasePhrase] = None
 
         self._surf = None
         self._normalized_surf = None
@@ -44,13 +44,13 @@ class Predicate(Component):
     @property
     def tag(self) -> Optional[Tag]:
         """The tag of the head token."""
-        return self.head_token.tag
+        return self.head_base_phrase.tag
 
     @property
     def surf(self) -> str:
         """A surface string."""
         if self._surf is None:
-            self._surf = self.mrphs.replace(' ', '')
+            self._surf = convert_mrphs_to_surf(self.mrphs)
         return self._surf
 
     @property
@@ -64,8 +64,8 @@ class Predicate(Component):
         if self._mrphs is None:
             mrphs = []
             is_within_standard_repname = False
-            for token in self.head_token.modifiees(include_self=True):
-                for m in token.tag.mrph_list():
+            for bp in self.head_base_phrase.modifiees(include_self=True):
+                for m in bp.tag.mrph_list():
                     if '用言表記先頭' in m.fstring:
                         is_within_standard_repname = True
                     if '用言表記末尾' in m.fstring:
@@ -85,12 +85,17 @@ class Predicate(Component):
     def reps(self) -> str:
         """A representative string."""
         if self._reps is None:
-            for token in self.head_token.modifiees(include_self=True):
-                if '用言代表表記' in token.tag.features:
-                    self._reps = token.tag.features['用言代表表記']
+            for bp in self.head_base_phrase.modifiees(include_self=True):
+                if '用言代表表記' in bp.tag.features:
+                    self._reps = bp.tag.features['用言代表表記']
                     break
             else:
-                self._reps = self._token_to_text(self.head_token, mode='reps', truncate=True, include_modifiees=True)
+                self._reps = self._base_phrase_to_text(
+                    self.head_base_phrase,
+                    mode='reps',
+                    truncate=True,
+                    include_modifiees=True
+                )
         return self._reps
 
     @property
@@ -102,9 +107,9 @@ class Predicate(Component):
     def standard_reps(self) -> str:
         """A standard representative string."""
         if self._standard_reps is None:
-            for token in self.head_token.modifiees(include_self=True):
-                if '標準用言代表表記' in token.tag.features:
-                    self._standard_reps = token.tag.features['標準用言代表表記']
+            for bp in self.head_base_phrase.modifiees(include_self=True):
+                if '標準用言代表表記' in bp.tag.features:
+                    self._standard_reps = bp.tag.features['標準用言代表表記']
                     break
             else:
                 self._standard_reps = self.reps
@@ -120,7 +125,7 @@ class Predicate(Component):
         """A list of IDs of events modifying this predicate (adnominal)."""
         if self._adnominal_event_ids is None:
             self._adnominal_event_ids = sorted(
-                event.evid for t in self.head_token.modifiees(include_self=True) for event in t.adnominal_events
+                event.evid for t in self.head_base_phrase.modifiees(include_self=True) for event in t.adnominal_events
             )
         return self._adnominal_event_ids
 
@@ -129,7 +134,7 @@ class Predicate(Component):
         """A list of IDs of events modifying this predicate (sentential complement)."""
         if self._sentential_complement_event_ids is None:
             self._sentential_complement_event_ids = sorted(
-                event.evid for t in self.head_token.modifiees(include_self=True)
+                event.evid for t in self.head_base_phrase.modifiees(include_self=True)
                 for event in t.sentential_complement_events
             )
         return self._sentential_complement_event_ids
@@ -139,37 +144,38 @@ class Predicate(Component):
         """A list of child words."""
         if self._children is None:
             self._children = []
-            for token in reversed(self.head_token.modifiers()):
+            for bp in reversed(self.head_base_phrase.modifiers()):
                 self._children.append({
-                    'surf': self._token_to_text(token, mode='mrphs', truncate=False).replace(' ', ''),
-                    'normalized_surf': self._token_to_text(token, mode='mrphs', truncate=True).replace(' ', ''),
-                    'mrphs': self._token_to_text(token, mode='mrphs', truncate=False),
-                    'normalized_mrphs': self._token_to_text(token, mode='mrphs', truncate=True),
-                    'reps': self._token_to_text(token, mode='reps', truncate=False),
-                    'normalized_reps': self._token_to_text(token, mode='reps', truncate=True),
-                    'adnominal_event_ids': [event.evid for event in token.adnominal_events],
-                    'sentential_complement_event_ids': [event.evid for event in token.sentential_complement_events],
-                    'modifier': '修飾' in token.tag.features,
-                    'possessive': token.tag.features.get('係', '') == 'ノ格',
+                    'surf': convert_mrphs_to_surf(self._base_phrase_to_text(bp, mode='mrphs', truncate=False)),
+                    'normalized_surf': convert_mrphs_to_surf(
+                        self._base_phrase_to_text(bp, mode='mrphs', truncate=True)
+                    ),
+                    'mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=False),
+                    'normalized_mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=True),
+                    'reps': self._base_phrase_to_text(bp, mode='reps', truncate=False),
+                    'normalized_reps': self._base_phrase_to_text(bp, mode='reps', truncate=True),
+                    'adnominal_event_ids': [event.evid for event in bp.adnominal_events],
+                    'sentential_complement_event_ids': [event.evid for event in bp.sentential_complement_events],
+                    'modifier': '修飾' in bp.tag.features,
+                    'possessive': bp.tag.features.get('係', '') == 'ノ格',
                 })
         return self._children
 
-    def _token_to_text(self, token: Token, mode: str = 'mrphs', truncate: bool = False,
-                       include_modifiees: bool = False) -> str:
-        """Convert a token to a text.
+    def _base_phrase_to_text(self, bp: BasePhrase, mode: str = 'mrphs', truncate: bool = False,
+                             include_modifiees: bool = False) -> str:
+        """Convert a base phrase to a text.
 
         Args:
-            token: A token.
+            bp: A base phrase.
             mode: A type of token representation, which can take either "mrphs" or "reps".
             truncate: If true, adjunct words are truncated.
             include_modifiees: If true, parents are used to construct a compound phrase.
-
         """
         assert mode in {'mrphs', 'reps'}
-        mrphs = list(token.tag.mrph_list())
+        mrphs = list(bp.tag.mrph_list())
         if include_modifiees:
-            for parent_token in token.modifiees():
-                mrphs += list(parent_token.tag.mrph_list())
+            for parent_bp in bp.modifiees():
+                mrphs += list(parent_bp.tag.mrph_list())
         if truncate:
             mrphs = self._truncate_mrphs(mrphs)
             return self._format_mrphs(mrphs, mode, normalize=True)
@@ -223,19 +229,19 @@ class Predicate(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('surf', self.surf),
-            ('normalized_surf', self.normalized_surf),
-            ('mrphs', self.mrphs),
-            ('normalized_mrphs', self.normalized_mrphs),
-            ('reps', self.reps),
-            ('normalized_reps', self.normalized_reps),
-            ('standard_reps', self.standard_reps),
-            ('type', self.type),
-            ('adnominal_event_ids', self.adnominal_event_ids),
-            ('sentential_complement_event_ids', self.sentential_complement_event_ids),
-            ('children', self.children)
-        ))
+        return dict(
+            surf=self.surf,
+            normalized_surf=self.normalized_surf,
+            mrphs=self.mrphs,
+            normalized_mrphs=self.normalized_mrphs,
+            reps=self.reps,
+            normalized_reps=self.normalized_reps,
+            standard_reps=self.standard_reps,
+            type=self.type,
+            adnominal_event_ids=self.adnominal_event_ids,
+            sentential_complement_event_ids=self.sentential_complement_event_ids,
+            children=self.children
+        )
 
     def to_string(self) -> str:
         """Convert this object into a string."""

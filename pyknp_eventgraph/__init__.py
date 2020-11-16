@@ -11,5 +11,5 @@ from pyknp_eventgraph.argument import Argument
 from pyknp_eventgraph.features import Features
 from pyknp_eventgraph.relation import Relation
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.token import Token
+from pyknp_eventgraph.base_phrase import BasePhrase
 from pyknp_eventgraph.visualizer import make_image
