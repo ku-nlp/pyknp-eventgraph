@@ -41,7 +41,7 @@ class Event(Component):
         features (Features, optional): Linguistic features.
         parent (Event, optional): A parent event.
         children (List[Event]): A list of child events.
-        head_base_phrase (Token, optional): A head token.
+        head_base_phrase (Token, optional): A head basic phrase.
     """
 
     def __init__(

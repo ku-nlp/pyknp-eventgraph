@@ -27,7 +27,7 @@ class Argument(Component):
         flag (str): A flag.
         sdist (int): The sentence distance between this argument and the predicate.
         arg (:class:`pyknp.knp.pas.Argument`, optional): An Argument object in pyknp.
-        head_base_phrase (Token, optional): A head token.
+        head_base_phrase (Token, optional): A head basic phrase.
     """
 
     def __init__(self, pas: 'PAS', case: str, eid: int, flag: str, sdist: int, arg: Optional[PyknpArgument] = None):
@@ -52,7 +52,7 @@ class Argument(Component):
 
     @property
     def tag(self) -> Optional[Tag]:
-        """The tag of the head token."""
+        """The tag of the head base phrase."""
         return self.head_base_phrase.tag
 
     @property
