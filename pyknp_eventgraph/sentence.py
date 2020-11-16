@@ -6,6 +6,7 @@ from pyknp import BList, Tag
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.event import Event, EventBuilder
+from pyknp_eventgraph.helper import convert_mrphs_to_surf
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.document import Document
@@ -37,7 +38,7 @@ class Sentence(Component):
     @property
     def surf(self) -> str:
         """A surface string."""
-        return self.mrphs.replace(' ', '')
+        return convert_mrphs_to_surf(self.mrphs)
 
     @property
     def mrphs(self) -> str:

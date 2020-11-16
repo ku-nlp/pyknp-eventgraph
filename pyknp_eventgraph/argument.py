@@ -9,6 +9,7 @@ from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
 from pyknp_eventgraph.base_phrase import BasePhrase
+from pyknp_eventgraph.helper import convert_mrphs_to_surf
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.pas import PAS
@@ -58,14 +59,14 @@ class Argument(Component):
     def surf(self) -> str:
         """A surface string."""
         if self._surf is None:
-            self._surf = self.mrphs.replace(' ', '')
+            self._surf = convert_mrphs_to_surf(self.mrphs)
         return self._surf
 
     @property
     def normalized_surf(self) -> str:
         """A normalized surface string."""
         if self._normalized_surf is None:
-            self._normalized_surf = self.normalized_mrphs.replace(' ', '')
+            self._normalized_surf = convert_mrphs_to_surf(self.normalized_mrphs)
         return self._normalized_surf
 
     @property
@@ -148,8 +149,10 @@ class Argument(Component):
             self._children = []
             for bp in reversed(self.head_base_phrase.modifiers()):
                 self._children.append({
-                    'surf': self._base_phrase_to_text(bp, mode='mrphs', truncate=False).replace(' ', ''),
-                    'normalized_surf': self._base_phrase_to_text(bp, mode='mrphs', truncate=True).replace(' ', ''),
+                    'surf': convert_mrphs_to_surf(self._base_phrase_to_text(bp, mode='mrphs', truncate=False)),
+                    'normalized_surf': convert_mrphs_to_surf(
+                        self._base_phrase_to_text(bp, mode='mrphs', truncate=True)
+                    ),
                     'mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=False),
                     'normalized_mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=True),
                     'reps': self._base_phrase_to_text(bp, mode='reps', truncate=False),

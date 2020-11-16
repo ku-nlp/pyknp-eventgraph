@@ -31,3 +31,10 @@ def convert_katakana_to_hiragana(in_str: str) -> str:
         A string where katakana characters have been converted into hiragana.
     """
     return "".join(chr(ord(ch) - 96) if ("ァ" <= ch <= "ン") else ch for ch in in_str)
+
+
+def convert_mrphs_to_surf(mrphs: str) -> str:
+    """Remove unnecessary spaces from a tokenized surface string."""
+    surf = mrphs.replace(' ', '')
+    surf = surf.replace(']', '] ').replace('|', ' | ').replace('▼', '▼ ').replace('■', '■ ').replace('(', ' (')
+    return surf.strip()

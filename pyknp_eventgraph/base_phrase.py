@@ -1,7 +1,7 @@
 import collections
-from typing import List, Tuple, Optional, NoReturn, TYPE_CHECKING
+from typing import List, Tuple, Optional, Union, NoReturn, TYPE_CHECKING
 
-from pyknp import Tag
+from pyknp import Tag, Morpheme
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
@@ -31,8 +31,17 @@ class BasePhrase(Component):
         children (List[BasePhrase]): A list of child base phrases.
     """
 
-    def __init__(self, event: 'Event', tag: Optional[Tag], ssid: int, bid: int, tid: int, is_child: bool = False,
-                 exophora: str = '', omitted_case: str = ''):
+    def __init__(
+            self,
+            event: 'Event',
+            tag: Optional[Tag],
+            ssid: int,
+            bid: int,
+            tid: int,
+            is_child: bool = False,
+            exophora: str = '',
+            omitted_case: str = ''
+    ):
         self.event = event
         self.tag: Optional[Tag] = tag
         self.ssid = ssid
@@ -41,7 +50,6 @@ class BasePhrase(Component):
         self.is_child = is_child
         self.exophora = exophora
         self.omitted_case = omitted_case
-
         self.parent: Optional['BasePhrase'] = None
         self.children: List['BasePhrase'] = []
 
@@ -59,26 +67,36 @@ class BasePhrase(Component):
         return self.key < other.key
 
     @property
+    def morphemes(self) -> List[Union[str, Morpheme]]:
+        mrphs = []
+        if self.omitted_case:
+            if self.exophora:
+                mrphs.append(self.exophora)
+            else:
+                exists_content_word = False
+                for mrph in self.tag.mrph_list():
+                    is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
+                    if not is_content_word and exists_content_word:
+                        break
+                    exists_content_word = exists_content_word or is_content_word
+                    mrphs.append(mrph)
+            mrphs.append(self.omitted_case)
+        else:
+            mrphs.extend(list(self.tag.mrph_list()))
+        return mrphs
+
+    @property
     def surf(self) -> str:
         """A surface string."""
         if self._surf is None:
+            morphemes = self.morphemes
             if self.omitted_case:
-                case = convert_katakana_to_hiragana(self.omitted_case)
-                if self.exophora:
-                    base = self.exophora
-                else:
-                    mrphs = []
-                    exists_content_word = False
-                    for mrph in self.tag.mrph_list():
-                        is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
-                        if not is_content_word and exists_content_word:
-                            break
-                        exists_content_word = exists_content_word or is_content_word
-                        mrphs.append(mrph.midasi)
-                    base = ''.join(mrphs)
+                bases, case = morphemes[:-1], morphemes[-1]
+                base = ''.join(base if isinstance(base, str) else base.midasi for base in bases)
+                case = convert_katakana_to_hiragana(case)
                 self._surf = f'[{base}{case}]'
             else:
-                self._surf = self.tag.midasi
+                self._surf = ''.join(mrph.midasi for mrph in morphemes)
         return self._surf
 
     @property
@@ -175,18 +193,8 @@ def group_base_phrases(bps: List[BasePhrase]) -> List[List[BasePhrase]]:
         A list of base phrases grouped by bunsetsu IDs.
     """
     bucket = collections.defaultdict(list)
-    omitted_bp_bid = -1
     for bp in sorted(bps):
-        ssid = bp.ssid
-        # Assign a unique bid for a token representing a omitted case.
-        # This is necessary when a user merges multiple events into a single string by enabling `include_modifier`.
-        # In such a case, the same omitted cases may appear several times, and they may have the same ssid and bid.
-        if bp.omitted_case:
-            bid = omitted_bp_bid
-            omitted_bp_bid -= 1
-        else:
-            bid = bp.bid
-        bucket[(ssid, bid)].append(bp)
+        bucket[bp.key[:-1]].append(bp)  # bp.key[-1] is the tag id.
     return list(bucket.values())  # In Python 3.6+, dictionaries are insertion ordered.
 
 
@@ -195,9 +203,9 @@ class BasePhraseBuilder(Builder):
     def __call__(self, event: 'Event'):
         # Greedily dispatch base phrases to arguments.
         argument_head_bps: List[BasePhrase] = []
-        for arguments in event.pas.arguments.values():
-            for argument in arguments:
-                head = self.dispatch_head_base_phrase_to_argument(argument)
+        for args in event.pas.arguments.values():
+            for arg in args:
+                head = self.dispatch_head_base_phrase_to_argument(arg)
                 argument_head_bps.append(head)
                 if head.parent:
                     argument_head_bps.append(head.parent)
@@ -272,18 +280,18 @@ class BasePhraseBuilder(Builder):
             parent_bp.children.append(child_bp)
 
     @staticmethod
-    def _resolve_duplication(heads: List[BasePhrase]) -> NoReturn:
-        head_keys = {head.key[1:] for head in heads}  # key[0] is case information
+    def _resolve_duplication(head_bps: List[BasePhrase]) -> NoReturn:
+        keys = {head_bp.key[1:] for head_bp in head_bps}  # head_bp.key[0] is the case id.
 
         def resolver(children: List[BasePhrase]) -> NoReturn:
             for i in reversed(range(len(children))):
                 child_bp = children[i]
                 if child_bp.omitted_case:
                     continue
-                if child_bp.key[1:] in head_keys:
+                if child_bp.key[1:] in keys:
                     children.pop(i)
                 else:
                     resolver(child_bp.children)
 
-        for head in heads:
+        for head in head_bps:
             resolver(head.children)
