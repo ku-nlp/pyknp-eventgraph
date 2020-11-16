@@ -21,7 +21,6 @@ def make_image(evg: EventGraph, output: str, with_detail: bool = True, with_orig
         output (str): Path to an output file. The file extension must be '.svg'.
         with_detail (bool): If true, detail information will be included.
         with_original_text (bool): If true, original sentences will be included.
-
     """
     output, ext = os.path.splitext(output)
     assert ext == '.svg', 'the extension of the output file must be ".svg"'
@@ -110,7 +109,6 @@ def _split_events_by_sid(events: List[Event], max_length: int = 4) -> List[List[
 
     Returns:
         A list of lists of events.
-
     """
     ssid_events_map = collections.defaultdict(list)
     for event in events:
@@ -170,7 +168,6 @@ class Node:
 
         Returns:
             The string of a given event.
-
         """
         content = ''
         if with_detail:

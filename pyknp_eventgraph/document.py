@@ -21,7 +21,6 @@ class Document(Component):
     Attributes:
         evg (EventGraph): An EventGraph built on this document.
         sentences (List[Sentence]): A list of sentences in this document.
-
     """
 
     def __init__(self, evg: 'EventGraph'):
@@ -30,9 +29,7 @@ class Document(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('sentences', [sentence.to_dict() for sentence in self.sentences]),
-        ))
+        return dict(sentences=[sentence.to_dict() for sentence in self.sentences])
 
     def to_string(self) -> str:
         """Convert this object into a string."""

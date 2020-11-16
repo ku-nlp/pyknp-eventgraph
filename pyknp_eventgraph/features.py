@@ -28,7 +28,6 @@ class Features(Component):
         state (str): A type of a predicate, which can take either "動態述語 (action)" or "状態述語 (state)."
         complement (bool): If true, this event modifies an event as a sentential complementizer.
         level (str, optional): The semantic heaviness of a predicate.
-
     """
 
     def __init__(self, event: 'Event', modality: List[str], tense: str, negation: bool, state: str, complement: bool,
@@ -43,13 +42,13 @@ class Features(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('modality', self.modality),
-            ('tense', self.tense),
-            ('negation', self.negation),
-            ('state', self.state),
-            ('complement', self.complement)
-        ))
+        return dict(
+            modality=self.modality,
+            tense=self.tense,
+            negation=self.negation,
+            state=self.state,
+            complement=self.complement
+        )
 
     def to_string(self) -> str:
         """Convert this object into a string."""
@@ -87,8 +86,7 @@ class FeaturesBuilder(Builder):
                 and '修飾' not in head.parent.features \
                 and '機能的基本句' in head.parent.features:
             return head.parent
-        else:
-            return head
+        return head
 
     @staticmethod
     def _find_modality(head: Tag, func_tag: Tag) -> List[str]:
@@ -101,8 +99,7 @@ class FeaturesBuilder(Builder):
     def _find_tense(func_tag: Tag) -> str:
         if '<時制' in func_tag.fstring:
             return re.search('<時制[-:](.+?)>', func_tag.fstring).group(1)
-        else:
-            return 'unknown'
+        return 'unknown'
 
     @staticmethod
     def _find_negation(func_tag: Tag) -> bool:
@@ -112,10 +109,9 @@ class FeaturesBuilder(Builder):
     def _find_state(head: Tag) -> str:
         if '状態述語' in head.features:
             return '状態述語'
-        elif '動態述語' in head.features:
+        if '動態述語' in head.features:
             return '動態述語'
-        else:
-            return ''
+        return ''
 
     @staticmethod
     def _find_complement(func_tag: Tag) -> bool:

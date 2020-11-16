@@ -27,7 +27,6 @@ class Argument(Component):
         sdist (int): The sentence distance between this argument and the predicate.
         arg (:class:`pyknp.knp.pas.Argument`, optional): An Argument object in pyknp.
         head_base_phrase (Token, optional): A head token.
-
     """
 
     def __init__(self, pas: 'PAS', case: str, eid: int, flag: str, sdist: int, arg: Optional[PyknpArgument] = None):
@@ -80,22 +79,35 @@ class Argument(Component):
     def normalized_mrphs(self) -> str:
         """A tokenized/normalized surface string."""
         if self._normalized_mrphs is None:
-            self._normalized_mrphs = self._base_phrase_to_text(self.head_base_phrase, truncate=True, include_modifiees=True)
+            self._normalized_mrphs = self._base_phrase_to_text(
+                self.head_base_phrase,
+                truncate=True,
+                include_modifiees=True
+            )
         return self._normalized_mrphs
 
     @property
     def reps(self) -> str:
         """A representative string."""
         if self._reps is None:
-            self._reps = self._base_phrase_to_text(self.head_base_phrase, mode='reps', truncate=False, include_modifiees=True)
+            self._reps = self._base_phrase_to_text(
+                self.head_base_phrase,
+                mode='reps',
+                truncate=False,
+                include_modifiees=True
+            )
         return self._reps
 
     @property
     def normalized_reps(self) -> str:
         """A normalized representative string."""
         if self._normalized_reps is None:
-            self._normalized_reps = self._base_phrase_to_text(self.head_base_phrase, mode='reps', truncate=True,
-                                                              include_modifiees=True)
+            self._normalized_reps = self._base_phrase_to_text(
+                self.head_base_phrase,
+                mode='reps',
+                truncate=True,
+                include_modifiees=True
+            )
         return self._normalized_reps
 
     @property
@@ -114,7 +126,8 @@ class Argument(Component):
         """A list of IDs of events modifying this predicate (adnominal)."""
         if self._adnominal_event_ids is None:
             self._adnominal_event_ids = sorted(
-                event.evid for t in self.head_base_phrase.modifiees(include_self=True) for event in t.adnominal_events
+                event.evid for t in self.head_base_phrase.modifiees(include_self=True)
+                for event in t.adnominal_events
             )
         return self._adnominal_event_ids
 
@@ -133,46 +146,50 @@ class Argument(Component):
         """A list of child words."""
         if self._children is None:
             self._children = []
-            for base_phrase in reversed(self.head_base_phrase.modifiers()):
+            for bp in reversed(self.head_base_phrase.modifiers()):
                 self._children.append({
-                    'surf': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=False).replace(' ', ''),
-                    'normalized_surf': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=True).replace(' ', ''),
-                    'mrphs': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=False),
-                    'normalized_mrphs': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=True),
-                    'reps': self._base_phrase_to_text(base_phrase, mode='reps', truncate=False),
-                    'normalized_reps': self._base_phrase_to_text(base_phrase, mode='reps', truncate=True),
-                    'adnominal_event_ids': [event.evid for event in base_phrase.adnominal_events],
-                    'sentential_complement_event_ids': [event.evid for event in base_phrase.sentential_complement_events],
-                    'modifier': '修飾' in base_phrase.tag.features,
-                    'possessive': base_phrase.tag.features.get('係', '') == 'ノ格',
+                    'surf': self._base_phrase_to_text(bp, mode='mrphs', truncate=False).replace(' ', ''),
+                    'normalized_surf': self._base_phrase_to_text(bp, mode='mrphs', truncate=True).replace(' ', ''),
+                    'mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=False),
+                    'normalized_mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=True),
+                    'reps': self._base_phrase_to_text(bp, mode='reps', truncate=False),
+                    'normalized_reps': self._base_phrase_to_text(bp, mode='reps', truncate=True),
+                    'adnominal_event_ids': [e.evid for e in bp.adnominal_events],
+                    'sentential_complement_event_ids': [e.evid for e in bp.sentential_complement_events],
+                    'modifier': '修飾' in bp.tag.features,
+                    'possessive': bp.tag.features.get('係', '') == 'ノ格',
                 })
         return self._children
 
-    def _base_phrase_to_text(self, base_phrase: BasePhrase, mode: str = 'mrphs', truncate: bool = False,
-                             include_modifiees: bool = False) -> str:
+    def _base_phrase_to_text(
+            self,
+            bp: BasePhrase,
+            mode: str = 'mrphs',
+            truncate: bool = False,
+            include_modifiees: bool = False
+    ) -> str:
         """Convert a base phrase to a text.
 
         Args:
-            base_phrase: A base phrase.
+            bp: A base phrase.
             mode: A type of token representation, which can take either "mrphs" or "reps".
             truncate: If true, adjunct words are truncated.
             include_modifiees: If true, parents are used to construct a compound phrase.
-
         """
         assert mode in {'mrphs', 'reps'}
-        if base_phrase.omitted_case:
-            if base_phrase.exophora:
-                base = base_phrase.exophora
+        if bp.omitted_case:
+            if bp.exophora:
+                base = bp.exophora
             else:
-                mrphs = self._truncate_mrphs(list(base_phrase.tag.mrph_list()))
+                mrphs = self._truncate_mrphs(list(bp.tag.mrph_list()))
                 base = self._format_mrphs(mrphs, mode, normalize=True)
             case = convert_katakana_to_hiragana(self.case)
             case = case if mode == 'mrphs' else f'{case}/{case}'
             return f'[{base}]' if truncate else f'[{base} {case}]'
         else:
-            mrphs = list(base_phrase.tag.mrph_list())
+            mrphs = list(bp.tag.mrph_list())
             if include_modifiees:
-                for parent_base_phrase in base_phrase.modifiees():
+                for parent_base_phrase in bp.modifiees():
                     mrphs += (parent_base_phrase.tag.mrph_list())
             if truncate:
                 mrphs = self._truncate_mrphs(mrphs)
@@ -186,7 +203,6 @@ class Argument(Component):
 
         Args:
             mrphs: A list of morphemes.
-
         """
         content_mrphs = []
         seen_content_word = False
@@ -206,7 +222,6 @@ class Argument(Component):
             mrphs: A list of morphemes.
             mode: A type of token representation, which can take either "mrphs" or "reps".
             normalize: If true, the last content word will be normalized.
-
         """
         assert mode in {'mrphs', 'reps'}
         if mode == 'reps':
@@ -221,21 +236,21 @@ class Argument(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('surf', self.surf),
-            ('normalized_surf', self.normalized_surf),
-            ('mrphs', self.mrphs),
-            ('normalized_mrphs', self.normalized_mrphs),
-            ('reps', self.reps),
-            ('normalized_reps', self.normalized_reps),
-            ('head_reps', self.head_reps),
-            ('eid', self.eid),
-            ('flag', self.flag),
-            ('sdist', self.sdist),
-            ('adnominal_event_ids', self.adnominal_event_ids),
-            ('sentential_complement_event_ids', self.sentential_complement_event_ids),
-            ('children', self.children)
-        ))
+        return dict(
+            surf=self.surf,
+            normalized_surf=self.normalized_surf,
+            mrphs=self.mrphs,
+            normalized_mrphs=self.normalized_mrphs,
+            reps=self.reps,
+            normalized_reps=self.normalized_reps,
+            head_reps=self.head_reps,
+            eid=self.eid,
+            flag=self.flag,
+            sdist=self.sdist,
+            adnominal_event_ids=self.adnominal_event_ids,
+            sentential_complement_event_ids=self.sentential_complement_event_ids,
+            children=self.children
+        )
 
     def to_string(self) -> str:
         """Convert this object into a string."""

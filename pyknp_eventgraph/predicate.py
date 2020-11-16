@@ -21,7 +21,6 @@ class Predicate(Component):
         head (:class:`pyknp.knp.tag.Tag`): A head tag.
         type_ (str): A type of this predicate.
         head_base_phrase (Token, optional): A head token.
-
     """
 
     def __init__(self, pas: 'PAS', type_: str, head: Optional[Tag] = None):
@@ -64,8 +63,8 @@ class Predicate(Component):
         if self._mrphs is None:
             mrphs = []
             is_within_standard_repname = False
-            for base_phrase in self.head_base_phrase.modifiees(include_self=True):
-                for m in base_phrase.tag.mrph_list():
+            for bp in self.head_base_phrase.modifiees(include_self=True):
+                for m in bp.tag.mrph_list():
                     if '用言表記先頭' in m.fstring:
                         is_within_standard_repname = True
                     if '用言表記末尾' in m.fstring:
@@ -85,12 +84,17 @@ class Predicate(Component):
     def reps(self) -> str:
         """A representative string."""
         if self._reps is None:
-            for base_phrase in self.head_base_phrase.modifiees(include_self=True):
-                if '用言代表表記' in base_phrase.tag.features:
-                    self._reps = base_phrase.tag.features['用言代表表記']
+            for bp in self.head_base_phrase.modifiees(include_self=True):
+                if '用言代表表記' in bp.tag.features:
+                    self._reps = bp.tag.features['用言代表表記']
                     break
             else:
-                self._reps = self._base_phrase_to_text(self.head_base_phrase, mode='reps', truncate=True, include_modifiees=True)
+                self._reps = self._base_phrase_to_text(
+                    self.head_base_phrase,
+                    mode='reps',
+                    truncate=True,
+                    include_modifiees=True
+                )
         return self._reps
 
     @property
@@ -102,9 +106,9 @@ class Predicate(Component):
     def standard_reps(self) -> str:
         """A standard representative string."""
         if self._standard_reps is None:
-            for base_phrase in self.head_base_phrase.modifiees(include_self=True):
-                if '標準用言代表表記' in base_phrase.tag.features:
-                    self._standard_reps = base_phrase.tag.features['標準用言代表表記']
+            for bp in self.head_base_phrase.modifiees(include_self=True):
+                if '標準用言代表表記' in bp.tag.features:
+                    self._standard_reps = bp.tag.features['標準用言代表表記']
                     break
             else:
                 self._standard_reps = self.reps
@@ -139,37 +143,36 @@ class Predicate(Component):
         """A list of child words."""
         if self._children is None:
             self._children = []
-            for base_phrase in reversed(self.head_base_phrase.modifiers()):
+            for bp in reversed(self.head_base_phrase.modifiers()):
                 self._children.append({
-                    'surf': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=False).replace(' ', ''),
-                    'normalized_surf': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=True).replace(' ', ''),
-                    'mrphs': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=False),
-                    'normalized_mrphs': self._base_phrase_to_text(base_phrase, mode='mrphs', truncate=True),
-                    'reps': self._base_phrase_to_text(base_phrase, mode='reps', truncate=False),
-                    'normalized_reps': self._base_phrase_to_text(base_phrase, mode='reps', truncate=True),
-                    'adnominal_event_ids': [event.evid for event in base_phrase.adnominal_events],
-                    'sentential_complement_event_ids': [event.evid for event in base_phrase.sentential_complement_events],
-                    'modifier': '修飾' in base_phrase.tag.features,
-                    'possessive': base_phrase.tag.features.get('係', '') == 'ノ格',
+                    'surf': self._base_phrase_to_text(bp, mode='mrphs', truncate=False).replace(' ', ''),
+                    'normalized_surf': self._base_phrase_to_text(bp, mode='mrphs', truncate=True).replace(' ', ''),
+                    'mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=False),
+                    'normalized_mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=True),
+                    'reps': self._base_phrase_to_text(bp, mode='reps', truncate=False),
+                    'normalized_reps': self._base_phrase_to_text(bp, mode='reps', truncate=True),
+                    'adnominal_event_ids': [event.evid for event in bp.adnominal_events],
+                    'sentential_complement_event_ids': [event.evid for event in bp.sentential_complement_events],
+                    'modifier': '修飾' in bp.tag.features,
+                    'possessive': bp.tag.features.get('係', '') == 'ノ格',
                 })
         return self._children
 
-    def _base_phrase_to_text(self, base_phrase: BasePhrase, mode: str = 'mrphs', truncate: bool = False,
+    def _base_phrase_to_text(self, bp: BasePhrase, mode: str = 'mrphs', truncate: bool = False,
                              include_modifiees: bool = False) -> str:
         """Convert a base phrase to a text.
 
         Args:
-            base_phrase: A base phrase.
+            bp: A base phrase.
             mode: A type of token representation, which can take either "mrphs" or "reps".
             truncate: If true, adjunct words are truncated.
             include_modifiees: If true, parents are used to construct a compound phrase.
-
         """
         assert mode in {'mrphs', 'reps'}
-        mrphs = list(base_phrase.tag.mrph_list())
+        mrphs = list(bp.tag.mrph_list())
         if include_modifiees:
-            for parent_base_phrase in base_phrase.modifiees():
-                mrphs += list(parent_base_phrase.tag.mrph_list())
+            for parent_bp in bp.modifiees():
+                mrphs += list(parent_bp.tag.mrph_list())
         if truncate:
             mrphs = self._truncate_mrphs(mrphs)
             return self._format_mrphs(mrphs, mode, normalize=True)
@@ -223,19 +226,19 @@ class Predicate(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('surf', self.surf),
-            ('normalized_surf', self.normalized_surf),
-            ('mrphs', self.mrphs),
-            ('normalized_mrphs', self.normalized_mrphs),
-            ('reps', self.reps),
-            ('normalized_reps', self.normalized_reps),
-            ('standard_reps', self.standard_reps),
-            ('type', self.type),
-            ('adnominal_event_ids', self.adnominal_event_ids),
-            ('sentential_complement_event_ids', self.sentential_complement_event_ids),
-            ('children', self.children)
-        ))
+        return dict(
+            surf=self.surf,
+            normalized_surf=self.normalized_surf,
+            mrphs=self.mrphs,
+            normalized_mrphs=self.normalized_mrphs,
+            reps=self.reps,
+            normalized_reps=self.normalized_reps,
+            standard_reps=self.standard_reps,
+            type=self.type,
+            adnominal_event_ids=self.adnominal_event_ids,
+            sentential_complement_event_ids=self.sentential_complement_event_ids,
+            children=self.children
+        )
 
     def to_string(self) -> str:
         """Convert this object into a string."""

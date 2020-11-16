@@ -1,4 +1,3 @@
-"""A collection of helper functions."""
 from typing import List
 
 from pyknp import Tag
@@ -14,7 +13,6 @@ def get_parallel_tags(tag: Tag) -> List[Tag]:
 
     Returns:
         A list of parallel tags.
-
     """
     parallels = []
     while tag.dpndtype == 'P':
@@ -31,6 +29,5 @@ def convert_katakana_to_hiragana(in_str: str) -> str:
 
     Returns:
         A string where katakana characters have been converted into hiragana.
-
     """
     return "".join(chr(ord(ch) - 96) if ("ァ" <= ch <= "ン") else ch for ch in in_str)

@@ -25,7 +25,6 @@ class PAS(Component):
         pas (:class:`pyknp.knp.pas.Pas`, optional): A PAS object in pyknp.
         predicate (Predicate): A predicate.
         arguments (Dict[str, List[Argument]]): A mapping of a case to arguments.
-
     """
 
     def __init__(self, event: 'Event', pas: Optional[PyknpPAS] = None):
@@ -38,14 +37,14 @@ class PAS(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('predicate', self.predicate.to_dict()),
-            ('argument', {
+        return dict(
+            predicate=self.predicate.to_dict(),
+            argument={
                 case: [argument.to_dict() for argument in argument_list if argument.to_dict()]
                 for case, argument_list in self.arguments.items()
                 if any(argument.to_dict() for argument in argument_list)
-            })
-        ))
+            }
+        )
 
     def to_string(self) -> str:
         """Convert this object into a string."""

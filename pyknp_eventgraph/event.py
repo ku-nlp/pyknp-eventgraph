@@ -41,11 +41,18 @@ class Event(Component):
         parent (Event, optional): A parent event.
         children (List[Event]): A list of child events.
         head_base_phrase (Token, optional): A head token.
-
     """
 
-    def __init__(self, sentence: 'Sentence', evid: int, sid: str, ssid: int, start: Optional[Tag] = None,
-                 head: Optional[Tag] = None, end: Optional[Tag] = None):
+    def __init__(
+            self,
+            sentence: 'Sentence',
+            evid: int,
+            sid: str,
+            ssid: int,
+            start: Optional[Tag] = None,
+            head: Optional[Tag] = None,
+            end: Optional[Tag] = None
+    ):
         self.sentence: Sentence = sentence
         self.evid: int = evid
         self.sid: str = sid
@@ -174,7 +181,9 @@ class Event(Component):
     @staticmethod
     def _mrphs_to_surf(mrphs: str) -> str:
         """Remove unnecessary spaces from a tokenized surface string."""
+        # Remove all spaces.
         surf = mrphs.replace(' ', '')
+        # Resurrect necessary spaces.
         surf = surf.replace(']', '] ').replace('|', ' | ').replace('▼', '▼ ').replace('■', '■ ').replace('(', ' (')
         return surf
 
@@ -183,7 +192,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._mrphs_to_surf(self.mrphs_(include_modifiers))
 
@@ -192,7 +200,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._mrphs_to_surf(self.mrphs_with_mark_(include_modifiers))
 
@@ -201,7 +208,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text(truncate=False, add_mark=False, include_modifiers=include_modifiers)
 
@@ -210,7 +216,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text(truncate=False, add_mark=True, include_modifiers=include_modifiers)
 
@@ -219,7 +224,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text(truncate=True, add_mark=False, include_modifiers=include_modifiers)
 
@@ -228,7 +232,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text(truncate=True, add_mark=True, include_modifiers=include_modifiers)
 
@@ -237,7 +240,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text(truncate=True, add_mark=False, exclude_exophora=True, include_modifiers=include_modifiers)
 
@@ -246,7 +248,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text(truncate=True, add_mark=True, exclude_exophora=True, include_modifiers=include_modifiers)
 
@@ -255,7 +256,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text('reps', truncate=False, add_mark=False, include_modifiers=include_modifiers)
 
@@ -264,7 +264,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text('reps', truncate=False, add_mark=True, include_modifiers=include_modifiers)
 
@@ -273,7 +272,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text('reps', truncate=True, add_mark=False, include_modifiers=include_modifiers)
 
@@ -282,7 +280,6 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         return self._to_text('reps', truncate=True, add_mark=True, include_modifiers=include_modifiers)
 
@@ -291,51 +288,66 @@ class Event(Component):
 
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         content_rep_list = []
-        for base_phrase in filter(lambda t: t.tag, self._collect_base_phrases(include_modifiers=include_modifiers)):
-            for mrph in base_phrase.tag.mrph_list():
+        for bp in self._collect_base_phrases(include_modifiers=include_modifiers):
+            if bp.tag is None:
+                continue
+            for mrph in bp.tag.mrph_list():
                 if '<内容語>' in mrph.fstring or '<準内容語>' in mrph.fstring:
                     content_rep_list.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
         return content_rep_list
 
-    def _to_text(self, mode: str = 'mrphs', truncate: bool = False, add_mark: bool = False,
-                 exclude_exophora: bool = False, include_modifiers: bool = False) -> str:
+    def _to_text(
+            self,
+            mode: str = 'mrphs',
+            truncate: bool = False,
+            add_mark: bool = False,
+            exclude_exophora: bool = False,
+            include_modifiers: bool = False
+    ) -> str:
         """Convert this event to a text.
 
         Args:
             mode: A type of token representation, which can take either "mrphs" or "reps".
             truncate: If true, adjunct words are truncated.
-            add_mark: If true, add special marks. Note that an exophora is enclosed by square brackets even when
-                this flag is false.
+            add_mark: If true, add special marks.
             exclude_exophora: If true, exophora will not be used.
             include_modifiers: If true, tokens of events that modify this event will be included.
-
         """
         assert mode in {'mrphs', 'reps'}
 
         # Create a list of base phrases to show.
-        base_phrases = self._collect_base_phrases(exclude_exophora, include_modifiers)
-        grouped_base_phrases = group_base_phrases(base_phrases)
+        bps = self._collect_base_phrases(exclude_exophora, include_modifiers)
+        grouped_bps = group_base_phrases(bps)
 
         # Create a list of morphemes.
-        mrphs_list = list(map(self._base_phrases_to_mrphs, grouped_base_phrases))
+        grouped_mrphs = list(map(self._base_phrases_to_mrphs, grouped_bps))
 
         # Prepare information to format a text.
-        truncated_position = self._find_truncated_position(grouped_base_phrases)
-        marker = self._get_marker(grouped_base_phrases, mrphs_list, add_mark, truncate, truncated_position,
-                                  include_modifiers)
+        truncated_position = self._find_truncated_position(grouped_bps)
+        marker = self._get_marker(
+            grouped_bps,
+            grouped_mrphs,
+            add_mark,
+            truncate,
+            truncated_position,
+            include_modifiers
+        )
 
         # Create a text.
         if truncate:
-            mrphs_list = mrphs_list[:truncated_position[0] + 1]  # Truncate unnecessary morpheme groups.
-            mrphs_list[-1] = mrphs_list[-1][:truncated_position[1] + 1]  # Truncate unnecessary morphemes.
-            return self._format_mrphs_list(mrphs_list, mode, normalize=True, marker=marker)
-        else:
-            return self._format_mrphs_list(mrphs_list, mode, normalize=False, marker=marker)
+            grouped_mrphs = grouped_mrphs[:truncated_position[0] + 1]  # Truncate unnecessary morpheme groups.
+            grouped_mrphs[-1] = grouped_mrphs[-1][:truncated_position[1] + 1]  # Truncate unnecessary morphemes.
+            return self._format_grouped_mrphs(grouped_mrphs, mode, normalize=True, marker=marker)
 
-    def _collect_base_phrases(self, exclude_exophora: bool = False, include_modifiers: bool = False) -> List[BasePhrase]:
+        return self._format_grouped_mrphs(grouped_mrphs, mode, normalize=False, marker=marker)
+
+    def _collect_base_phrases(
+            self,
+            exclude_exophora: bool = False,
+            include_modifiers: bool = False
+    ) -> List[BasePhrase]:
         """Collect base phrases belonging to this event.
 
         Args:
@@ -344,10 +356,9 @@ class Event(Component):
 
         Returns:
             A list of base phrases that belong to this event.
-
         """
         # Collect head base phrases.
-        head_base_phrases = [self.pas.predicate.head_base_phrase]
+        head_bps = [self.pas.predicate.head_base_phrase]
         for arguments in self.pas.arguments.values():
             for argument in arguments:
                 if argument.head_base_phrase.omitted_case:
@@ -355,7 +366,7 @@ class Event(Component):
                     if exclude_exophora and argument.head_base_phrase.exophora:
                         pass
                     else:
-                        head_base_phrases.append(argument.head_base_phrase)
+                        head_bps.append(argument.head_base_phrase)
                 elif argument.head_base_phrase.tag.tag_id < self.head.tag_id \
                         and (argument.head_base_phrase.is_event_head or argument.head_base_phrase.is_event_end):
                     # Arguments that play a role as an event head -> invalid
@@ -364,69 +375,64 @@ class Event(Component):
                     # Arguments that appear after the predicate -> invalid
                     pass
                 else:
-                    head_base_phrases.append(argument.head_base_phrase)
+                    head_bps.append(argument.head_base_phrase)
         if include_modifiers:
             for relation in filter_relations(self.incoming_relations, labels=['補文', '連体修飾']):
-                head_base_phrases.extend(relation.modifier._collect_base_phrases(exclude_exophora, include_modifiers))
-
+                head_bps.extend(relation.modifier._collect_base_phrases(exclude_exophora, include_modifiers))
         # Expand head base phrases and resolve duplication.
-        return sorted(list(set(
-            base_phrase for head_base_phrase in head_base_phrases for base_phrase in head_base_phrase.to_list()
-        )))
+        return sorted(list(set(bp for head_bp in head_bps for bp in head_bp.to_list())))
 
-    def _base_phrases_to_mrphs(self, base_phrases: List[BasePhrase]) -> List[Morpheme_]:
+    def _base_phrases_to_mrphs(self, bps: List[BasePhrase]) -> List[Morpheme_]:
         """Convert a list of base phrases to a list of morphemes.
 
         Args:
-            base_phrases: A list of base phrases.
+            bps: A list of base phrases.
 
         Returns:
             A list of morphemes, each of which can be either a :class:`pyknp.juman.morpheme.Morpheme` object or
             a string object. String objects are to represent an exophora or an omitted case.
-
         """
         mrphs = []
-        for base_phrase in base_phrases:
-            if base_phrase.omitted_case:
-                if base_phrase.exophora:
-                    mrphs.append(base_phrase.exophora)
+        for bp in bps:
+            if bp.omitted_case:
+                if bp.exophora:
+                    mrphs.append(bp.exophora)
                 else:
                     # Extract the content words not to print a case marker twice.
                     exists_content_word = False
-                    for mrph in base_phrase.tag.mrph_list():
+                    for mrph in bp.tag.mrph_list():
                         is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
                         if not is_content_word and exists_content_word:
                             break
                         exists_content_word = exists_content_word or is_content_word
                         mrphs.append(mrph)
-                mrphs.append(base_phrase.omitted_case)
+                mrphs.append(bp.omitted_case)
             else:
-                mrphs.extend(list(base_phrase.tag.mrph_list()))
+                mrphs.extend(list(bp.tag.mrph_list()))
         return mrphs
 
-    def _find_truncated_position(self, grouped_base_phrases: List[List[BasePhrase]]) -> Tuple[int, int]:
+    def _find_truncated_position(self, grouped_bps: List[List[BasePhrase]]) -> Tuple[int, int]:
         """Find a position just before adjunct words start.
 
         Args:
-            grouped_base_phrases: A list of base phrases grouped by bunsetsu IDs.
+            grouped_bps: A list of base phrases grouped by bunsetsu IDs.
 
         Returns:
             A position just before adjunct words start.
-
         """
         seen_head = False
-        for group_index, base_phrases in enumerate(grouped_base_phrases):
+        for group_index, bps in enumerate(grouped_bps):
             # Ignore base phrases of a omitted case because they never become a predicate.
-            if any(base_phrase.omitted_case for base_phrase in base_phrases):
+            if any(bp.omitted_case for bp in bps):
                 continue
 
             mrph_index_offset = 0
-            for base_phrase in base_phrases:
+            for bp in bps:
                 # Convert a base phrase into a morpheme list.
-                mrphs = base_phrase.tag.mrph_list()
+                mrphs = bp.tag.mrph_list()
 
                 # Skip base phrases until the current base phrase reaches to the predicate's head base phrase.
-                seen_head = seen_head or base_phrase == self.pas.predicate.head_base_phrase
+                seen_head = seen_head or bp == self.pas.predicate.head_base_phrase
                 if not seen_head:
                     mrph_index_offset += len(mrphs)
                     continue
@@ -454,35 +460,35 @@ class Event(Component):
 
                 mrph_index_offset += len(mrphs)
 
-        return (
-            len(grouped_base_phrases) - 1,
-            sum(len(base_phrase.tag.mrph_list()) for base_phrase in grouped_base_phrases[-1]) - 1
-        )
+        return len(grouped_bps) - 1, sum(len(bp.tag.mrph_list()) for bp in grouped_bps[-1]) - 1
 
     @staticmethod
-    def _get_marker(grouped_base_phrases: List[List[BasePhrase]], mrphs_list: List[List[Morpheme_]], add_mark: bool,
-                    normalize: bool, truncated_position: Tuple[int, int], include_modifiers: bool) \
-            -> Dict[Tuple[int, int, str], str]:
+    def _get_marker(
+            grouped_bps: List[List[BasePhrase]],
+            grouped_mrphs: List[List[Morpheme_]],
+            add_mark: bool,
+            normalize: bool,
+            truncated_position: Tuple[int, int],
+            include_modifiers: bool
+    ) -> Dict[Tuple[int, int, str], str]:
         """Get a mapping from a position to a mark.
 
         Args:
-            grouped_base_phrases: A list of base phrases grouped by bunsetsu IDs.
-            mrphs_list: A list of morphemes grouped by bunsetsu IDs.
-            add_mark: If true, add special marks. Note that an exophora is enclosed by square brackets even when
-                this flag is false.
+            grouped_bps: A list of base phrases grouped by bunsetsu IDs.
+            grouped_mrphs: A list of morphemes grouped by bunsetsu IDs.
+            add_mark: If true, add special marks.
             normalize: If true, the last content word will be normalized.
             truncated_position: A position just before adjunct words start.
             include_modifiers: If true, tokens of events that modify this event will be included.
 
         Returns:
             A mapping from positions to marks.
-
         """
         marker: Dict[Tuple[int, int, str], str] = {}  # (group_index, mrph_index, "start" or "end") -> mark
 
         last_tid = -1
-        for group_index, (base_phrases, mrphs) in enumerate(zip(grouped_base_phrases, mrphs_list)):
-            is_omitted = any(base_phrase.omitted_case for base_phrase in base_phrases)
+        for group_index, (bps, mrphs) in enumerate(zip(grouped_bps, grouped_mrphs)):
+            is_omitted = any(bp.omitted_case for bp in bps)
             if is_omitted:
                 marker[(group_index, 0, 'start')] = '['
                 marker[(group_index, len(mrphs) - 1, 'end')] = ']'
@@ -491,44 +497,46 @@ class Event(Component):
             if not add_mark:
                 continue
 
-            has_adnominal_event = any(base_phrase.adnominal_events for base_phrase in base_phrases)
+            has_adnominal_event = any(bp.adnominal_events for bp in bps)
             if has_adnominal_event and not include_modifiers:
                 marker[(group_index, 0, 'start')] = '▼'
 
-            has_sentential_complement = any(base_phrase.sentential_complement_events for base_phrase in base_phrases)
+            has_sentential_complement = any(bp.sentential_complement_events for bp in bps)
             if has_sentential_complement and not include_modifiers:
                 marker[(group_index, 0, 'start')] = '■'
 
             mrph_index = 0
-            for base_phrase in base_phrases:
-                if last_tid != -1 and last_tid + 1 != base_phrase.tid \
+            for bp in bps:
+                if last_tid != -1 and last_tid + 1 != bp.tid \
                         and (group_index, mrph_index, 'start') not in marker:
                     marker[group_index, mrph_index, 'start'] = '|'
-                last_tid = base_phrase.tid
-                mrph_index += len(base_phrase.tag.mrph_list())
+                last_tid = bp.tid
+                mrph_index += len(bp.tag.mrph_list())
 
-        last_position = (len(mrphs_list) - 1, len(mrphs_list[-1]) - 1)
+        last_position = (len(grouped_mrphs) - 1, len(grouped_mrphs[-1]) - 1)
         if add_mark and not normalize and truncated_position != last_position:
             marker[(truncated_position[0], truncated_position[1], 'end')] = '('
-            marker[(len(mrphs_list) - 1, len(mrphs_list[-1]) - 1, 'end')] = ')'
+            marker[(len(grouped_mrphs) - 1, len(grouped_mrphs[-1]) - 1, 'end')] = ')'
 
         return marker
 
     @staticmethod
-    def _format_mrphs_list(mrphs_list: List[List[Morpheme_]], mode: str, normalize: bool,
-                           marker: Dict[Tuple[int, int, str], str]) -> str:
+    def _format_grouped_mrphs(
+            grouped_mrphs: List[List[Morpheme_]],
+            mode: str, normalize: bool,
+            marker: Dict[Tuple[int, int, str], str]
+    ) -> str:
         """Format a list of morphemes grouped by bunsetsu IDs to create a text.
 
         Args:
-            mrphs_list: A list of morphemes grouped by bunsetsu IDs.
+            grouped_mrphs: A list of morphemes grouped by bunsetsu IDs.
             mode: A type of token representation, which can take either "mrphs" or "reps".
             normalize: If true, the last content word will be normalized.
             marker: A mapping from positions to marks.
-
         """
         assert mode in {'mrphs', 'reps'}
         ret = []
-        for group_index, mrphs in enumerate(mrphs_list):
+        for group_index, mrphs in enumerate(grouped_mrphs):
             for mrph_index, mrph in enumerate(mrphs):
                 # Add a mark if necessary.
                 if (group_index, mrph_index, 'start') in marker:
@@ -547,7 +555,7 @@ class Event(Component):
                     if mode == 'reps':
                         ret.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
                     else:
-                        last_position = (len(mrphs_list) - 1, len(mrphs) - 1)
+                        last_position = (len(grouped_mrphs) - 1, len(mrphs) - 1)
                         if normalize and (group_index, mrph_index) == last_position:
                             # Change the morpheme to its infinitive (i.e., genkei).
                             if mrph.hinsi == '助動詞' and mrph.genkei == 'ぬ':
@@ -566,27 +574,27 @@ class Event(Component):
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
-        return dict((
-            ('event_id', self.evid),
-            ('sid', self.sid),
-            ('ssid', self.ssid),
-            ('rel', [r.to_dict() for r in self.outgoing_relations]),
-            ('surf', self.surf),
-            ('surf_with_mark', self.surf_with_mark),
-            ('mrphs', self.mrphs),
-            ('mrphs_with_mark', self.mrphs_with_mark),
-            ('normalized_mrphs', self.normalized_mrphs),
-            ('normalized_mrphs_with_mark', self.normalized_mrphs_with_mark),
-            ('normalized_mrphs_without_exophora', self.normalized_mrphs_without_exophora),
-            ('normalized_mrphs_with_mark_without_exophora', self.normalized_mrphs_with_mark_without_exophora),
-            ('reps', self.reps),
-            ('reps_with_mark', self.reps_with_mark),
-            ('normalized_reps', self.normalized_reps),
-            ('normalized_reps_with_mark', self.normalized_reps_with_mark),
-            ('content_rep_list', self.content_rep_list),
-            ('pas', self.pas.to_dict()),
-            ('features', self.features.to_dict())
-        ))
+        return dict(
+            event_id=self.evid,
+            sid=self.sid,
+            ssid=self.ssid,
+            rel=[r.to_dict() for r in self.outgoing_relations],
+            surf=self.surf,
+            surf_with_mark=self.surf_with_mark,
+            mrphs=self.mrphs,
+            mrphs_with_mark=self.mrphs_with_mark,
+            normalized_mrphs=self.normalized_mrphs,
+            normalized_mrphs_with_mark=self.normalized_mrphs_with_mark,
+            normalized_mrphs_without_exophora=self.normalized_mrphs_without_exophora,
+            normalized_mrphs_with_mark_without_exophora=self.normalized_mrphs_with_mark_without_exophora,
+            reps=self.reps,
+            reps_with_mark=self.reps_with_mark,
+            normalized_reps=self.normalized_reps,
+            normalized_reps_with_mark=self.normalized_reps_with_mark,
+            content_rep_list=self.content_rep_list,
+            pas=self.pas.to_dict(),
+            features=self.features.to_dict()
+        )
 
     def to_string(self) -> str:
         """Convert this object into a string."""
@@ -602,11 +610,9 @@ class EventBuilder(Builder):
         FeaturesBuilder()(event)
         sentence.events.append(event)
         Builder.evid += 1
-
         # Make this sentence and its components accessible from builders.
         for tid in range(start.tag_id, end.tag_id + 1):
             Builder.stid_event_map[(sentence.ssid, tid)] = event
-
         logger.debug('Successfully created a event.')
         return event
 
@@ -633,9 +639,7 @@ class JsonEventBuilder(Builder):
         JsonFeaturesBuilder()(event, dump['features'])
         sentence.events.append(event)
         Builder.evid += 1
-
         # Make this sentence and its components accessible from builders.
         Builder.evid_event_map[event.evid] = event
-
         logger.debug('Successfully created a event.')
         return event

@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 class Builder:
     """The base of builders."""
-
     ssid: int = 0
     evid: int = 0
 
