@@ -21,7 +21,7 @@ class Predicate(Component):
         pas (PAS): A PAS that this predicate belongs.
         head (:class:`pyknp.knp.tag.Tag`): A head tag.
         type_ (str): A type of this predicate.
-        head_base_phrase (Token, optional): A head token.
+        head_base_phrase (Token, optional): A head basic phrase.
     """
 
     def __init__(self, pas: 'PAS', type_: str, head: Optional[Tag] = None):
@@ -43,7 +43,7 @@ class Predicate(Component):
 
     @property
     def tag(self) -> Optional[Tag]:
-        """The tag of the head token."""
+        """The tag of the head base phrase."""
         return self.head_base_phrase.tag
 
     @property
