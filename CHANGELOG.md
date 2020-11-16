@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.1.3]
+
+### Changed
+- Renamed Token to BasePhrase.
+
+### Fixed
+- Fixed the logic to merge modifier events.
+
 ## [6.1.2]
 
 ### Fixed
