@@ -2,7 +2,7 @@ from typing import List
 
 from pyknp import Tag
 
-PAS_ORDER = {'ガ２': 0, 'ガ': 1, 'ヲ': 2, 'ニ': 3}
+PAS_ORDER = {"ガ２": 0, "ガ": 1, "ヲ": 2, "ニ": 3}
 
 
 def get_parallel_tags(tag: Tag) -> List[Tag]:
@@ -15,7 +15,7 @@ def get_parallel_tags(tag: Tag) -> List[Tag]:
         A list of parallel tags.
     """
     parallels = []
-    while tag.dpndtype == 'P':
+    while tag.dpndtype == "P":
         parallels.append(tag.parent)
         tag = tag.parent
     return parallels
@@ -35,6 +35,6 @@ def convert_katakana_to_hiragana(in_str: str) -> str:
 
 def convert_mrphs_to_surf(mrphs: str) -> str:
     """Remove unnecessary spaces from a tokenized surface string."""
-    surf = mrphs.replace(' ', '')
-    surf = surf.replace(']', '] ').replace('|', ' | ').replace('▼', '▼ ').replace('■', '■ ').replace('(', ' (')
+    surf = mrphs.replace(" ", "")
+    surf = surf.replace("]", "] ").replace("|", " | ").replace("▼", "▼ ").replace("■", "■ ").replace("(", " (")
     return surf.strip()

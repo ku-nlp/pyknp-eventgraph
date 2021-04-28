@@ -27,7 +27,7 @@ class PAS(Component):
         arguments (Dict[str, List[Argument]]): A mapping of a case to arguments.
     """
 
-    def __init__(self, event: 'Event', pas: Optional[PyknpPAS] = None):
+    def __init__(self, event: "Event", pas: Optional[PyknpPAS] = None):
         self.event: Event = event
         self.sid: str = event.sid
         self.ssid: int = event.ssid
@@ -43,7 +43,7 @@ class PAS(Component):
                 case: [argument.to_dict() for argument in argument_list if argument.to_dict()]
                 for case, argument_list in self.arguments.items()
                 if any(argument.to_dict() for argument in argument_list)
-            }
+            },
         )
 
     def to_string(self) -> str:
@@ -53,13 +53,12 @@ class PAS(Component):
         for case, argument_list in self.arguments.items():
             for argument in argument_list:
                 if argument.head_reps:
-                    arguments.append(f'{case}: {argument.head_reps}')
+                    arguments.append(f"{case}: {argument.head_reps}")
         return f'<PAS, predicate: {predicate}, arguments: {"{" + ", ".join(arguments) + "}" if arguments else "None"}>'
 
 
 class PASBuilder(Builder):
-
-    def __call__(self, event: 'Event') -> PAS:
+    def __call__(self, event: "Event") -> PAS:
         pas = PAS(event, event.head.pas)
         PredicateBuilder()(pas)
         ArgumentsBuilder()(pas)
@@ -68,10 +67,9 @@ class PASBuilder(Builder):
 
 
 class JsonPASBuilder(Builder):
-
-    def __call__(self, event: 'Event', dump: dict) -> PAS:
+    def __call__(self, event: "Event", dump: dict) -> PAS:
         pas = PAS(event)
-        JsonPredicateBuilder()(pas, dump['predicate'])
-        JsonArgumentsBuilder()(pas, dump['argument'])
+        JsonPredicateBuilder()(pas, dump["predicate"])
+        JsonArgumentsBuilder()(pas, dump["argument"])
         event.pas = pas
         return pas

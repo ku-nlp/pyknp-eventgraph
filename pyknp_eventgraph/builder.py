@@ -9,11 +9,12 @@ if TYPE_CHECKING:
 
 class Builder:
     """The base of builders."""
+
     ssid: int = 0
     evid: int = 0
 
-    evid_event_map: ClassVar[Dict[int, 'Event']] = {}
-    stid_event_map: ClassVar[Dict[Tuple[int, int], 'Event']] = {}
+    evid_event_map: ClassVar[Dict[int, "Event"]] = {}
+    stid_event_map: ClassVar[Dict[Tuple[int, int], "Event"]] = {}
     stid_bid_map: ClassVar[Dict[Tuple[int, int], int]] = {}
     stid_tag_map: ClassVar[Dict[Tuple[int, int], Tag]] = {}
 

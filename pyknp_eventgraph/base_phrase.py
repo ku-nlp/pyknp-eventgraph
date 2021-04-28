@@ -32,15 +32,15 @@ class BasePhrase(Component):
     """
 
     def __init__(
-            self,
-            event: 'Event',
-            tag: Optional[Tag],
-            ssid: int,
-            bid: int,
-            tid: int,
-            is_child: bool = False,
-            exophora: str = '',
-            omitted_case: str = ''
+        self,
+        event: "Event",
+        tag: Optional[Tag],
+        ssid: int,
+        bid: int,
+        tid: int,
+        is_child: bool = False,
+        exophora: str = "",
+        omitted_case: str = "",
     ):
         self.event = event
         self.tag: Optional[Tag] = tag
@@ -50,19 +50,19 @@ class BasePhrase(Component):
         self.is_child = is_child
         self.exophora = exophora
         self.omitted_case = omitted_case
-        self.parent: Optional['BasePhrase'] = None
-        self.children: List['BasePhrase'] = []
+        self.parent: Optional["BasePhrase"] = None
+        self.children: List["BasePhrase"] = []
 
         self._surf = None
 
     def __hash__(self):
         return hash(self.key)
 
-    def __eq__(self, other: 'BasePhrase'):
+    def __eq__(self, other: "BasePhrase"):
         assert isinstance(other, BasePhrase)
         return self.key == other.key
 
-    def __lt__(self, other: 'BasePhrase'):
+    def __lt__(self, other: "BasePhrase"):
         assert isinstance(other, BasePhrase)
         return self.key < other.key
 
@@ -75,7 +75,7 @@ class BasePhrase(Component):
             else:
                 exists_content_word = False
                 for mrph in self.tag.mrph_list():
-                    is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
+                    is_content_word = mrph.hinsi not in {"助詞", "特殊", "判定詞"}
                     if not is_content_word and exists_content_word:
                         break
                     exists_content_word = exists_content_word or is_content_word
@@ -92,11 +92,11 @@ class BasePhrase(Component):
             morphemes = self.morphemes
             if self.omitted_case:
                 bases, case = morphemes[:-1], morphemes[-1]
-                base = ''.join(base if isinstance(base, str) else base.midasi for base in bases)
+                base = "".join(base if isinstance(base, str) else base.midasi for base in bases)
                 case = convert_katakana_to_hiragana(case)
-                self._surf = f'[{base}{case}]'
+                self._surf = f"[{base}{case}]"
             else:
-                self._surf = ''.join(mrph.midasi for mrph in morphemes)
+                self._surf = "".join(mrph.midasi for mrph in morphemes)
         return self._surf
 
     @property
@@ -107,42 +107,42 @@ class BasePhrase(Component):
     @property
     def is_event_head(self) -> bool:
         """True if this base phrase is the head of an event."""
-        return bool(self.tag and any('節-主辞' in tag.features for tag in [self.tag] + get_parallel_tags(self.tag)))
+        return bool(self.tag and any("節-主辞" in tag.features for tag in [self.tag] + get_parallel_tags(self.tag)))
 
     @property
     def is_event_end(self) -> bool:
         """True if this base phrase is the end of an event."""
-        return bool(self.tag and any('節-区切' in tag.features for tag in [self.tag] + get_parallel_tags(self.tag)))
+        return bool(self.tag and any("節-区切" in tag.features for tag in [self.tag] + get_parallel_tags(self.tag)))
 
     @property
-    def adnominal_events(self) -> List['Event']:
+    def adnominal_events(self) -> List["Event"]:
         """A list of events modifying this predicate (adnominal)."""
         if self.omitted_case:
             return []
         else:
-            return [r.modifier for r in filter_relations(self.event.incoming_relations, ['連体修飾'], [self.tid])]
+            return [r.modifier for r in filter_relations(self.event.incoming_relations, ["連体修飾"], [self.tid])]
 
     @property
-    def sentential_complement_events(self) -> List['Event']:
+    def sentential_complement_events(self) -> List["Event"]:
         """A list of events modifying this predicate (sentential complement)."""
         if self.omitted_case:
             return []
         else:
-            return [r.modifier for r in filter_relations(self.event.incoming_relations, ['補文'], [self.tid])]
+            return [r.modifier for r in filter_relations(self.event.incoming_relations, ["補文"], [self.tid])]
 
     @property
-    def root(self) -> 'BasePhrase':
+    def root(self) -> "BasePhrase":
         """Return the root of this base phrase."""
         root_bp = self
         while root_bp.parent:
             root_bp = root_bp.parent
         return root_bp
 
-    def to_list(self) -> List['BasePhrase']:
+    def to_list(self) -> List["BasePhrase"]:
         """Expand to a list."""
         return sorted(self.root.modifiers(include_self=True))
 
-    def modifiees(self, include_self: bool = False) -> List['BasePhrase']:
+    def modifiees(self, include_self: bool = False) -> List["BasePhrase"]:
         """Return a list of base phrases modified by this base phrase.
 
         Args:
@@ -158,7 +158,7 @@ class BasePhrase(Component):
         add_modifiee(self)
         return modifiee_bps
 
-    def modifiers(self, include_self: bool = False) -> List['BasePhrase']:
+    def modifiers(self, include_self: bool = False) -> List["BasePhrase"]:
         """Return a list of base phrases modifying this base phrase.
 
         Args:
@@ -180,7 +180,7 @@ class BasePhrase(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'<BasePhrase, ssid: {self.ssid}, bid: {self.bid}, tid: {self.tid}, surf: {self.surf}>'
+        return f"<BasePhrase, ssid: {self.ssid}, bid: {self.bid}, tid: {self.tid}, surf: {self.surf}>"
 
 
 def group_base_phrases(bps: List[BasePhrase]) -> List[List[BasePhrase]]:
@@ -199,8 +199,7 @@ def group_base_phrases(bps: List[BasePhrase]) -> List[List[BasePhrase]]:
 
 
 class BasePhraseBuilder(Builder):
-
-    def __call__(self, event: 'Event'):
+    def __call__(self, event: "Event"):
         # Greedily dispatch base phrases to arguments.
         argument_head_bps: List[BasePhrase] = []
         for args in event.pas.arguments.values():
@@ -216,16 +215,16 @@ class BasePhraseBuilder(Builder):
         # Dispatch base phrases to a predicate.
         self.dispatch_head_base_phrase_to_predicate(event.pas.predicate, sentinels=argument_head_bps)
 
-    def dispatch_head_base_phrase_to_argument(self, argument: 'Argument') -> BasePhrase:
+    def dispatch_head_base_phrase_to_argument(self, argument: "Argument") -> BasePhrase:
         event = argument.pas.event
         ssid = argument.pas.ssid - argument.arg.sdist
         tid = argument.arg.tid
         bid = Builder.stid_bid_map.get((ssid, tid), -1)
         tag = Builder.stid_tag_map.get((ssid, tid), None)
 
-        if argument.arg.flag == 'E':  # exophora
+        if argument.arg.flag == "E":  # exophora
             head_bp = BasePhrase(event, None, ssid, bid, tid, exophora=argument.arg.midasi, omitted_case=argument.case)
-        elif argument.arg.flag == 'O':  # zero anaphora
+        elif argument.arg.flag == "O":  # zero anaphora
             head_bp = BasePhrase(event, tag, ssid, bid, tid, omitted_case=argument.case)
         else:
             head_bp = BasePhrase(event, tag, ssid, bid, tid)
@@ -235,7 +234,7 @@ class BasePhraseBuilder(Builder):
         argument.head_base_phrase = head_bp
         return head_bp
 
-    def dispatch_head_base_phrase_to_predicate(self, predicate: 'Predicate', sentinels: List[BasePhrase]) -> BasePhrase:
+    def dispatch_head_base_phrase_to_predicate(self, predicate: "Predicate", sentinels: List[BasePhrase]) -> BasePhrase:
         event = predicate.pas.event
         ssid = predicate.pas.event.ssid
         tid = predicate.head.tag_id
@@ -258,7 +257,7 @@ class BasePhraseBuilder(Builder):
 
     def add_compound_phrase_component(self, bp: BasePhrase, ssid: int) -> NoReturn:
         next_tag = Builder.stid_tag_map.get((ssid, bp.tag.tag_id + 1), None)
-        if next_tag and '複合辞' in next_tag.features and '補文ト' not in next_tag.features:
+        if next_tag and "複合辞" in next_tag.features and "補文ト" not in next_tag.features:
             next_tid = bp.tag.tag_id + 1
             next_bid = Builder.stid_bid_map.get((ssid, next_tid), -1)
             parent_bp = BasePhrase(bp.event, next_tag, ssid, next_bid, next_tid)
@@ -270,7 +269,7 @@ class BasePhraseBuilder(Builder):
     def add_children(self, parent_bp: BasePhrase, ssid: int, sentinels: List[BasePhrase] = None) -> NoReturn:
         sentinel_tags = {sentinel.tag for sentinel in sentinels} if sentinels else {}
         for child_tag in parent_bp.tag.children:  # type: Tag
-            if child_tag in sentinel_tags or '節-主辞' in child_tag.features or '節-区切' in child_tag.features:
+            if child_tag in sentinel_tags or "節-主辞" in child_tag.features or "節-区切" in child_tag.features:
                 continue
             tid = child_tag.tag_id
             bid = Builder.stid_bid_map.get((ssid, tid), -1)

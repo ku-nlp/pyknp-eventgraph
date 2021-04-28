@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 - Reduce debug printing.
 - Fix a bug in the process to add special marks to events' text.
 - Use poetry for package management.
+- Apply black, a code formatter.
 
 ## [6.1.3]
 
