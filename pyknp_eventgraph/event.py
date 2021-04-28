@@ -467,36 +467,32 @@ class Event(Component):
                 additional_texts[start_pos] = '['
                 additional_texts[end_pos] = ']'
                 continue
-            if not add_mark and not include_modifiers:
-                continue
 
-            adnominal_events = sorted(
-                [event for bp in bps for event in bp.adnominal_events],
-                key=lambda e: e.evid
-            )
-            if adnominal_events:
-                if include_modifiers:
-                    additional_texts[start_pos] = ' '.join(event_str(event) for event in adnominal_events)
-                else:
-                    additional_texts[start_pos] = '▼'
+            if add_mark or include_modifiers:
+                adnominal_events = sorted([e for bp in bps for e in bp.adnominal_events], key=lambda e: e.evid)
+                if adnominal_events:
+                    if include_modifiers:
+                        additional_texts[start_pos] = ' '.join(event_str(e) for e in adnominal_events)
+                    else:
+                        additional_texts[start_pos] = '▼'
+                sentential_complement_events = sorted(
+                    [e for bp in bps for e in bp.sentential_complement_events],
+                    key=lambda e: e.evid
+                )
+                if sentential_complement_events:
+                    if include_modifiers:
+                        additional_texts[start_pos] = ' '.join(event_str(e) for e in sentential_complement_events)
+                    else:
+                        additional_texts[start_pos] = '■'
 
-            sentential_complement_events = sorted(
-                [event for bp in bps for event in bp.sentential_complement_events],
-                key=lambda e: e.evid
-            )
-            if sentential_complement_events:
-                if include_modifiers:
-                    additional_texts[start_pos] = ' '.join(event_str(event) for event in sentential_complement_events)
-                else:
-                    additional_texts[start_pos] = '■'
-
-            mrph_index = 0
-            for bp in bps:
-                pos = (group_index, mrph_index, 'start')
-                if last_tid != -1 and last_tid + 1 != bp.tid and pos not in additional_texts:
-                    additional_texts[group_index, mrph_index, 'start'] = '|'
-                last_tid = bp.tid
-                mrph_index += len(bp.tag.mrph_list())
+            if add_mark:
+                mrph_index = 0
+                for bp in bps:
+                    pos = (group_index, mrph_index, 'start')
+                    if last_tid != -1 and last_tid + 1 != bp.tid and pos not in additional_texts:
+                        additional_texts[pos] = '|'
+                    last_tid = bp.tid
+                    mrph_index += len(bp.tag.mrph_list())
 
         last_pos = (len(grouped_mrphs) - 1, len(grouped_mrphs[-1]) - 1)
         if add_mark and not normalize and truncated_pos != last_pos:
