@@ -27,11 +27,11 @@ class Argument(Component):
         flag (str): A flag.
         sdist (int): The sentence distance between this argument and the predicate.
         arg (:class:`pyknp.knp.pas.Argument`, optional): An Argument object in pyknp.
-        head_base_phrase (Token, optional): A head basic phrase.
+        head_base_phrase (BasePhrase, optional): A head basic phrase.
     """
 
-    def __init__(self, pas: 'PAS', case: str, eid: int, flag: str, sdist: int, arg: Optional[PyknpArgument] = None):
-        self.pas: 'PAS' = pas
+    def __init__(self, pas: "PAS", case: str, eid: int, flag: str, sdist: int, arg: Optional[PyknpArgument] = None):
+        self.pas: "PAS" = pas
         self.case: str = case
         self.eid: int = eid
         self.flag: str = flag
@@ -81,9 +81,7 @@ class Argument(Component):
         """A tokenized/normalized surface string."""
         if self._normalized_mrphs is None:
             self._normalized_mrphs = self._base_phrase_to_text(
-                self.head_base_phrase,
-                truncate=True,
-                include_modifiees=True
+                self.head_base_phrase, truncate=True, include_modifiees=True
             )
         return self._normalized_mrphs
 
@@ -92,10 +90,7 @@ class Argument(Component):
         """A representative string."""
         if self._reps is None:
             self._reps = self._base_phrase_to_text(
-                self.head_base_phrase,
-                mode='reps',
-                truncate=False,
-                include_modifiees=True
+                self.head_base_phrase, mode="reps", truncate=False, include_modifiees=True
             )
         return self._reps
 
@@ -104,10 +99,7 @@ class Argument(Component):
         """A normalized representative string."""
         if self._normalized_reps is None:
             self._normalized_reps = self._base_phrase_to_text(
-                self.head_base_phrase,
-                mode='reps',
-                truncate=True,
-                include_modifiees=True
+                self.head_base_phrase, mode="reps", truncate=True, include_modifiees=True
             )
         return self._normalized_reps
 
@@ -118,7 +110,7 @@ class Argument(Component):
             if self.head_base_phrase.tag:  # Not an exophora.
                 head_reps = self.head_base_phrase.tag.head_prime_repname or self.head_base_phrase.tag.head_repname
                 if head_reps:
-                    self._head_reps = f'[{head_reps}]' if self.head_base_phrase.omitted_case else head_reps
+                    self._head_reps = f"[{head_reps}]" if self.head_base_phrase.omitted_case else head_reps
             self._head_reps = self._head_reps or self.normalized_reps
         return self._head_reps
 
@@ -127,8 +119,7 @@ class Argument(Component):
         """A list of IDs of events modifying this predicate (adnominal)."""
         if self._adnominal_event_ids is None:
             self._adnominal_event_ids = sorted(
-                event.evid for t in self.head_base_phrase.modifiees(include_self=True)
-                for event in t.adnominal_events
+                event.evid for t in self.head_base_phrase.modifiees(include_self=True) for event in t.adnominal_events
             )
         return self._adnominal_event_ids
 
@@ -137,7 +128,8 @@ class Argument(Component):
         """A list of IDs of events modifying this predicate (sentential complement)."""
         if self._sentential_complement_event_ids is None:
             self._sentential_complement_event_ids = sorted(
-                event.evid for t in self.head_base_phrase.modifiees(include_self=True)
+                event.evid
+                for t in self.head_base_phrase.modifiees(include_self=True)
                 for event in t.sentential_complement_events
             )
         return self._sentential_complement_event_ids
@@ -148,28 +140,26 @@ class Argument(Component):
         if self._children is None:
             self._children = []
             for bp in reversed(self.head_base_phrase.modifiers()):
-                self._children.append({
-                    'surf': convert_mrphs_to_surf(self._base_phrase_to_text(bp, mode='mrphs', truncate=False)),
-                    'normalized_surf': convert_mrphs_to_surf(
-                        self._base_phrase_to_text(bp, mode='mrphs', truncate=True)
-                    ),
-                    'mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=False),
-                    'normalized_mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=True),
-                    'reps': self._base_phrase_to_text(bp, mode='reps', truncate=False),
-                    'normalized_reps': self._base_phrase_to_text(bp, mode='reps', truncate=True),
-                    'adnominal_event_ids': [e.evid for e in bp.adnominal_events],
-                    'sentential_complement_event_ids': [e.evid for e in bp.sentential_complement_events],
-                    'modifier': '修飾' in bp.tag.features,
-                    'possessive': bp.tag.features.get('係', '') == 'ノ格',
-                })
+                self._children.append(
+                    {
+                        "surf": convert_mrphs_to_surf(self._base_phrase_to_text(bp, mode="mrphs", truncate=False)),
+                        "normalized_surf": convert_mrphs_to_surf(
+                            self._base_phrase_to_text(bp, mode="mrphs", truncate=True)
+                        ),
+                        "mrphs": self._base_phrase_to_text(bp, mode="mrphs", truncate=False),
+                        "normalized_mrphs": self._base_phrase_to_text(bp, mode="mrphs", truncate=True),
+                        "reps": self._base_phrase_to_text(bp, mode="reps", truncate=False),
+                        "normalized_reps": self._base_phrase_to_text(bp, mode="reps", truncate=True),
+                        "adnominal_event_ids": [e.evid for e in bp.adnominal_events],
+                        "sentential_complement_event_ids": [e.evid for e in bp.sentential_complement_events],
+                        "modifier": "修飾" in bp.tag.features,
+                        "possessive": bp.tag.features.get("係", "") == "ノ格",
+                    }
+                )
         return self._children
 
     def _base_phrase_to_text(
-            self,
-            bp: BasePhrase,
-            mode: str = 'mrphs',
-            truncate: bool = False,
-            include_modifiees: bool = False
+        self, bp: BasePhrase, mode: str = "mrphs", truncate: bool = False, include_modifiees: bool = False
     ) -> str:
         """Convert a base phrase to a text.
 
@@ -179,7 +169,7 @@ class Argument(Component):
             truncate: If true, adjunct words are truncated.
             include_modifiees: If true, parents are used to construct a compound phrase.
         """
-        assert mode in {'mrphs', 'reps'}
+        assert mode in {"mrphs", "reps"}
         if bp.omitted_case:
             if bp.exophora:
                 base = bp.exophora
@@ -187,13 +177,13 @@ class Argument(Component):
                 mrphs = self._truncate_mrphs(list(bp.tag.mrph_list()))
                 base = self._format_mrphs(mrphs, mode, normalize=True)
             case = convert_katakana_to_hiragana(self.case)
-            case = case if mode == 'mrphs' else f'{case}/{case}'
-            return f'[{base}]' if truncate else f'[{base} {case}]'
+            case = case if mode == "mrphs" else f"{case}/{case}"
+            return f"[{base}]" if truncate else f"[{base} {case}]"
         else:
             mrphs = list(bp.tag.mrph_list())
             if include_modifiees:
                 for parent_base_phrase in bp.modifiees():
-                    mrphs += (parent_base_phrase.tag.mrph_list())
+                    mrphs += parent_base_phrase.tag.mrph_list()
             if truncate:
                 mrphs = self._truncate_mrphs(mrphs)
                 return self._format_mrphs(mrphs, mode, normalize=True)
@@ -210,7 +200,7 @@ class Argument(Component):
         content_mrphs = []
         seen_content_word = False
         for mrph in mrphs:
-            is_content_word = mrph.hinsi not in {'助詞', '特殊', '判定詞'}
+            is_content_word = mrph.hinsi not in {"助詞", "特殊", "判定詞"}
             if not is_content_word and seen_content_word:
                 break
             seen_content_word = seen_content_word or is_content_word
@@ -226,16 +216,16 @@ class Argument(Component):
             mode: A type of token representation, which can take either "mrphs" or "reps".
             normalize: If true, the last content word will be normalized.
         """
-        assert mode in {'mrphs', 'reps'}
-        if mode == 'reps':
-            return ' '.join(mrph.repname or f'{mrph.midasi}/{mrph.midasi}' for mrph in mrphs)
+        assert mode in {"mrphs", "reps"}
+        if mode == "reps":
+            return " ".join(mrph.repname or f"{mrph.midasi}/{mrph.midasi}" for mrph in mrphs)
         else:
             if normalize:
                 # Change the last morpheme to its infinitive (i.e., genkei).
                 # Strip the return string for the case that len(mrphs) == 1.
-                return (' '.join(mrph.midasi for mrph in mrphs[:-1]) + ' ' + mrphs[-1].genkei).strip()
+                return (" ".join(mrph.midasi for mrph in mrphs[:-1]) + " " + mrphs[-1].genkei).strip()
             else:
-                return ' '.join(mrph.midasi for mrph in mrphs)
+                return " ".join(mrph.midasi for mrph in mrphs)
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
@@ -252,47 +242,40 @@ class Argument(Component):
             sdist=self.sdist,
             adnominal_event_ids=self.adnominal_event_ids,
             sentential_complement_event_ids=self.sentential_complement_event_ids,
-            children=self.children
+            children=self.children,
         )
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'<Argument, case: {self.case}, surf: {self.surf}>'
+        return f"<Argument, case: {self.case}, surf: {self.surf}>"
 
 
 class ArgumentBuilder(Builder):
-
-    def __call__(self, pas: 'PAS', case: str, arg: PyknpArgument) -> Argument:
-        logger.debug('Create an argument')
+    def __call__(self, pas: "PAS", case: str, arg: PyknpArgument) -> Argument:
         argument = Argument(pas, case, arg.eid, arg.flag, arg.sdist, arg)
         pas.arguments[case].append(argument)
-        logger.debug('Successfully created an argument.')
         return argument
 
 
 class JsonArgumentBuilder(Builder):
-
-    def __call__(self, pas: 'PAS', case: str, dump: dict) -> Argument:
-        logger.debug('Create an argument')
-        argument = Argument(pas, case, dump['eid'], dump['flag'], dump['sdist'])
-        argument._surf = dump['surf']
-        argument._normalized_surf = dump['normalized_surf']
-        argument._mrphs = dump['mrphs']
-        argument._normalized_mrphs = dump['normalized_mrphs']
-        argument._reps = dump['reps']
-        argument._normalized_reps = dump['normalized_reps']
-        argument._head_reps = dump['head_reps']
-        argument._children = dump['children']
-        argument._adnominal_event_ids = dump['adnominal_event_ids']
-        argument._sentential_complement_event_ids = dump['sentential_complement_event_ids']
+    def __call__(self, pas: "PAS", case: str, dump: dict) -> Argument:
+        argument = Argument(pas, case, dump["eid"], dump["flag"], dump["sdist"])
+        argument._surf = dump["surf"]
+        argument._normalized_surf = dump["normalized_surf"]
+        argument._mrphs = dump["mrphs"]
+        argument._normalized_mrphs = dump["normalized_mrphs"]
+        argument._reps = dump["reps"]
+        argument._normalized_reps = dump["normalized_reps"]
+        argument._head_reps = dump["head_reps"]
+        argument._children = dump["children"]
+        argument._adnominal_event_ids = dump["adnominal_event_ids"]
+        argument._sentential_complement_event_ids = dump["sentential_complement_event_ids"]
         pas.arguments[case].append(argument)
-        logger.debug('Successfully created an argument.')
         return argument
 
 
 class ArgumentsBuilder(Builder):
-
-    def __call__(self, pas: 'PAS') -> Dict[str, List[Argument]]:
+    def __call__(self, pas: "PAS") -> Dict[str, List[Argument]]:
         arguments: Dict[str, List[Argument]] = collections.defaultdict(list)
         if pas.pas:
             for case, args in sorted(pas.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
@@ -302,8 +285,7 @@ class ArgumentsBuilder(Builder):
 
 
 class JsonArgumentsBuilder(Builder):
-
-    def __call__(self, pas: 'PAS', dump: dict) -> Dict[str, List[Argument]]:
+    def __call__(self, pas: "PAS", dump: dict) -> Dict[str, List[Argument]]:
         arguments: Dict[str, List[Argument]] = collections.defaultdict(list)
         for case, arguments_dump in dump.items():
             for argument_dump in arguments_dump:

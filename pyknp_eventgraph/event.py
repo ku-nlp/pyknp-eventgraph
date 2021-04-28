@@ -41,18 +41,18 @@ class Event(Component):
         features (Features, optional): Linguistic features.
         parent (Event, optional): A parent event.
         children (List[Event]): A list of child events.
-        head_base_phrase (Token, optional): A head basic phrase.
+        head_base_phrase (BasePhrase, optional): A head basic phrase.
     """
 
     def __init__(
-            self,
-            sentence: 'Sentence',
-            evid: int,
-            sid: str,
-            ssid: int,
-            start: Optional[Tag] = None,
-            head: Optional[Tag] = None,
-            end: Optional[Tag] = None
+        self,
+        sentence: "Sentence",
+        evid: int,
+        sid: str,
+        ssid: int,
+        start: Optional[Tag] = None,
+        head: Optional[Tag] = None,
+        end: Optional[Tag] = None,
     ):
         self.sentence: Sentence = sentence
         self.evid: int = evid
@@ -249,7 +249,7 @@ class Event(Component):
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
         """
-        return self._to_text('reps', truncate=False, add_mark=False, include_modifiers=include_modifiers)
+        return self._to_text("reps", truncate=False, add_mark=False, include_modifiers=include_modifiers)
 
     def reps_with_mark_(self, include_modifiers: bool = False) -> str:
         """A representative string with marks.
@@ -257,7 +257,7 @@ class Event(Component):
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
         """
-        return self._to_text('reps', truncate=False, add_mark=True, include_modifiers=include_modifiers)
+        return self._to_text("reps", truncate=False, add_mark=True, include_modifiers=include_modifiers)
 
     def normalized_reps_(self, include_modifiers: bool = False) -> str:
         """A normalized representative string.
@@ -265,7 +265,7 @@ class Event(Component):
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
         """
-        return self._to_text('reps', truncate=True, add_mark=False, include_modifiers=include_modifiers)
+        return self._to_text("reps", truncate=True, add_mark=False, include_modifiers=include_modifiers)
 
     def normalized_reps_with_mark_(self, include_modifiers: bool = False) -> str:
         """A normalized representative string with marks.
@@ -273,7 +273,7 @@ class Event(Component):
         Args:
             include_modifiers: If true, tokens of events that modify this event will be included.
         """
-        return self._to_text('reps', truncate=True, add_mark=True, include_modifiers=include_modifiers)
+        return self._to_text("reps", truncate=True, add_mark=True, include_modifiers=include_modifiers)
 
     def content_rep_list_(self) -> List[str]:
         """A list of content words."""
@@ -282,18 +282,18 @@ class Event(Component):
             if bp.tag is None:
                 continue
             for mrph in bp.tag.mrph_list():
-                if '<内容語>' in mrph.fstring or '<準内容語>' in mrph.fstring:
-                    content_rep_list.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
+                if "<内容語>" in mrph.fstring or "<準内容語>" in mrph.fstring:
+                    content_rep_list.append(mrph.repname or f"{mrph.midasi}/{mrph.midasi}")
         return content_rep_list
 
     def _to_text(
-            self,
-            mode: str = 'mrphs',
-            truncate: bool = False,
-            add_mark: bool = False,
-            exclude_exophora: bool = False,
-            include_modifiers: bool = False,
-            exclude_adnominal: bool = False,
+        self,
+        mode: str = "mrphs",
+        truncate: bool = False,
+        add_mark: bool = False,
+        exclude_exophora: bool = False,
+        include_modifiers: bool = False,
+        exclude_adnominal: bool = False,
     ) -> str:
         """Convert this event to a text.
 
@@ -305,13 +305,12 @@ class Event(Component):
             include_modifiers: If true, tokens of events that modify this event will be included.
             exclude_adnominal: If true, base phrases modified by this event will be excluded.
         """
-        assert mode in {'mrphs', 'reps'}
+        assert mode in {"mrphs", "reps"}
 
         # Create a list of base phrases to show.
-        grouped_bps = group_base_phrases(self._collect_base_phrases(
-            exclude_exophora=exclude_exophora,
-            exclude_adnominal=exclude_adnominal
-        ))
+        grouped_bps = group_base_phrases(
+            self._collect_base_phrases(exclude_exophora=exclude_exophora, exclude_adnominal=exclude_adnominal)
+        )
 
         # Create a list of morphemes.
         grouped_mrphs = [[morpheme for bp in bps for morpheme in bp.morphemes] for bps in grouped_bps]
@@ -319,8 +318,8 @@ class Event(Component):
         # Truncate the morphemes.
         truncated_pos = self._find_truncated_position(grouped_bps)
         if truncate:
-            grouped_mrphs = grouped_mrphs[:truncated_pos[0] + 1]
-            grouped_mrphs[-1] = grouped_mrphs[-1][:truncated_pos[1] + 1]
+            grouped_mrphs = grouped_mrphs[: truncated_pos[0] + 1]
+            grouped_mrphs[-1] = grouped_mrphs[-1][: truncated_pos[1] + 1]
 
         # Create a map from a position to a string to be inserted.
         additional_texts = self._get_additional_texts(
@@ -331,20 +330,17 @@ class Event(Component):
             normalize=truncate,
             truncated_pos=truncated_pos,
             include_modifiers=include_modifiers,
-            exclude_exophora=exclude_exophora
+            exclude_exophora=exclude_exophora,
         )
 
         return self._format_grouped_mrphs(
-            grouped_mrphs=grouped_mrphs,
-            mode=mode,
-            normalize=truncate,
-            additional_texts=additional_texts
+            grouped_mrphs=grouped_mrphs, mode=mode, normalize=truncate, additional_texts=additional_texts
         )
 
     def _collect_base_phrases(
-            self,
-            exclude_exophora: bool = False,
-            exclude_adnominal: bool = False,
+        self,
+        exclude_exophora: bool = False,
+        exclude_adnominal: bool = False,
     ) -> List[BasePhrase]:
         """Collect base phrases belonging to this event.
 
@@ -398,22 +394,25 @@ class Event(Component):
                     continue
                 # Find a position to be truncated.
                 for mrph_index, mrph in reversed(list(enumerate(bp.morphemes))):
-                    if mrph.hinsi == '助動詞' \
-                            and mrph.genkei == 'です' \
-                            and 0 < mrph_index \
-                            and bp.morphemes[mrph_index - 1].hinsi == '形容詞':
+                    if (
+                        mrph.hinsi == "助動詞"
+                        and mrph.genkei == "です"
+                        and 0 < mrph_index
+                        and bp.morphemes[mrph_index - 1].hinsi == "形容詞"
+                    ):
                         # adjective + 'です' -> ignore 'です' (e.g., 美しいです -> 美しい)
                         return group_index, mrph_index_offset + mrph_index - 1
 
-                    if mrph.hinsi == '判定詞' \
-                            and mrph.midasi == 'じゃ' \
-                            and 0 < mrph_index \
-                            and '<活用語>' in bp.morphemes[mrph_index - 1].fstring:
+                    if (
+                        mrph.hinsi == "判定詞"
+                        and mrph.midasi == "じゃ"
+                        and 0 < mrph_index
+                        and "<活用語>" in bp.morphemes[mrph_index - 1].fstring
+                    ):
                         # adjective or verb +'じゃん' -> ignore 'じゃん' (e.g., 使えないじゃん -> 使えない)
                         return group_index, mrph_index_offset + mrph_index - 1
 
-                    if ('<活用語>' in mrph.fstring or '<用言意味表記末尾>' in mrph.fstring) \
-                            and mrph.genkei not in {'のだ', 'んだ'}:
+                    if ("<活用語>" in mrph.fstring or "<用言意味表記末尾>" in mrph.fstring) and mrph.genkei not in {"のだ", "んだ"}:
                         # Check the last word with conjugation except some meaningless words.
                         return group_index, mrph_index_offset + mrph_index
                 mrph_index_offset += len(bp.morphemes)
@@ -421,14 +420,14 @@ class Event(Component):
 
     @staticmethod
     def _get_additional_texts(
-            grouped_bps: List[List[BasePhrase]],
-            grouped_mrphs: List[List[Morpheme_]],
-            mode: str,
-            add_mark: bool,
-            normalize: bool,
-            truncated_pos: Tuple[int, int],
-            include_modifiers: bool,
-            exclude_exophora: bool
+        grouped_bps: List[List[BasePhrase]],
+        grouped_mrphs: List[List[Morpheme_]],
+        mode: str,
+        add_mark: bool,
+        normalize: bool,
+        truncated_pos: Tuple[int, int],
+        include_modifiers: bool,
+        exclude_exophora: bool,
     ) -> Dict[Tuple[int, int, str], str]:
         """Get a mapping from a position to a mark.
 
@@ -447,69 +446,69 @@ class Event(Component):
         """
         additional_texts: Dict[Tuple[int, int, str], str] = {}  # (group_index, mrph_index, "start" or "end") -> text
 
-        def event_str(event: 'Event') -> str:
-            return event._to_text(
-                mode,
-                truncate=False,
-                add_mark=True,
-                exclude_exophora=exclude_exophora,
-                include_modifiers=include_modifiers,
-                exclude_adnominal=True
-            ).replace(' (', '').replace(')', '')
+        def event_str(event: "Event") -> str:
+            return (
+                event._to_text(
+                    mode,
+                    truncate=False,
+                    add_mark=True,
+                    exclude_exophora=exclude_exophora,
+                    include_modifiers=include_modifiers,
+                    exclude_adnominal=True,
+                )
+                .replace(" (", "")
+                .replace(")", "")
+            )
 
         last_tid = -1
         for group_index, (bps, mrphs) in enumerate(zip(grouped_bps, grouped_mrphs)):
-            start_pos = (group_index, 0, 'start')
-            end_pos = (group_index, len(mrphs) - 1, 'end')
+            start_pos = (group_index, 0, "start")
+            end_pos = (group_index, len(mrphs) - 1, "end")
 
             is_omitted = any(bp.omitted_case for bp in bps)
             if is_omitted:
-                additional_texts[start_pos] = '['
-                additional_texts[end_pos] = ']'
-                continue
-            if not add_mark and not include_modifiers:
+                additional_texts[start_pos] = "["
+                additional_texts[end_pos] = "]"
                 continue
 
-            adnominal_events = sorted(
-                [event for bp in bps for event in bp.adnominal_events],
-                key=lambda e: e.evid
-            )
-            if adnominal_events:
-                if include_modifiers:
-                    additional_texts[start_pos] = ' '.join(event_str(event) for event in adnominal_events)
-                else:
-                    additional_texts[start_pos] = '▼'
+            if add_mark or include_modifiers:
+                adnominal_events = sorted([e for bp in bps for e in bp.adnominal_events], key=lambda e: e.evid)
+                if adnominal_events:
+                    if include_modifiers:
+                        additional_texts[start_pos] = " ".join(event_str(e) for e in adnominal_events)
+                    else:
+                        additional_texts[start_pos] = "▼"
+                sentential_complement_events = sorted(
+                    [e for bp in bps for e in bp.sentential_complement_events], key=lambda e: e.evid
+                )
+                if sentential_complement_events:
+                    if include_modifiers:
+                        additional_texts[start_pos] = " ".join(event_str(e) for e in sentential_complement_events)
+                    else:
+                        additional_texts[start_pos] = "■"
 
-            sentential_complement_events = sorted(
-                [event for bp in bps for event in bp.sentential_complement_events],
-                key=lambda e: e.evid
-            )
-            if sentential_complement_events:
-                if include_modifiers:
-                    additional_texts[start_pos] = ' '.join(event_str(event) for event in sentential_complement_events)
-                else:
-                    additional_texts[start_pos] = '■'
-
-            mrph_index = 0
-            for bp in bps:
-                pos = (group_index, mrph_index, 'start')
-                if last_tid != -1 and last_tid + 1 != bp.tid and pos not in additional_texts:
-                    additional_texts[group_index, mrph_index, 'start'] = '|'
-                last_tid = bp.tid
-                mrph_index += len(bp.tag.mrph_list())
+            if add_mark:
+                mrph_index = 0
+                for bp in bps:
+                    pos = (group_index, mrph_index, "start")
+                    if last_tid != -1 and last_tid + 1 != bp.tid and pos not in additional_texts:
+                        additional_texts[pos] = "|"
+                    last_tid = bp.tid
+                    mrph_index += len(bp.tag.mrph_list())
 
         last_pos = (len(grouped_mrphs) - 1, len(grouped_mrphs[-1]) - 1)
         if add_mark and not normalize and truncated_pos != last_pos:
-            additional_texts[(truncated_pos[0], truncated_pos[1], 'end')] = '('
-            additional_texts[(len(grouped_mrphs) - 1, len(grouped_mrphs[-1]) - 1, 'end')] = ')'
+            additional_texts[(truncated_pos[0], truncated_pos[1], "end")] = "("
+            additional_texts[(len(grouped_mrphs) - 1, len(grouped_mrphs[-1]) - 1, "end")] = ")"
 
         return additional_texts
 
     @staticmethod
     def _format_grouped_mrphs(
-            grouped_mrphs: List[List[Morpheme_]],
-            mode: str, normalize: bool,
-            additional_texts: Dict[Tuple[int, int, str], str]
+        grouped_mrphs: List[List[Morpheme_]],
+        mode: str,
+        normalize: bool,
+        additional_texts: Dict[Tuple[int, int, str], str],
     ) -> str:
         """Format a list of morphemes grouped by bunsetsu IDs to create a text.
 
@@ -519,26 +518,26 @@ class Event(Component):
             normalize: If true, the last content word will be normalized.
             additional_texts: A mapping from positions to marks.
         """
-        assert mode in {'mrphs', 'reps'}
+        assert mode in {"mrphs", "reps"}
 
         ret = []
         for group_index, mrphs in enumerate(grouped_mrphs):
             for mrph_index, mrph in enumerate(mrphs):
-                if (group_index, mrph_index, 'start') in additional_texts:
-                    ret.append(additional_texts[(group_index, mrph_index, 'start')])
+                if (group_index, mrph_index, "start") in additional_texts:
+                    ret.append(additional_texts[(group_index, mrph_index, "start")])
 
                 if isinstance(mrph, str):
                     if mrph in PAS_ORDER:
                         case = convert_katakana_to_hiragana(mrph)
-                        ret.append(case if mode == 'mrphs' else f'{case}/{case}')
+                        ret.append(case if mode == "mrphs" else f"{case}/{case}")
                     else:
                         ret.append(mrph)
                 else:
-                    if mode == 'reps':
-                        ret.append(mrph.repname or f'{mrph.midasi}/{mrph.midasi}')
+                    if mode == "reps":
+                        ret.append(mrph.repname or f"{mrph.midasi}/{mrph.midasi}")
                     else:
                         if normalize and (group_index, mrph_index) == (len(grouped_mrphs) - 1, len(mrphs) - 1):
-                            if mrph.hinsi == '助動詞' and mrph.genkei == 'ぬ':
+                            if mrph.hinsi == "助動詞" and mrph.genkei == "ぬ":
                                 # Exception: prevent transforming "できません" into "できませぬ".
                                 ret.append(mrph.midasi)
                             else:
@@ -546,10 +545,10 @@ class Event(Component):
                         else:
                             ret.append(mrph.midasi)
 
-                if (group_index, mrph_index, 'end') in additional_texts:
-                    ret.append(additional_texts[(group_index, mrph_index, 'end')])
+                if (group_index, mrph_index, "end") in additional_texts:
+                    ret.append(additional_texts[(group_index, mrph_index, "end")])
 
-        return ' '.join(ret).replace('[ ', '[').replace(' ]', ']').replace('( ', '(').replace(' )', ')')
+        return " ".join(ret).replace("[ ", "[").replace(" ]", "]").replace("( ", "(").replace(" )", ")")
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
@@ -572,53 +571,45 @@ class Event(Component):
             normalized_reps_with_mark=self.normalized_reps_with_mark,
             content_rep_list=self.content_rep_list,
             pas=self.pas.to_dict(),
-            features=self.features.to_dict()
+            features=self.features.to_dict(),
         )
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'<Event, evid: {self.evid}, surf: {self.surf}>'
+        return f"<Event, evid: {self.evid}, surf: {self.surf}>"
 
 
 class EventBuilder(Builder):
-
-    def __call__(self, sentence: 'Sentence', start: Tag, head: Tag, end: Tag):
-        logger.debug('Create an event')
+    def __call__(self, sentence: "Sentence", start: Tag, head: Tag, end: Tag):
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid, start, head, end)
         PASBuilder()(event)
         FeaturesBuilder()(event)
         sentence.events.append(event)
         Builder.evid += 1
-        # Make this sentence and its components accessible from builders.
         for tid in range(start.tag_id, end.tag_id + 1):
             Builder.stid_event_map[(sentence.ssid, tid)] = event
-        logger.debug('Successfully created a event.')
         return event
 
 
 class JsonEventBuilder(Builder):
-
-    def __call__(self, sentence: 'Sentence', dump: dict) -> Event:
-        logger.debug('Create an event')
+    def __call__(self, sentence: "Sentence", dump: dict) -> Event:
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid)
-        event._surf = dump['surf']
-        event._surf_with_mark = dump['surf_with_mark']
-        event._mrphs = dump['mrphs']
-        event._mrphs_with_mark = dump['mrphs_with_mark']
-        event._normalized_mrphs = dump['normalized_mrphs']
-        event._normalized_mrphs_with_mark = dump['normalized_mrphs_with_mark']
-        event._normalized_mrphs_without_exophora = dump['normalized_mrphs_without_exophora']
-        event._normalized_mrphs_with_mark_without_exophora = dump['normalized_mrphs_with_mark_without_exophora']
-        event._reps = dump['reps']
-        event._reps_with_mark = dump['reps_with_mark']
-        event._normalized_reps = dump['normalized_reps']
-        event._normalized_reps_with_mark = dump['normalized_reps_with_mark']
-        event._content_rep_list = dump['content_rep_list']
-        JsonPASBuilder()(event, dump['pas'])
-        JsonFeaturesBuilder()(event, dump['features'])
+        event._surf = dump["surf"]
+        event._surf_with_mark = dump["surf_with_mark"]
+        event._mrphs = dump["mrphs"]
+        event._mrphs_with_mark = dump["mrphs_with_mark"]
+        event._normalized_mrphs = dump["normalized_mrphs"]
+        event._normalized_mrphs_with_mark = dump["normalized_mrphs_with_mark"]
+        event._normalized_mrphs_without_exophora = dump["normalized_mrphs_without_exophora"]
+        event._normalized_mrphs_with_mark_without_exophora = dump["normalized_mrphs_with_mark_without_exophora"]
+        event._reps = dump["reps"]
+        event._reps_with_mark = dump["reps_with_mark"]
+        event._normalized_reps = dump["normalized_reps"]
+        event._normalized_reps_with_mark = dump["normalized_reps_with_mark"]
+        event._content_rep_list = dump["content_rep_list"]
+        JsonPASBuilder()(event, dump["pas"])
+        JsonFeaturesBuilder()(event, dump["features"])
         sentence.events.append(event)
         Builder.evid += 1
-        # Make this sentence and its components accessible from builders.
         Builder.evid_event_map[event.evid] = event
-        logger.debug('Successfully created a event.')
         return event

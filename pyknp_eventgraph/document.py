@@ -23,8 +23,8 @@ class Document(Component):
         sentences (List[Sentence]): A list of sentences in this document.
     """
 
-    def __init__(self, evg: 'EventGraph'):
-        self.evg: 'EventGraph' = evg
+    def __init__(self, evg: "EventGraph"):
+        self.evg: "EventGraph" = evg
         self.sentences: List[Sentence] = []
 
     def to_dict(self) -> dict:
@@ -33,31 +33,25 @@ class Document(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'<Document, #sentences: {len(self.sentences)}>'
+        return f"<Document, #sentences: {len(self.sentences)}>"
 
 
 class DocumentBuilder(Builder):
-
-    def __call__(self, evg: 'EventGraph', blists: List[BList]) -> Document:
-        logger.debug('Create a document.')
+    def __call__(self, evg: "EventGraph", blists: List[BList]) -> Document:
         document = Document(evg)
         for blist in blists:
             SentenceBuilder()(document, blist)
         evg.document = document
-        logger.debug('Successfully created a document.')
         return document
 
 
 class JsonDocumentBuilder(Builder):
-
-    def __call__(self, evg: 'EventGraph', dump: dict) -> Document:
-        logger.debug('Create a document.')
+    def __call__(self, evg: "EventGraph", dump: dict) -> Document:
         document = Document(evg)
-        for sentence_dump in dump['sentences']:
+        for sentence_dump in dump["sentences"]:
             JsonSentenceBuilder()(document, sentence_dump)
-        for event_dump in dump['events']:
-            ssid = event_dump['ssid']
+        for event_dump in dump["events"]:
+            ssid = event_dump["ssid"]
             JsonEventBuilder()(document.sentences[ssid], event_dump)
         evg.document = document
-        logger.debug('Successfully created a document.')
         return document

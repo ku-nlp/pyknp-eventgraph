@@ -25,7 +25,7 @@ class Sentence(Component):
         events (List[Event]): A list of events in this sentence.
     """
 
-    def __init__(self, document: 'Document', sid: str, ssid: int, blist: Optional[BList] = None):
+    def __init__(self, document: "Document", sid: str, ssid: int, blist: Optional[BList] = None):
         self.document: Document = document
         self.sid: str = sid
         self.ssid: int = ssid
@@ -44,14 +44,14 @@ class Sentence(Component):
     def mrphs(self) -> str:
         """A tokenized surface string."""
         if self._mrphs is None:
-            self._mrphs = ' '.join(m.midasi for m in self.blist.mrph_list())
+            self._mrphs = " ".join(m.midasi for m in self.blist.mrph_list())
         return self._mrphs
 
     @property
     def reps(self) -> str:
         """A representative string."""
         if self._reps is None:
-            self._reps = ' '.join(m.repname or f'{m.midasi}/{m.midasi}' for m in self.blist.mrph_list())
+            self._reps = " ".join(m.repname or f"{m.midasi}/{m.midasi}" for m in self.blist.mrph_list())
         return self._reps
 
     def to_dict(self) -> dict:
@@ -60,13 +60,11 @@ class Sentence(Component):
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'<Sentence, sid: {self.sid}, ssid: {self.ssid}, surf: {self.surf}>'
+        return f"<Sentence, sid: {self.sid}, ssid: {self.ssid}, surf: {self.surf}>"
 
 
 class SentenceBuilder(Builder):
-
-    def __call__(self, document: 'Document', blist: BList) -> Sentence:
-        logger.debug('Create a sentence.')
+    def __call__(self, document: "Document", blist: BList) -> Sentence:
         sentence = Sentence(document, blist.sid, Builder.ssid, blist)
         start: Optional[Tag] = None
         end: Optional[Tag] = None
@@ -74,32 +72,27 @@ class SentenceBuilder(Builder):
         for tag in blist.tag_list():
             if not start:
                 start = tag
-            if not head and '節-主辞' in tag.features:
+            if not head and "節-主辞" in tag.features:
                 head = tag
-            if not end and '節-区切' in tag.features:
+            if not end and "節-区切" in tag.features:
                 end = tag
                 if head:
                     EventBuilder()(sentence, start, head, end)
                 start, end, head = None, None, None
         document.sentences.append(sentence)
         Builder.ssid += 1
-        # Make this sentence and its components accessible from builders.
         for bid, bnst in enumerate(blist.bnst_list()):
             for tag in bnst.tag_list():
                 Builder.stid_bid_map[(sentence.ssid, tag.tag_id)] = bid
                 Builder.stid_tag_map[(sentence.ssid, tag.tag_id)] = tag
-        logger.debug('Successfully created a sentence.')
         return sentence
 
 
 class JsonSentenceBuilder(Builder):
-
-    def __call__(self, document: 'Document', dump: dict) -> Sentence:
-        logger.debug('Create a sentence.')
-        sentence = Sentence(document, dump['sid'], dump['ssid'])
-        sentence._mrphs = dump['mrphs']
-        sentence._reps = dump['reps']
+    def __call__(self, document: "Document", dump: dict) -> Sentence:
+        sentence = Sentence(document, dump["sid"], dump["ssid"])
+        sentence._mrphs = dump["mrphs"]
+        sentence._reps = dump["reps"]
         document.sentences.append(sentence)
         Builder.ssid += 1
-        logger.debug('Successfully created a sentence.')
         return sentence

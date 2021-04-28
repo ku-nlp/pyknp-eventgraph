@@ -1,6 +1,3 @@
-from pathlib import Path
-__version__ = Path(__file__).parent.joinpath('VERSION').open().read().rstrip()
-
 from pyknp_eventgraph.eventgraph import EventGraph
 from pyknp_eventgraph.document import Document
 from pyknp_eventgraph.sentence import Sentence

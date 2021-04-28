@@ -15,11 +15,11 @@ def read_knp_result_file(filename: str) -> List[BList]:
     """
     knp = KNP()
     blists = []
-    with open(filename, 'rt', encoding='utf-8', errors='replace') as f:
-        chunk = ''
+    with open(filename, "rt", encoding="utf-8", errors="replace") as f:
+        chunk = ""
         for line in f:
             chunk += line
-            if line.strip() == 'EOS':
+            if line.strip() == "EOS":
                 blists.append(knp.result(chunk))
-                chunk = ''
+                chunk = ""
     return blists

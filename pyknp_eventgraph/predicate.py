@@ -24,7 +24,7 @@ class Predicate(Component):
         head_base_phrase (Token, optional): A head basic phrase.
     """
 
-    def __init__(self, pas: 'PAS', type_: str, head: Optional[Tag] = None):
+    def __init__(self, pas: "PAS", type_: str, head: Optional[Tag] = None):
         self.pas: PAS = pas
         self.type_: str = type_
         self.head: Optional[Tag] = head
@@ -66,14 +66,14 @@ class Predicate(Component):
             is_within_standard_repname = False
             for bp in self.head_base_phrase.modifiees(include_self=True):
                 for m in bp.tag.mrph_list():
-                    if '用言表記先頭' in m.fstring:
+                    if "用言表記先頭" in m.fstring:
                         is_within_standard_repname = True
-                    if '用言表記末尾' in m.fstring:
+                    if "用言表記末尾" in m.fstring:
                         mrphs.append(m.genkei)  # Normalize the last morpheme.
-                        return ' '.join(mrphs)
+                        return " ".join(mrphs)
                     if is_within_standard_repname:
                         mrphs.append(m.midasi)
-            self._mrphs = ' '.join(mrphs)
+            self._mrphs = " ".join(mrphs)
         return self._mrphs
 
     @property
@@ -86,15 +86,12 @@ class Predicate(Component):
         """A representative string."""
         if self._reps is None:
             for bp in self.head_base_phrase.modifiees(include_self=True):
-                if '用言代表表記' in bp.tag.features:
-                    self._reps = bp.tag.features['用言代表表記']
+                if "用言代表表記" in bp.tag.features:
+                    self._reps = bp.tag.features["用言代表表記"]
                     break
             else:
                 self._reps = self._base_phrase_to_text(
-                    self.head_base_phrase,
-                    mode='reps',
-                    truncate=True,
-                    include_modifiees=True
+                    self.head_base_phrase, mode="reps", truncate=True, include_modifiees=True
                 )
         return self._reps
 
@@ -108,8 +105,8 @@ class Predicate(Component):
         """A standard representative string."""
         if self._standard_reps is None:
             for bp in self.head_base_phrase.modifiees(include_self=True):
-                if '標準用言代表表記' in bp.tag.features:
-                    self._standard_reps = bp.tag.features['標準用言代表表記']
+                if "標準用言代表表記" in bp.tag.features:
+                    self._standard_reps = bp.tag.features["標準用言代表表記"]
                     break
             else:
                 self._standard_reps = self.reps
@@ -134,7 +131,8 @@ class Predicate(Component):
         """A list of IDs of events modifying this predicate (sentential complement)."""
         if self._sentential_complement_event_ids is None:
             self._sentential_complement_event_ids = sorted(
-                event.evid for t in self.head_base_phrase.modifiees(include_self=True)
+                event.evid
+                for t in self.head_base_phrase.modifiees(include_self=True)
                 for event in t.sentential_complement_events
             )
         return self._sentential_complement_event_ids
@@ -145,24 +143,27 @@ class Predicate(Component):
         if self._children is None:
             self._children = []
             for bp in reversed(self.head_base_phrase.modifiers()):
-                self._children.append({
-                    'surf': convert_mrphs_to_surf(self._base_phrase_to_text(bp, mode='mrphs', truncate=False)),
-                    'normalized_surf': convert_mrphs_to_surf(
-                        self._base_phrase_to_text(bp, mode='mrphs', truncate=True)
-                    ),
-                    'mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=False),
-                    'normalized_mrphs': self._base_phrase_to_text(bp, mode='mrphs', truncate=True),
-                    'reps': self._base_phrase_to_text(bp, mode='reps', truncate=False),
-                    'normalized_reps': self._base_phrase_to_text(bp, mode='reps', truncate=True),
-                    'adnominal_event_ids': [event.evid for event in bp.adnominal_events],
-                    'sentential_complement_event_ids': [event.evid for event in bp.sentential_complement_events],
-                    'modifier': '修飾' in bp.tag.features,
-                    'possessive': bp.tag.features.get('係', '') == 'ノ格',
-                })
+                self._children.append(
+                    {
+                        "surf": convert_mrphs_to_surf(self._base_phrase_to_text(bp, mode="mrphs", truncate=False)),
+                        "normalized_surf": convert_mrphs_to_surf(
+                            self._base_phrase_to_text(bp, mode="mrphs", truncate=True)
+                        ),
+                        "mrphs": self._base_phrase_to_text(bp, mode="mrphs", truncate=False),
+                        "normalized_mrphs": self._base_phrase_to_text(bp, mode="mrphs", truncate=True),
+                        "reps": self._base_phrase_to_text(bp, mode="reps", truncate=False),
+                        "normalized_reps": self._base_phrase_to_text(bp, mode="reps", truncate=True),
+                        "adnominal_event_ids": [event.evid for event in bp.adnominal_events],
+                        "sentential_complement_event_ids": [event.evid for event in bp.sentential_complement_events],
+                        "modifier": "修飾" in bp.tag.features,
+                        "possessive": bp.tag.features.get("係", "") == "ノ格",
+                    }
+                )
         return self._children
 
-    def _base_phrase_to_text(self, bp: BasePhrase, mode: str = 'mrphs', truncate: bool = False,
-                             include_modifiees: bool = False) -> str:
+    def _base_phrase_to_text(
+        self, bp: BasePhrase, mode: str = "mrphs", truncate: bool = False, include_modifiees: bool = False
+    ) -> str:
         """Convert a base phrase to a text.
 
         Args:
@@ -171,7 +172,7 @@ class Predicate(Component):
             truncate: If true, adjunct words are truncated.
             include_modifiees: If true, parents are used to construct a compound phrase.
         """
-        assert mode in {'mrphs', 'reps'}
+        assert mode in {"mrphs", "reps"}
         mrphs = list(bp.tag.mrph_list())
         if include_modifiees:
             for parent_bp in bp.modifiees():
@@ -191,15 +192,15 @@ class Predicate(Component):
 
         """
         for index, mrph in reversed(list(enumerate(mrphs))):
-            if mrph.hinsi == '助動詞' and mrph.genkei == 'です' and 0 < index and mrphs[index - 1].hinsi == '形容詞':
+            if mrph.hinsi == "助動詞" and mrph.genkei == "です" and 0 < index and mrphs[index - 1].hinsi == "形容詞":
                 # adjective + 'です' -> ignore 'です' (e.g., 美しいです -> 美しい)
                 return mrphs[:index]
-            elif mrph.hinsi == '判定詞' and mrph.midasi == 'じゃ' and 0 < index and '<活用語>' in mrphs[index - 1].fstring:
+            elif mrph.hinsi == "判定詞" and mrph.midasi == "じゃ" and 0 < index and "<活用語>" in mrphs[index - 1].fstring:
                 # adjective or verb +'じゃん' -> ignore 'じゃん' (e.g., 使えないじゃん -> 使えない)
                 return mrphs[:index]
-            elif ('<活用語>' in mrph.fstring or '<用言意味表記末尾>' in mrph.fstring) and mrph.genkei not in {'のだ', 'んだ'}:
+            elif ("<活用語>" in mrph.fstring or "<用言意味表記末尾>" in mrph.fstring) and mrph.genkei not in {"のだ", "んだ"}:
                 # check the last word with conjugation except some meaningless words
-                return mrphs[:index + 1]
+                return mrphs[: index + 1]
         return mrphs
 
     @staticmethod
@@ -212,20 +213,20 @@ class Predicate(Component):
             normalize: If true, the last content word will be normalized.
 
         """
-        assert mode in {'mrphs', 'reps'}
-        if mode == 'reps':
-            return ' '.join(mrph.repname or f'{mrph.midasi}/{mrph.midasi}' for mrph in mrphs)
+        assert mode in {"mrphs", "reps"}
+        if mode == "reps":
+            return " ".join(mrph.repname or f"{mrph.midasi}/{mrph.midasi}" for mrph in mrphs)
         else:  # i.e., mode == 'mrphs'
             if normalize:
                 # Change the last morpheme to its infinitive (i.e., genkei)
-                base = ' '.join(mrph.midasi for mrph in mrphs[:-1])
-                if mrphs[-1].hinsi == '助動詞' and mrphs[-1].genkei == 'ぬ':
+                base = " ".join(mrph.midasi for mrph in mrphs[:-1])
+                if mrphs[-1].hinsi == "助動詞" and mrphs[-1].genkei == "ぬ":
                     # Exception to prevent transforming "できません" into "できませぬ".
-                    return f'{base} {mrphs[-1].midasi}'.strip()
+                    return f"{base} {mrphs[-1].midasi}".strip()
                 else:
-                    return f'{base} {mrphs[-1].genkei}'.strip()
+                    return f"{base} {mrphs[-1].genkei}".strip()
             else:
-                return ' '.join(mrph.midasi for mrph in mrphs)
+                return " ".join(mrph.midasi for mrph in mrphs)
 
     def to_dict(self) -> dict:
         """Convert this object into a dictionary."""
@@ -240,43 +241,37 @@ class Predicate(Component):
             type=self.type,
             adnominal_event_ids=self.adnominal_event_ids,
             sentential_complement_event_ids=self.sentential_complement_event_ids,
-            children=self.children
+            children=self.children,
         )
 
     def to_string(self) -> str:
         """Convert this object into a string."""
-        return f'<Predicate, type: {self.type_}, surf: {self.surf}>'
+        return f"<Predicate, type: {self.type_}, surf: {self.surf}>"
 
 
 class PredicateBuilder(Builder):
-
-    def __call__(self, pas: 'PAS') -> Predicate:
-        logger.debug('Create a predicate.')
+    def __call__(self, pas: "PAS") -> Predicate:
         predicate = Predicate(pas, self._find_type(pas.event.head), pas.event.head)
         pas.predicate = predicate
-        logger.debug('Successfully created a predicate.')
         return predicate
 
     @staticmethod
     def _find_type(head: Tag) -> str:
-        return head.features.get('用言', '')
+        return head.features.get("用言", "")
 
 
 class JsonPredicateBuilder(Builder):
-
-    def __call__(self, pas: 'PAS', dump: dict) -> Predicate:
-        logger.debug('Create a predicate.')
-        predicate = Predicate(pas, dump['type'])
-        predicate._surf = dump['surf']
-        predicate._normalized_surf = dump['normalized_surf']
-        predicate._mrphs = dump['mrphs']
-        predicate._normalized_mrphs = dump['normalized_mrphs']
-        predicate._reps = dump['reps']
-        predicate._normalized_reps = dump['normalized_reps']
-        predicate._standard_reps = dump['standard_reps']
-        predicate._children = dump['children']
-        predicate._adnominal_event_ids = dump['adnominal_event_ids']
-        predicate._sentential_complement_event_ids = dump['sentential_complement_event_ids']
+    def __call__(self, pas: "PAS", dump: dict) -> Predicate:
+        predicate = Predicate(pas, dump["type"])
+        predicate._surf = dump["surf"]
+        predicate._normalized_surf = dump["normalized_surf"]
+        predicate._mrphs = dump["mrphs"]
+        predicate._normalized_mrphs = dump["normalized_mrphs"]
+        predicate._reps = dump["reps"]
+        predicate._normalized_reps = dump["normalized_reps"]
+        predicate._standard_reps = dump["standard_reps"]
+        predicate._children = dump["children"]
+        predicate._adnominal_event_ids = dump["adnominal_event_ids"]
+        predicate._sentential_complement_event_ids = dump["sentential_complement_event_ids"]
         pas.predicate = predicate
-        logger.debug('Successfully created a predicate.')
         return predicate

@@ -1,0 +1,69 @@
+[tool.poetry]
+name = "pyknp-eventgraph"
+version = "6.1.4"
+description = "A development platform for high-level NLP applications in Japanese"
+license = "BSD-3-Clause"
+authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>"]
+readme = "README.md"
+repository = "https://github.com/ku-nlp/pyknp-eventgraph"
+documentation = "https://pyknp-eventgraph.readthedocs.io/en/latest/"
+keywords = [
+    "NLP",
+    "JUMAN",
+    "KNP"
+]
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8"
+]
+packages = [
+    { include = "pyknp_eventgraph" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pyknp = "^0.4.6"
+graphviz = "^0.16"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.3"
+parameterized = "^0.8.1"
+black = "^21.4b1"
+
+[tool.poetry.scripts]
+evg = 'pyknp_eventgraph.cli:evg'
+evgviz = 'pyknp_eventgraph.cli:evgviz'
+
+[tool.black]
+line-length = 120
+target-version = [
+    'py36',
+    'py37',
+    'py38'
+]
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
