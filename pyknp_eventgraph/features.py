@@ -63,7 +63,6 @@ class Features(Component):
 class FeaturesBuilder(Builder):
 
     def __call__(self, event: 'Event') -> Features:
-        logger.debug('Create features.')
         func_tag = self._get_functional_tag(event.head)
         features = Features(
             event=event,
@@ -75,7 +74,6 @@ class FeaturesBuilder(Builder):
             level=self._find_level(func_tag),
         )
         event.features = features
-        logger.debug('Successfully created features.')
         return features
 
     @staticmethod
@@ -125,7 +123,6 @@ class FeaturesBuilder(Builder):
 class JsonFeaturesBuilder(Builder):
 
     def __call__(self, event: 'Event', dump: dict) -> Features:
-        logger.debug('Create features.')
         features = Features(
             event=event,
             modality=dump['modality'],
@@ -135,5 +132,4 @@ class JsonFeaturesBuilder(Builder):
             complement=dump['complement'],
         )
         event.features = features
-        logger.debug('Successfully created features.')
         return features

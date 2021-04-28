@@ -263,17 +263,14 @@ class Argument(Component):
 class ArgumentBuilder(Builder):
 
     def __call__(self, pas: 'PAS', case: str, arg: PyknpArgument) -> Argument:
-        logger.debug('Create an argument')
         argument = Argument(pas, case, arg.eid, arg.flag, arg.sdist, arg)
         pas.arguments[case].append(argument)
-        logger.debug('Successfully created an argument.')
         return argument
 
 
 class JsonArgumentBuilder(Builder):
 
     def __call__(self, pas: 'PAS', case: str, dump: dict) -> Argument:
-        logger.debug('Create an argument')
         argument = Argument(pas, case, dump['eid'], dump['flag'], dump['sdist'])
         argument._surf = dump['surf']
         argument._normalized_surf = dump['normalized_surf']
@@ -286,7 +283,6 @@ class JsonArgumentBuilder(Builder):
         argument._adnominal_event_ids = dump['adnominal_event_ids']
         argument._sentential_complement_event_ids = dump['sentential_complement_event_ids']
         pas.arguments[case].append(argument)
-        logger.debug('Successfully created an argument.')
         return argument
 
 

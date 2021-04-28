@@ -66,7 +66,6 @@ class Sentence(Component):
 class SentenceBuilder(Builder):
 
     def __call__(self, document: 'Document', blist: BList) -> Sentence:
-        logger.debug('Create a sentence.')
         sentence = Sentence(document, blist.sid, Builder.ssid, blist)
         start: Optional[Tag] = None
         end: Optional[Tag] = None
@@ -88,18 +87,15 @@ class SentenceBuilder(Builder):
             for tag in bnst.tag_list():
                 Builder.stid_bid_map[(sentence.ssid, tag.tag_id)] = bid
                 Builder.stid_tag_map[(sentence.ssid, tag.tag_id)] = tag
-        logger.debug('Successfully created a sentence.')
         return sentence
 
 
 class JsonSentenceBuilder(Builder):
 
     def __call__(self, document: 'Document', dump: dict) -> Sentence:
-        logger.debug('Create a sentence.')
         sentence = Sentence(document, dump['sid'], dump['ssid'])
         sentence._mrphs = dump['mrphs']
         sentence._reps = dump['reps']
         document.sentences.append(sentence)
         Builder.ssid += 1
-        logger.debug('Successfully created a sentence.')
         return sentence

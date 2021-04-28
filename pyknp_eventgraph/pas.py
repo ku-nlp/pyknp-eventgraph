@@ -60,22 +60,18 @@ class PAS(Component):
 class PASBuilder(Builder):
 
     def __call__(self, event: 'Event') -> PAS:
-        logger.debug('Create a PAS.')
         pas = PAS(event, event.head.pas)
         PredicateBuilder()(pas)
         ArgumentsBuilder()(pas)
         event.pas = pas
-        logger.debug('Successfully created a PAS.')
         return pas
 
 
 class JsonPASBuilder(Builder):
 
     def __call__(self, event: 'Event', dump: dict) -> PAS:
-        logger.debug('Create a PAS.')
         pas = PAS(event)
         JsonPredicateBuilder()(pas, dump['predicate'])
         JsonArgumentsBuilder()(pas, dump['argument'])
         event.pas = pas
-        logger.debug('Successfully created a PAS.')
         return pas

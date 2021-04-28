@@ -583,7 +583,6 @@ class Event(Component):
 class EventBuilder(Builder):
 
     def __call__(self, sentence: 'Sentence', start: Tag, head: Tag, end: Tag):
-        logger.debug('Create an event')
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid, start, head, end)
         PASBuilder()(event)
         FeaturesBuilder()(event)
@@ -592,14 +591,12 @@ class EventBuilder(Builder):
         # Make this sentence and its components accessible from builders.
         for tid in range(start.tag_id, end.tag_id + 1):
             Builder.stid_event_map[(sentence.ssid, tid)] = event
-        logger.debug('Successfully created a event.')
         return event
 
 
 class JsonEventBuilder(Builder):
 
     def __call__(self, sentence: 'Sentence', dump: dict) -> Event:
-        logger.debug('Create an event')
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid)
         event._surf = dump['surf']
         event._surf_with_mark = dump['surf_with_mark']
@@ -620,5 +617,4 @@ class JsonEventBuilder(Builder):
         Builder.evid += 1
         # Make this sentence and its components accessible from builders.
         Builder.evid_event_map[event.evid] = event
-        logger.debug('Successfully created a event.')
         return event

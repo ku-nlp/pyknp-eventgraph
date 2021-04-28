@@ -39,19 +39,16 @@ class Document(Component):
 class DocumentBuilder(Builder):
 
     def __call__(self, evg: 'EventGraph', blists: List[BList]) -> Document:
-        logger.debug('Create a document.')
         document = Document(evg)
         for blist in blists:
             SentenceBuilder()(document, blist)
         evg.document = document
-        logger.debug('Successfully created a document.')
         return document
 
 
 class JsonDocumentBuilder(Builder):
 
     def __call__(self, evg: 'EventGraph', dump: dict) -> Document:
-        logger.debug('Create a document.')
         document = Document(evg)
         for sentence_dump in dump['sentences']:
             JsonSentenceBuilder()(document, sentence_dump)
@@ -59,5 +56,4 @@ class JsonDocumentBuilder(Builder):
             ssid = event_dump['ssid']
             JsonEventBuilder()(document.sentences[ssid], event_dump)
         evg.document = document
-        logger.debug('Successfully created a document.')
         return document

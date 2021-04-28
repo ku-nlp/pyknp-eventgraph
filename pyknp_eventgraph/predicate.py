@@ -251,10 +251,8 @@ class Predicate(Component):
 class PredicateBuilder(Builder):
 
     def __call__(self, pas: 'PAS') -> Predicate:
-        logger.debug('Create a predicate.')
         predicate = Predicate(pas, self._find_type(pas.event.head), pas.event.head)
         pas.predicate = predicate
-        logger.debug('Successfully created a predicate.')
         return predicate
 
     @staticmethod
@@ -265,7 +263,6 @@ class PredicateBuilder(Builder):
 class JsonPredicateBuilder(Builder):
 
     def __call__(self, pas: 'PAS', dump: dict) -> Predicate:
-        logger.debug('Create a predicate.')
         predicate = Predicate(pas, dump['type'])
         predicate._surf = dump['surf']
         predicate._normalized_surf = dump['normalized_surf']
@@ -278,5 +275,4 @@ class JsonPredicateBuilder(Builder):
         predicate._adnominal_event_ids = dump['adnominal_event_ids']
         predicate._sentential_complement_event_ids = dump['sentential_complement_event_ids']
         pas.predicate = predicate
-        logger.debug('Successfully created a predicate.')
         return predicate
