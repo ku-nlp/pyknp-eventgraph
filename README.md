@@ -18,12 +18,6 @@ To install pyknp-eventgraph, use `pip`.
 $ pip install pyknp-eventgraph
 ```
 
-or
-
-```
-$ python setup.py install
-```
-
 ## Quick Tour
 
 ### Step 1: Create an EventGraph
