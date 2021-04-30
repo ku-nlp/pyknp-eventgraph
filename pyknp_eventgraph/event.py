@@ -1,16 +1,15 @@
 from logging import getLogger
-from typing import Tuple, List, Dict, Union, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
-from pyknp import Tag, Morpheme
+from pyknp import Morpheme, Tag
 
+from pyknp_eventgraph.base_phrase import BasePhrase, group_base_phrases
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.features import Features, FeaturesBuilder, JsonFeaturesBuilder
-from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
-from pyknp_eventgraph.pas import PAS, PASBuilder, JsonPASBuilder
+from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana, convert_mrphs_to_surf
+from pyknp_eventgraph.pas import PAS, JsonPASBuilder, PASBuilder
 from pyknp_eventgraph.relation import Relation
-from pyknp_eventgraph.base_phrase import BasePhrase, group_base_phrases
-from pyknp_eventgraph.helper import convert_mrphs_to_surf
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.sentence import Sentence
@@ -446,12 +445,12 @@ class Event(Component):
         """
         additional_texts: Dict[Tuple[int, int, str], str] = {}  # (group_index, mrph_index, "start" or "end") -> text
 
-        def event_str(event: "Event") -> str:
+        def get_event_str(event: "Event") -> str:
             return (
                 event._to_text(
                     mode,
                     truncate=False,
-                    add_mark=True,
+                    add_mark=add_mark,
                     exclude_exophora=exclude_exophora,
                     include_modifiers=include_modifiers,
                     exclude_adnominal=True,
@@ -475,7 +474,7 @@ class Event(Component):
                 adnominal_events = sorted([e for bp in bps for e in bp.adnominal_events], key=lambda e: e.evid)
                 if adnominal_events:
                     if include_modifiers:
-                        additional_texts[start_pos] = " ".join(event_str(e) for e in adnominal_events)
+                        additional_texts[start_pos] = " ".join(get_event_str(e) for e in adnominal_events)
                     else:
                         additional_texts[start_pos] = "▼"
                 sentential_complement_events = sorted(
@@ -483,7 +482,7 @@ class Event(Component):
                 )
                 if sentential_complement_events:
                     if include_modifiers:
-                        additional_texts[start_pos] = " ".join(event_str(e) for e in sentential_complement_events)
+                        additional_texts[start_pos] = " ".join(get_event_str(e) for e in sentential_complement_events)
                     else:
                         additional_texts[start_pos] = "■"
 

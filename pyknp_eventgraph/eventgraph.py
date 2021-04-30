@@ -1,17 +1,17 @@
 import json
 import pickle
 from logging import getLogger
-from typing import List, Union, TextIO, BinaryIO, Optional
+from typing import BinaryIO, List, Optional, TextIO, Union
 
 from pyknp import BList
 
+from pyknp_eventgraph.base_phrase import BasePhraseBuilder
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.document import Document, DocumentBuilder, JsonDocumentBuilder
 from pyknp_eventgraph.event import Event
-from pyknp_eventgraph.relation import Relation, RelationsBuilder, JsonRelationBuilder
+from pyknp_eventgraph.relation import JsonRelationBuilder, Relation, RelationsBuilder
 from pyknp_eventgraph.sentence import Sentence
-from pyknp_eventgraph.base_phrase import BasePhraseBuilder
 
 logger = getLogger(__name__)
 

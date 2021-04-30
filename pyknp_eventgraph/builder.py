@@ -1,5 +1,5 @@
 """The base class of EventGraph components."""
-from typing import Dict, Tuple, ClassVar, NoReturn, TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar, Dict, NoReturn, Tuple
 
 from pyknp import Tag
 

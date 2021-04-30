@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyknp-eventgraph"
-version = "6.1.4"
+version = "6.1.5"
 description = "A development platform for high-level NLP applications in Japanese"
 license = "BSD-3-Clause"
 authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>"]
@@ -32,6 +32,7 @@ graphviz = "^0.16"
 pytest = "^6.2.3"
 parameterized = "^0.8.1"
 black = "^21.4b1"
+isort = "^5.8.0"
 
 [tool.poetry.scripts]
 evg = 'pyknp_eventgraph.cli:evg'
@@ -67,3 +68,8 @@ exclude = '''
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.isort]
+profile = "black"
+src_paths = ["pyknp_eventgraph", "tests"]
+line_length = 120

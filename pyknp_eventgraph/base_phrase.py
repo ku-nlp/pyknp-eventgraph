@@ -1,17 +1,17 @@
 import collections
-from typing import List, Tuple, Optional, Union, NoReturn, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, NoReturn, Optional, Tuple, Union
 
-from pyknp import Tag, Morpheme
+from pyknp import Morpheme, Tag
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.helper import PAS_ORDER, get_parallel_tags, convert_katakana_to_hiragana
+from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana, get_parallel_tags
 from pyknp_eventgraph.relation import filter_relations
 
 if TYPE_CHECKING:
+    from pyknp_eventgraph.argument import Argument
     from pyknp_eventgraph.event import Event
     from pyknp_eventgraph.predicate import Predicate
-    from pyknp_eventgraph.argument import Argument
 
 
 class BasePhrase(Component):
