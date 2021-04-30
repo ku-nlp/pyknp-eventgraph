@@ -446,12 +446,12 @@ class Event(Component):
         """
         additional_texts: Dict[Tuple[int, int, str], str] = {}  # (group_index, mrph_index, "start" or "end") -> text
 
-        def event_str(event: "Event") -> str:
+        def get_event_str(event: "Event") -> str:
             return (
                 event._to_text(
                     mode,
                     truncate=False,
-                    add_mark=True,
+                    add_mark=add_mark,
                     exclude_exophora=exclude_exophora,
                     include_modifiers=include_modifiers,
                     exclude_adnominal=True,
@@ -475,7 +475,7 @@ class Event(Component):
                 adnominal_events = sorted([e for bp in bps for e in bp.adnominal_events], key=lambda e: e.evid)
                 if adnominal_events:
                     if include_modifiers:
-                        additional_texts[start_pos] = " ".join(event_str(e) for e in adnominal_events)
+                        additional_texts[start_pos] = " ".join(get_event_str(e) for e in adnominal_events)
                     else:
                         additional_texts[start_pos] = "▼"
                 sentential_complement_events = sorted(
@@ -483,7 +483,7 @@ class Event(Component):
                 )
                 if sentential_complement_events:
                     if include_modifiers:
-                        additional_texts[start_pos] = " ".join(event_str(e) for e in sentential_complement_events)
+                        additional_texts[start_pos] = " ".join(get_event_str(e) for e in sentential_complement_events)
                     else:
                         additional_texts[start_pos] = "■"
 
