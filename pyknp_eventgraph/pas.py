@@ -1,13 +1,13 @@
 import collections
 from logging import getLogger
-from typing import List, Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from pyknp.knp.pas import Pas as PyknpPAS
 
 from pyknp_eventgraph.argument import Argument, ArgumentsBuilder, JsonArgumentsBuilder
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.predicate import Predicate, PredicateBuilder, JsonPredicateBuilder
+from pyknp_eventgraph.predicate import JsonPredicateBuilder, Predicate, PredicateBuilder
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.event import Event

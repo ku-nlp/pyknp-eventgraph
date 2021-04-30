@@ -1,13 +1,12 @@
-import unittest
-import os
 import glob
 import json
+import os
+import unittest
 from io import open
 
 from parameterized import parameterized
 
 from pyknp_eventgraph import EventGraph
-
 
 here = os.path.abspath(os.path.dirname(__file__))
 

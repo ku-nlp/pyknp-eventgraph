@@ -1,15 +1,14 @@
 import collections
 from logging import getLogger
-from typing import List, Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from pyknp import Argument as PyknpArgument
 from pyknp import Morpheme, Tag
 
+from pyknp_eventgraph.base_phrase import BasePhrase
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana
-from pyknp_eventgraph.base_phrase import BasePhrase
-from pyknp_eventgraph.helper import convert_mrphs_to_surf
+from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana, convert_mrphs_to_surf
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.pas import PAS

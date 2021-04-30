@@ -7,8 +7,7 @@ from logging import basicConfig
 
 from pyknp import KNP
 
-from pyknp_eventgraph import EventGraph
-from pyknp_eventgraph import make_image
+from pyknp_eventgraph import EventGraph, make_image
 
 
 def evg():

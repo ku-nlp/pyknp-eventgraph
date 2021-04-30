@@ -1,12 +1,12 @@
 from logging import getLogger
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from pyknp import BList
 
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.event import JsonEventBuilder
-from pyknp_eventgraph.sentence import Sentence, SentenceBuilder, JsonSentenceBuilder
+from pyknp_eventgraph.sentence import JsonSentenceBuilder, Sentence, SentenceBuilder
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.eventgraph import EventGraph

@@ -1,11 +1,11 @@
 from logging import getLogger
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
-from pyknp import Tag, Morpheme
+from pyknp import Morpheme, Tag
 
+from pyknp_eventgraph.base_phrase import BasePhrase
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
-from pyknp_eventgraph.base_phrase import BasePhrase
 from pyknp_eventgraph.helper import convert_mrphs_to_surf
 
 if TYPE_CHECKING:

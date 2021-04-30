@@ -1,6 +1,6 @@
 import re
 from logging import getLogger
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 from pyknp import Tag
 
