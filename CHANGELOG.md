@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.1.6]
+- Add the properties of `adnomominal_events` and `sentential_complement_events` to `Argument` and `Predicate`.
+
 ## [6.1.5]
 - Small bug fix.
 - Use isort, a code formatter for import statements.

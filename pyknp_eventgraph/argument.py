@@ -11,6 +11,7 @@ from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana, convert_mrphs_to_surf
 
 if TYPE_CHECKING:
+    from pyknp_eventgraph.event import Event
     from pyknp_eventgraph.pas import PAS
 
 logger = getLogger(__name__)
@@ -114,23 +115,27 @@ class Argument(Component):
         return self._head_reps
 
     @property
+    def adnominal_events(self) -> List["Event"]:
+        """A list of events modifying this predicate as an adnominal."""
+        return [e for bp in self.head_base_phrase.modifiees(include_self=True) for e in bp.adnominal_events]
+
+    @property
+    def sentential_complement_events(self) -> List["Event"]:
+        """A list of events modifying this predicate as an adnominal."""
+        return [e for bp in self.head_base_phrase.modifiees(include_self=True) for e in bp.sentential_complement_events]
+
+    @property
     def adnominal_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (adnominal)."""
         if self._adnominal_event_ids is None:
-            self._adnominal_event_ids = sorted(
-                event.evid for t in self.head_base_phrase.modifiees(include_self=True) for event in t.adnominal_events
-            )
+            self._adnominal_event_ids = sorted(e.evid for e in self.adnominal_events)
         return self._adnominal_event_ids
 
     @property
     def sentential_complement_event_ids(self) -> List[int]:
         """A list of IDs of events modifying this predicate (sentential complement)."""
         if self._sentential_complement_event_ids is None:
-            self._sentential_complement_event_ids = sorted(
-                event.evid
-                for t in self.head_base_phrase.modifiees(include_self=True)
-                for event in t.sentential_complement_events
-            )
+            self._sentential_complement_event_ids = sorted(e.evid for e in self.sentential_complement_events)
         return self._sentential_complement_event_ids
 
     @property
