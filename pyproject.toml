@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyknp-eventgraph"
-version = "6.1.6"
+version = "6.1.7"
 description = "A development platform for high-level NLP applications in Japanese"
 license = "BSD-3-Clause"
 authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>"]
@@ -25,7 +25,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pyknp = "^0.4.6"
+pyknp = "^0.5.0"
 graphviz = "^0.16"
 
 [tool.poetry.dev-dependencies]
