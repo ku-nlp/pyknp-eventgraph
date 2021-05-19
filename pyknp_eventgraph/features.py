@@ -71,22 +71,23 @@ class Features(Component):
 
 
 class FeaturesBuilder(Builder):
-    def __call__(self, event: "Event") -> Features:
-        func_tag = self._get_functional_tag(event.head)
+    @classmethod
+    def build(cls, event: "Event") -> Features:
+        func_tag = cls._get_functional_tag(event.head)
         features = Features(
             event=event,
-            modality=self._find_modality(event.head, func_tag),
-            tense=self._find_tense(func_tag),
-            negation=self._find_negation(func_tag),
-            state=self._find_state(func_tag),
-            complement=self._find_complement(func_tag),
-            level=self._find_level(func_tag),
+            modality=cls._find_modality(event.head, func_tag),
+            tense=cls._find_tense(func_tag),
+            negation=cls._find_negation(func_tag),
+            state=cls._find_state(func_tag),
+            complement=cls._find_complement(func_tag),
+            level=cls._find_level(func_tag),
         )
         event.features = features
         return features
 
-    @staticmethod
-    def _get_functional_tag(head: Tag) -> Tag:
+    @classmethod
+    def _get_functional_tag(cls, head: Tag) -> Tag:
         if (
             head.parent
             and head.parent.pas
@@ -97,42 +98,43 @@ class FeaturesBuilder(Builder):
             return head.parent
         return head
 
-    @staticmethod
-    def _find_modality(head: Tag, func_tag: Tag) -> List[str]:
+    @classmethod
+    def _find_modality(cls, head: Tag, func_tag: Tag) -> List[str]:
         modality = re.findall("<モダリティ-(.+?)>", func_tag.fstring)
         if head.parent and ("弱用言" in head.parent.features or "思う能動" in head.parent.features):
             modality.append("推量・伝聞")
         return modality
 
-    @staticmethod
-    def _find_tense(func_tag: Tag) -> str:
+    @classmethod
+    def _find_tense(cls, func_tag: Tag) -> str:
         if "<時制" in func_tag.fstring:
             return re.search("<時制[-:](.+?)>", func_tag.fstring).group(1)
         return "unknown"
 
-    @staticmethod
-    def _find_negation(func_tag: Tag) -> bool:
+    @classmethod
+    def _find_negation(cls, func_tag: Tag) -> bool:
         return func_tag.features.get("否定表現", False)
 
-    @staticmethod
-    def _find_state(head: Tag) -> str:
+    @classmethod
+    def _find_state(cls, head: Tag) -> str:
         if "状態述語" in head.features:
             return "状態述語"
         if "動態述語" in head.features:
             return "動態述語"
         return ""
 
-    @staticmethod
-    def _find_complement(func_tag: Tag) -> bool:
+    @classmethod
+    def _find_complement(cls, func_tag: Tag) -> bool:
         return func_tag.features.get("補文", False)
 
-    @staticmethod
-    def _find_level(func_tag: Tag) -> str:
+    @classmethod
+    def _find_level(cls, func_tag: Tag) -> str:
         return func_tag.features.get("レベル", "")
 
 
 class JsonFeaturesBuilder(Builder):
-    def __call__(self, event: "Event", dump: dict) -> Features:
+    @classmethod
+    def build(cls, event: "Event", dump: dict) -> Features:
         features = Features(
             event=event,
             modality=dump["modality"],

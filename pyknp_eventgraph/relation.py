@@ -72,8 +72,9 @@ def filter_relations(
 
 
 class RelationBuilder:
-    def __call__(
-        self, modifier: "Event", head: "Event", label: str, surf: str = "", head_tid: int = -1, reliable: bool = False
+    @classmethod
+    def build(
+        cls, modifier: "Event", head: "Event", label: str, surf: str = "", head_tid: int = -1, reliable: bool = False
     ) -> Relation:
         relation = Relation(modifier, head, label, surf, head_tid, reliable)
         modifier.outgoing_relations.append(relation)
@@ -82,7 +83,8 @@ class RelationBuilder:
 
 
 class JsonRelationBuilder(Builder):
-    def __call__(self, modifier_evid: int, head_evid: int, dump: dict) -> Relation:
+    @classmethod
+    def build(cls, modifier_evid: int, head_evid: int, dump: dict) -> Relation:
         modifier = Builder.evid_event_map[modifier_evid]
         head = Builder.evid_event_map[head_evid]
         relation = Relation(modifier, head, dump["label"], dump["surf"], dump["head_tid"], dump["reliable"])
@@ -92,16 +94,18 @@ class JsonRelationBuilder(Builder):
 
 
 class RelationsBuilder(Builder):
-    def __call__(self, event: "Event") -> List[Relation]:
+    @classmethod
+    def build(cls, event: "Event") -> List[Relation]:
         relations: List[Relation] = []
-        for relation in self._get_outgoing_relations(event):
+        for relation in cls._get_outgoing_relations(event):
             relations.append(relation)
         return relations
 
-    def _get_outgoing_relations(self, event: "Event") -> List[Relation]:
+    @classmethod
+    def _get_outgoing_relations(cls, event: "Event") -> List[Relation]:
         relations: List[Relation] = []
 
-        parent_event = self._find_parent(event)
+        parent_event = cls._find_parent(event)
         if parent_event:
             event.parent = parent_event
 
@@ -114,13 +118,13 @@ class RelationsBuilder(Builder):
         # Adnominal.
         if event.parent and event.end.features["節-区切"] == "連体修飾":
             relations.append(
-                RelationBuilder()(event, event.parent, "連体修飾", head_tid=event.end.parent_id, reliable=reliable)
+                RelationBuilder.build(event, event.parent, "連体修飾", head_tid=event.end.parent_id, reliable=reliable)
             )
 
         # Sentential complement.
         if event.parent and event.end.features["節-区切"] == "補文":
             relations.append(
-                RelationBuilder()(event, event.parent, "補文", head_tid=event.end.parent_id, reliable=reliable)
+                RelationBuilder.build(event, event.parent, "補文", head_tid=event.end.parent_id, reliable=reliable)
             )
 
         # Discourse relation.
@@ -130,7 +134,7 @@ class RelationsBuilder(Builder):
                 sdist, tid, sid = tmp.split("/")
                 head_event = Builder.stid_event_map.get((event.ssid + int(sdist), int(tid)), None)
                 if head_event:
-                    relations.append(RelationBuilder()(event, head_event, f"談話関係:{label}"))
+                    relations.append(RelationBuilder.build(event, head_event, f"談話関係:{label}"))
 
         # Clausal function.
         if not relations and event.parent:
@@ -140,7 +144,7 @@ class RelationsBuilder(Builder):
                 else:
                     label, surf = clause_function, ""
                 relations.append(
-                    RelationBuilder()(
+                    RelationBuilder.build(
                         event, event.parent, label, surf=surf, head_tid=event.end.parent_id, reliable=reliable
                     )
                 )
@@ -148,15 +152,15 @@ class RelationsBuilder(Builder):
         # Clausal parallel relation.
         if not relations and event.parent:
             if event.end.dpndtype == "P":
-                relations.append(RelationBuilder()(event, event.parent, "並列", reliable=reliable))
+                relations.append(RelationBuilder.build(event, event.parent, "並列", reliable=reliable))
 
         # Clausal dependency.
         if not relations and event.parent:
-            relations.append(RelationBuilder()(event, event.parent, "係り受け", reliable=reliable))
+            relations.append(RelationBuilder.build(event, event.parent, "係り受け", reliable=reliable))
         return relations
 
-    @staticmethod
-    def _find_parent(event: "Event") -> Optional["Event"]:
+    @classmethod
+    def _find_parent(cls, event: "Event") -> Optional["Event"]:
         parent_tag: Optional[Tag] = event.head.parent
         while parent_tag:
             for parent_event_cand in filter(lambda event_: event.evid < event_.evid, event.sentence.events):

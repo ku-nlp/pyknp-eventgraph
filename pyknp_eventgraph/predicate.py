@@ -255,18 +255,20 @@ class Predicate(Component):
 
 
 class PredicateBuilder(Builder):
-    def __call__(self, pas: "PAS") -> Predicate:
-        predicate = Predicate(pas, self._find_type(pas.event.head), pas.event.head)
+    @classmethod
+    def build(cls, pas: "PAS") -> Predicate:
+        predicate = Predicate(pas, cls._find_type(pas.event.head), pas.event.head)
         pas.predicate = predicate
         return predicate
 
-    @staticmethod
-    def _find_type(head: Tag) -> str:
+    @classmethod
+    def _find_type(cls, head: Tag) -> str:
         return head.features.get("用言", "")
 
 
 class JsonPredicateBuilder(Builder):
-    def __call__(self, pas: "PAS", dump: dict) -> Predicate:
+    @classmethod
+    def build(cls, pas: "PAS", dump: dict) -> Predicate:
         predicate = Predicate(pas, dump["type"])
         predicate._surf = dump["surf"]
         predicate._normalized_surf = dump["normalized_surf"]

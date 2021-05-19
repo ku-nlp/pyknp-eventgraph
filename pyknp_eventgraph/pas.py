@@ -58,18 +58,20 @@ class PAS(Component):
 
 
 class PASBuilder(Builder):
-    def __call__(self, event: "Event") -> PAS:
+    @classmethod
+    def build(cls, event: "Event") -> PAS:
         pas = PAS(event, event.head.pas)
-        PredicateBuilder()(pas)
-        ArgumentsBuilder()(pas)
+        PredicateBuilder.build(pas)
+        ArgumentsBuilder.build(pas)
         event.pas = pas
         return pas
 
 
 class JsonPASBuilder(Builder):
-    def __call__(self, event: "Event", dump: dict) -> PAS:
+    @classmethod
+    def build(cls, event: "Event", dump: dict) -> PAS:
         pas = PAS(event)
-        JsonPredicateBuilder()(pas, dump["predicate"])
-        JsonArgumentsBuilder()(pas, dump["argument"])
+        JsonPredicateBuilder.build(pas, dump["predicate"])
+        JsonArgumentsBuilder.build(pas, dump["argument"])
         event.pas = pas
         return pas

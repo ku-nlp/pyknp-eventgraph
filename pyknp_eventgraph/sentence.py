@@ -64,7 +64,8 @@ class Sentence(Component):
 
 
 class SentenceBuilder(Builder):
-    def __call__(self, document: "Document", blist: BList) -> Sentence:
+    @classmethod
+    def build(cls, document: "Document", blist: BList) -> Sentence:
         sentence = Sentence(document, blist.sid, Builder.ssid, blist)
         start: Optional[Tag] = None
         end: Optional[Tag] = None
@@ -77,7 +78,7 @@ class SentenceBuilder(Builder):
             if not end and "節-区切" in tag.features:
                 end = tag
                 if head:
-                    EventBuilder()(sentence, start, head, end)
+                    EventBuilder.build(sentence, start, head, end)
                 start, end, head = None, None, None
         document.sentences.append(sentence)
         Builder.ssid += 1
@@ -89,7 +90,8 @@ class SentenceBuilder(Builder):
 
 
 class JsonSentenceBuilder(Builder):
-    def __call__(self, document: "Document", dump: dict) -> Sentence:
+    @classmethod
+    def build(cls, document: "Document", dump: dict) -> Sentence:
         sentence = Sentence(document, dump["sid"], dump["ssid"])
         sentence._mrphs = dump["mrphs"]
         sentence._reps = dump["reps"]

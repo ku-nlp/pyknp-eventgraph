@@ -199,23 +199,25 @@ def group_base_phrases(bps: List[BasePhrase]) -> List[List[BasePhrase]]:
 
 
 class BasePhraseBuilder(Builder):
-    def __call__(self, event: "Event"):
+    @classmethod
+    def build(cls, event: "Event"):
         # Greedily dispatch base phrases to arguments.
         argument_head_bps: List[BasePhrase] = []
         for args in event.pas.arguments.values():
             for arg in args:
-                head = self.dispatch_head_base_phrase_to_argument(arg)
+                head = cls._dispatch_head_base_phrase_to_argument(arg)
                 argument_head_bps.append(head)
                 if head.parent:
                     argument_head_bps.append(head.parent)
 
         # Resolve duplication.
-        self._resolve_duplication(argument_head_bps)
+        cls._resolve_duplication(argument_head_bps)
 
         # Dispatch base phrases to a predicate.
-        self.dispatch_head_base_phrase_to_predicate(event.pas.predicate, sentinels=argument_head_bps)
+        cls._dispatch_head_base_phrase_to_predicate(event.pas.predicate, sentinels=argument_head_bps)
 
-    def dispatch_head_base_phrase_to_argument(self, argument: "Argument") -> BasePhrase:
+    @classmethod
+    def _dispatch_head_base_phrase_to_argument(cls, argument: "Argument") -> BasePhrase:
         event = argument.pas.event
         ssid = argument.pas.ssid - argument.arg.sdist
         tid = argument.arg.tid
@@ -228,13 +230,14 @@ class BasePhraseBuilder(Builder):
             head_bp = BasePhrase(event, tag, ssid, bid, tid, omitted_case=argument.case)
         else:
             head_bp = BasePhrase(event, tag, ssid, bid, tid)
-            self.add_children(head_bp, ssid)
-            self.add_compound_phrase_component(head_bp, ssid)
+            cls._add_children(head_bp, ssid)
+            cls._add_compound_phrase_component(head_bp, ssid)
 
         argument.head_base_phrase = head_bp
         return head_bp
 
-    def dispatch_head_base_phrase_to_predicate(self, predicate: "Predicate", sentinels: List[BasePhrase]) -> BasePhrase:
+    @classmethod
+    def _dispatch_head_base_phrase_to_predicate(cls, predicate: "Predicate", sentinels: List[BasePhrase]) -> BasePhrase:
         event = predicate.pas.event
         ssid = predicate.pas.event.ssid
         tid = predicate.head.tag_id
@@ -242,31 +245,33 @@ class BasePhraseBuilder(Builder):
         tag = Builder.stid_tag_map.get((ssid, tid), None)
 
         head_bp = BasePhrase(event, tag, ssid, bid, tid)
-        self.add_children(head_bp, ssid, sentinels=sentinels)
+        cls._add_children(head_bp, ssid, sentinels=sentinels)
         if predicate.pas.event.head != predicate.pas.event.end:
             next_tid = predicate.pas.event.end.tag_id
             next_bid = Builder.stid_bid_map.get((ssid, next_tid), -1)
             head_parent_bp = BasePhrase(event, predicate.pas.event.end, ssid, next_bid, next_tid)
-            self.add_children(head_parent_bp, ssid, sentinels=sentinels + [head_bp])
-            self.add_compound_phrase_component(head_parent_bp, ssid)
+            cls._add_children(head_parent_bp, ssid, sentinels=sentinels + [head_bp])
+            cls._add_compound_phrase_component(head_parent_bp, ssid)
             head_bp.parent = head_parent_bp
             head_parent_bp.children.append(head_bp)
 
         predicate.head_base_phrase = head_bp
         return head_bp
 
-    def add_compound_phrase_component(self, bp: BasePhrase, ssid: int) -> NoReturn:
+    @classmethod
+    def _add_compound_phrase_component(cls, bp: BasePhrase, ssid: int) -> NoReturn:
         next_tag = Builder.stid_tag_map.get((ssid, bp.tag.tag_id + 1), None)
         if next_tag and "複合辞" in next_tag.features and "補文ト" not in next_tag.features:
             next_tid = bp.tag.tag_id + 1
             next_bid = Builder.stid_bid_map.get((ssid, next_tid), -1)
             parent_bp = BasePhrase(bp.event, next_tag, ssid, next_bid, next_tid)
-            self.add_children(parent_bp, ssid, sentinels=[bp])
-            self.add_compound_phrase_component(parent_bp, ssid)
+            cls._add_children(parent_bp, ssid, sentinels=[bp])
+            cls._add_compound_phrase_component(parent_bp, ssid)
             bp.parent = parent_bp
             parent_bp.children.append(bp)
 
-    def add_children(self, parent_bp: BasePhrase, ssid: int, sentinels: List[BasePhrase] = None) -> NoReturn:
+    @classmethod
+    def _add_children(cls, parent_bp: BasePhrase, ssid: int, sentinels: List[BasePhrase] = None) -> NoReturn:
         sentinel_tags = {sentinel.tag for sentinel in sentinels} if sentinels else {}
         for child_tag in parent_bp.tag.children:  # type: Tag
             if child_tag in sentinel_tags or "節-主辞" in child_tag.features or "節-区切" in child_tag.features:
@@ -274,12 +279,12 @@ class BasePhraseBuilder(Builder):
             tid = child_tag.tag_id
             bid = Builder.stid_bid_map.get((ssid, tid), -1)
             child_bp = BasePhrase(parent_bp.event, child_tag, ssid, bid, tid, is_child=True)
-            self.add_children(child_bp, ssid, sentinels)
+            cls._add_children(child_bp, ssid, sentinels)
             child_bp.parent = parent_bp
             parent_bp.children.append(child_bp)
 
-    @staticmethod
-    def _resolve_duplication(head_bps: List[BasePhrase]) -> NoReturn:
+    @classmethod
+    def _resolve_duplication(cls, head_bps: List[BasePhrase]) -> NoReturn:
         keys = {head_bp.key[1:] for head_bp in head_bps}  # head_bp.key[0] is the case id.
 
         def resolver(children: List[BasePhrase]) -> NoReturn:

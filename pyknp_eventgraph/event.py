@@ -579,10 +579,11 @@ class Event(Component):
 
 
 class EventBuilder(Builder):
-    def __call__(self, sentence: "Sentence", start: Tag, head: Tag, end: Tag):
+    @classmethod
+    def build(cls, sentence: "Sentence", start: Tag, head: Tag, end: Tag):
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid, start, head, end)
-        PASBuilder()(event)
-        FeaturesBuilder()(event)
+        PASBuilder.build(event)
+        FeaturesBuilder.build(event)
         sentence.events.append(event)
         Builder.evid += 1
         for tid in range(start.tag_id, end.tag_id + 1):
@@ -591,7 +592,8 @@ class EventBuilder(Builder):
 
 
 class JsonEventBuilder(Builder):
-    def __call__(self, sentence: "Sentence", dump: dict) -> Event:
+    @classmethod
+    def build(cls, sentence: "Sentence", dump: dict) -> Event:
         event = Event(sentence, Builder.evid, sentence.sid, sentence.ssid)
         event._surf = dump["surf"]
         event._surf_with_mark = dump["surf_with_mark"]
@@ -606,8 +608,8 @@ class JsonEventBuilder(Builder):
         event._normalized_reps = dump["normalized_reps"]
         event._normalized_reps_with_mark = dump["normalized_reps_with_mark"]
         event._content_rep_list = dump["content_rep_list"]
-        JsonPASBuilder()(event, dump["pas"])
-        JsonFeaturesBuilder()(event, dump["features"])
+        JsonPASBuilder.build(event, dump["pas"])
+        JsonFeaturesBuilder.build(event, dump["features"])
         sentence.events.append(event)
         Builder.evid += 1
         Builder.evid_event_map[event.evid] = event

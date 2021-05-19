@@ -48,7 +48,7 @@ class EventGraph(Component):
             # Build an EventGraph.
             evg = EventGraph.build(blists)
         """
-        return EventGraphBuilder()(blist)
+        return EventGraphBuilder.build(blist)
 
     @classmethod
     def load(cls, f: Union[TextIO, BinaryIO], binary: bool = False) -> "EventGraph":
@@ -75,7 +75,10 @@ class EventGraph(Component):
             EventGraph deserialized from a JSON file loses several functionality.
             To keep full functionality, use Python\'s pickle utility for serialization.
         """
-        return PickleEventGraphBuilder()(f) if binary else JsonEventGraphBuilder()(f)
+        if binary:
+            return PickleEventGraphBuilder.build(f)
+        else:
+            return JsonEventGraphBuilder.build(f)
 
     def save(self, path: str, binary: bool = False) -> None:
         """Save this EventGraph.
@@ -135,29 +138,31 @@ class EventGraph(Component):
 
 
 class EventGraphBuilder(Builder):
-    def __call__(self, blists: List[BList]) -> EventGraph:
+    @classmethod
+    def build(cls, blists: List[BList]) -> EventGraph:
         logger.debug("Create an EventGraph.")
         Builder.reset()
         evg = EventGraph()
         # Assign a document to the EventGraph.
         # A document is a collection of sentences, and a sentence is a collection of events.
-        DocumentBuilder()(evg, blists)
+        DocumentBuilder.build(evg, blists)
         # Assign basic phrases to events.
         # This process must be performed after constructing a document
         # because an event may have a basic phrase recognized by inter-sentential cataphora resolution.
         for event in evg.events:
-            BasePhraseBuilder()(event)
+            BasePhraseBuilder.build(event)
         # Assign event-to-event relations to events.
         # This process must be performed after constructing a document.
         for event in evg.events:
-            RelationsBuilder()(event)
+            RelationsBuilder.build(event)
         logger.debug("Successfully created an EventGraph.")
         logger.debug(evg)
         return evg
 
 
 class PickleEventGraphBuilder(Builder):
-    def __call__(self, f: BinaryIO) -> EventGraph:
+    @classmethod
+    def build(cls, f: BinaryIO) -> EventGraph:
         logger.debug("Create an EventGraph by loading a pickled file.")
         evg = pickle.load(f)
         assert isinstance(evg, EventGraph)
@@ -167,7 +172,8 @@ class PickleEventGraphBuilder(Builder):
 
 
 class JsonEventGraphBuilder(Builder):
-    def __call__(self, f: TextIO) -> EventGraph:
+    @classmethod
+    def build(cls, f: TextIO) -> EventGraph:
         logger.debug("Create an EventGraph by loading a JSON file.")
         logger.info(
             "EventGraph deserialized from a JSON file loses several functionality. "
@@ -180,13 +186,13 @@ class JsonEventGraphBuilder(Builder):
         evg = EventGraph()
         # Assign a document to the EventGraph.
         # A document is a collection of sentences, and a sentence is a collection of events.
-        JsonDocumentBuilder()(evg, dump)
+        JsonDocumentBuilder.build(evg, dump)
         # Assign event-to-event relations to events.
         for event_dump in dump["events"]:
             for relation_dump in event_dump["rel"]:
                 modifier_evid = event_dump["event_id"]
                 head_evid = relation_dump["event_id"]
-                JsonRelationBuilder()(modifier_evid, head_evid, relation_dump)
+                JsonRelationBuilder.build(modifier_evid, head_evid, relation_dump)
         logger.debug("Successfully created an EventGraph.")
         logger.debug(evg)
         return evg

@@ -255,14 +255,16 @@ class Argument(Component):
 
 
 class ArgumentBuilder(Builder):
-    def __call__(self, pas: "PAS", case: str, arg: PyknpArgument) -> Argument:
+    @classmethod
+    def build(cls, pas: "PAS", case: str, arg: PyknpArgument) -> Argument:
         argument = Argument(pas, case, arg.eid, arg.flag, arg.sdist, arg)
         pas.arguments[case].append(argument)
         return argument
 
 
 class JsonArgumentBuilder(Builder):
-    def __call__(self, pas: "PAS", case: str, dump: dict) -> Argument:
+    @classmethod
+    def build(cls, pas: "PAS", case: str, dump: dict) -> Argument:
         argument = Argument(pas, case, dump["eid"], dump["flag"], dump["sdist"])
         argument._surf = dump["surf"]
         argument._normalized_surf = dump["normalized_surf"]
@@ -279,19 +281,21 @@ class JsonArgumentBuilder(Builder):
 
 
 class ArgumentsBuilder(Builder):
-    def __call__(self, pas: "PAS") -> Dict[str, List[Argument]]:
+    @classmethod
+    def build(cls, pas: "PAS") -> Dict[str, List[Argument]]:
         arguments: Dict[str, List[Argument]] = collections.defaultdict(list)
         if pas.pas:
             for case, args in sorted(pas.pas.arguments.items(), key=lambda x: PAS_ORDER.get(x[0], 99)):
                 for arg in sorted(args, key=lambda _arg: (pas.ssid - _arg.sdist, _arg.tid)):
-                    arguments[case].append(ArgumentBuilder()(pas, case, arg))
+                    arguments[case].append(ArgumentBuilder.build(pas, case, arg))
         return arguments
 
 
 class JsonArgumentsBuilder(Builder):
-    def __call__(self, pas: "PAS", dump: dict) -> Dict[str, List[Argument]]:
+    @classmethod
+    def build(cls, pas: "PAS", dump: dict) -> Dict[str, List[Argument]]:
         arguments: Dict[str, List[Argument]] = collections.defaultdict(list)
         for case, arguments_dump in dump.items():
             for argument_dump in arguments_dump:
-                arguments[case].append(JsonArgumentBuilder()(pas, case, argument_dump))
+                arguments[case].append(JsonArgumentBuilder.build(pas, case, argument_dump))
         return arguments
