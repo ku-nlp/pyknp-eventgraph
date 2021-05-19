@@ -6,9 +6,9 @@ from pyknp_eventgraph.utils import read_knp_result_file
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('IN', help='path to a knp result file')
-    parser.add_argument('OUT', help='path to an output file')
-    parser.add_argument('--binary', action='store_true', help='use Python\'s pickle utility for serialization')
+    parser.add_argument("IN", help="path to a knp result file")
+    parser.add_argument("OUT", help="path to an output file")
+    parser.add_argument("--binary", action="store_true", help="use Python's pickle utility for serialization")
     args = parser.parse_args()
 
     blists = read_knp_result_file(args.IN)
@@ -21,15 +21,15 @@ def main():
 
     # To load an EventGraph, use `EventGraph.load()`.
     if args.binary:
-        with open(args.OUT, 'rb') as f:
+        with open(args.OUT, "rb") as f:
             loaded = EventGraph.load(f, binary=args.binary)
     else:
         with open(args.OUT) as f:
             loaded = EventGraph.load(f, binary=args.binary)
 
-    print(f'Constructed: {evg}')
-    print(f'Loaded: {loaded}')
+    print(f"Constructed: {evg}")
+    print(f"Loaded: {loaded}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

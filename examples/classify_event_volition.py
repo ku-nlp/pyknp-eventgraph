@@ -14,7 +14,7 @@ from pyknp_eventgraph.utils import read_knp_result_file
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('IN', help='path to a knp result file')
+    parser.add_argument("IN", help="path to a knp result file")
     args = parser.parse_args()
 
     blists = read_knp_result_file(args.IN)
@@ -27,7 +27,7 @@ def main():
         head_tag = event.pas.predicate.tag
 
         # Primary nominative: `event.pas.arguments` is a mapping from a case to a list of arguments.
-        nominatives = event.pas.arguments.get('ガ', None)
+        nominatives = event.pas.arguments.get("ガ", None)
         if nominatives:
             primary_nominative = nominatives[0]  # The first item corresponds to the primal one.
             if primary_nominative.tag:
@@ -45,9 +45,9 @@ def main():
 
         # Show the result.
         event_repr = event.surf_(include_modifiers=True)
-        print(' * Event: {}'.format(event_repr))
-        print('  - Volition: {}'.format(result))
+        print(" * Event: {}".format(event_repr))
+        print("  - Volition: {}".format(result))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
