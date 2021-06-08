@@ -290,6 +290,7 @@ class Event(Component):
         mode: str = "mrphs",
         truncate: bool = False,
         add_mark: bool = False,
+        exclude_omission: bool = False,
         exclude_exophora: bool = False,
         include_modifiers: bool = False,
         exclude_adnominal: bool = False,
@@ -300,6 +301,7 @@ class Event(Component):
             mode: A type of token representation, which can take either "mrphs" or "reps".
             truncate: If true, adjunct words are truncated.
             add_mark: If true, special marks are added.
+            exclude_omission: If true, omitted cases will not be used.
             exclude_exophora: If true, exophora will not be used.
             include_modifiers: If true, tokens of events that modify this event will be included.
             exclude_adnominal: If true, base phrases modified by this event will be excluded.
@@ -308,7 +310,7 @@ class Event(Component):
 
         # Create a list of base phrases to show.
         grouped_bps = group_base_phrases(
-            self._collect_base_phrases(exclude_exophora=exclude_exophora, exclude_adnominal=exclude_adnominal)
+            self._collect_base_phrases(exclude_omission, exclude_exophora, exclude_adnominal)
         )
 
         # Create a list of morphemes.
@@ -329,6 +331,7 @@ class Event(Component):
             normalize=truncate,
             truncated_pos=truncated_pos,
             include_modifiers=include_modifiers,
+            exclude_omission=exclude_omission,
             exclude_exophora=exclude_exophora,
         )
 
@@ -338,6 +341,7 @@ class Event(Component):
 
     def _collect_base_phrases(
         self,
+        exclude_omission: bool = False,
         exclude_exophora: bool = False,
         exclude_adnominal: bool = False,
     ) -> List[BasePhrase]:
@@ -355,8 +359,11 @@ class Event(Component):
         for args in self.pas.arguments.values():
             for arg in args:
                 if arg.head_base_phrase.omitted_case:
-                    if exclude_exophora and arg.head_base_phrase.exophora:
-                        # e.g., [著者 が]
+                    if exclude_omission and arg.flag in {"O", "E"}:
+                        # e.g., [彼が] [著者が]
+                        continue
+                    if exclude_exophora and arg.flag in {"E"}:
+                        # e.g., [著者が]
                         continue
                     if exclude_adnominal and arg.head_base_phrase.tag == self.pas.predicate.head_base_phrase.tag.parent:
                         # e.g., [車が] of "[車が] 高速道路を低速で走る" -> "車は危ない"
@@ -426,6 +433,7 @@ class Event(Component):
         normalize: bool,
         truncated_pos: Tuple[int, int],
         include_modifiers: bool,
+        exclude_omission: bool,
         exclude_exophora: bool,
     ) -> Dict[Tuple[int, int, str], str]:
         """Get a mapping from a position to a mark.
@@ -438,6 +446,7 @@ class Event(Component):
             normalize: If true, the last content word will be normalized.
             truncated_pos: A position just before adjunct words start.
             include_modifiers: If true, tokens of events that modify this event will be included.
+            exclude_omission: If true, omitted cases will not be used.
             exclude_exophora: If true, exophora will not be used.
 
         Returns:
@@ -451,6 +460,7 @@ class Event(Component):
                     mode,
                     truncate=False,
                     add_mark=add_mark,
+                    exclude_omission=exclude_omission,
                     exclude_exophora=exclude_exophora,
                     include_modifiers=include_modifiers,
                     exclude_adnominal=True,

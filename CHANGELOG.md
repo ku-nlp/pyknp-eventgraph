@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.1.8]
+- Update the internal strategy.
+
 ## [6.1.7]
 - Bump pyknp from 0.4.6 to 0.5.0.
 
