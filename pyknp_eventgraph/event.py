@@ -10,6 +10,8 @@ from pyknp_eventgraph.features import Features, FeaturesBuilder, JsonFeaturesBui
 from pyknp_eventgraph.helper import PAS_ORDER, convert_katakana_to_hiragana, convert_mrphs_to_surf
 from pyknp_eventgraph.pas import PAS, JsonPASBuilder, PASBuilder
 from pyknp_eventgraph.relation import Relation
+from pyknp_eventgraph.predicate import Predicate
+from pyknp_eventgraph.argument import Argument
 
 if TYPE_CHECKING:
     from pyknp_eventgraph.sentence import Sentence
@@ -86,6 +88,16 @@ class Event(Component):
     def event_id(self) -> int:
         """An alias to evid."""
         return self.evid
+
+    @property
+    def predicate(self) -> Predicate:
+        """The predicate."""
+        return self.pas.predicate
+
+    @property
+    def arguments(self) -> Dict[str, List[Argument]]:
+        """The arguments."""
+        return self.pas.arguments
 
     @property
     def surf(self) -> str:
