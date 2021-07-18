@@ -190,6 +190,24 @@ class Event(Component):
             self._content_rep_list = self.content_rep_list_()
         return self._content_rep_list
 
+    @property
+    def span(self) -> List[Tuple[int, int]]:
+        """The span."""
+        spans = []
+        start_mrph_id = None
+        prev_mrph_id = None
+        for bp in filter(lambda bp: not bp.omitted_case, self._collect_base_phrases()):
+            for mrph in bp.morphemes:
+                if start_mrph_id is None:
+                    start_mrph_id = mrph.mrph_id
+                if prev_mrph_id is not None and prev_mrph_id + 1 != mrph.mrph_id:
+                    spans.append((start_mrph_id, prev_mrph_id + 1))
+                    start_mrph_id = mrph.mrph_id
+                prev_mrph_id = mrph.mrph_id
+        if start_mrph_id is not None:
+            spans.append((start_mrph_id, prev_mrph_id + 1))
+        return spans
+
     def surf_(self, include_modifiers: bool = False) -> str:
         """A surface string.
 

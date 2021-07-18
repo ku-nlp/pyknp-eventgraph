@@ -1,6 +1,6 @@
 import collections
 from logging import getLogger
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from pyknp import Argument as PyknpArgument
 from pyknp import Morpheme, Tag
@@ -161,6 +161,23 @@ class Argument(Component):
                     }
                 )
         return self._children
+
+    @property
+    def span(self) -> List[Tuple[int, int]]:
+        spans = []
+        start_mrph_id = None
+        prev_mrph_id = None
+        for bp in filter(lambda bp: not bp.omitted_case, self.head_base_phrase.root.modifiers(include_self=True)):
+            for mrph in bp.morphemes:
+                if start_mrph_id is None:
+                    start_mrph_id = mrph.mrph_id
+                if prev_mrph_id is not None and prev_mrph_id + 1 != mrph.mrph_id:
+                    spans.append((start_mrph_id, prev_mrph_id + 1))
+                    start_mrph_id = mrph.mrph_id
+                prev_mrph_id = mrph.mrph_id
+        if start_mrph_id is not None:
+            spans.append((start_mrph_id, prev_mrph_id + 1))
+        return spans
 
     def _base_phrase_to_text(
         self, bp: BasePhrase, mode: str = "mrphs", truncate: bool = False, include_modifiees: bool = False
