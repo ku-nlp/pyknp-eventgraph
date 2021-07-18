@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.2.0]
+- Add the property of `span` to `Event`, `Predicate`, and `Argument`.
+
 ## [6.1.8]
 - Update the internal strategy.
 
