@@ -162,12 +162,24 @@ class Argument(Component):
                 )
         return self._children
 
+    def get_constituent_base_phrases(self):
+        """The list of base phrases.
+
+        Caution:
+            When EventGraph is deserialized from a JSON file, this function becomes unavailable.
+            Consider using Python\'s pickle utility for serialization.
+        """
+        if not self.head_base_phrase:
+            logger.warning("This function is unavailable because this object is deserialized from a JSON file")
+            return
+        return self.head_base_phrase.root.modifiers(include_self=True)
+
     @property
     def span(self) -> List[Tuple[int, int]]:
         spans = []
         start_mrph_id = None
         prev_mrph_id = None
-        for bp in filter(lambda bp: not bp.omitted_case, self.head_base_phrase.root.modifiers(include_self=True)):
+        for bp in filter(lambda bp: not bp.omitted_case, self.get_constituent_base_phrases()):
             for mrph in bp.morphemes:
                 if start_mrph_id is None:
                     start_mrph_id = mrph.mrph_id

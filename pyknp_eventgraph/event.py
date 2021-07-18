@@ -1,9 +1,10 @@
+import collections
 from logging import getLogger
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 from pyknp import Morpheme, Tag
 
-from pyknp_eventgraph.base_phrase import BasePhrase, group_base_phrases
+from pyknp_eventgraph.base_phrase import BasePhrase
 from pyknp_eventgraph.builder import Builder
 from pyknp_eventgraph.component import Component
 from pyknp_eventgraph.features import Features, FeaturesBuilder, JsonFeaturesBuilder
@@ -196,7 +197,7 @@ class Event(Component):
         spans = []
         start_mrph_id = None
         prev_mrph_id = None
-        for bp in filter(lambda bp: not bp.omitted_case, self._collect_base_phrases()):
+        for bp in filter(lambda bp: not bp.omitted_case, self.get_constituent_base_phrases()):
             for mrph in bp.morphemes:
                 if start_mrph_id is None:
                     start_mrph_id = mrph.mrph_id
@@ -307,13 +308,52 @@ class Event(Component):
     def content_rep_list_(self) -> List[str]:
         """A list of content words."""
         content_rep_list = []
-        for bp in self._collect_base_phrases():
+        for bp in self.get_constituent_base_phrases():
             if bp.tag is None:
                 continue
             for mrph in bp.tag.mrph_list():
                 if "<内容語>" in mrph.fstring or "<準内容語>" in mrph.fstring:
                     content_rep_list.append(mrph.repname or f"{mrph.midasi}/{mrph.midasi}")
         return content_rep_list
+
+    def get_constituent_base_phrases(
+        self,
+        exclude_omission: bool = False,
+        exclude_exophora: bool = False,
+    ) -> List[BasePhrase]:
+        """Collect base phrases belonging to this event.
+
+        Args:
+            exclude_omission: If true, omitted base phrases will be excluded.
+            exclude_exophora: If true, exophora will be excluded.
+
+        Caution:
+            When EventGraph is deserialized from a JSON file, this function becomes unavailable.
+            Consider using Python\'s pickle utility for serialization.
+        """
+        # Collect head base phrases.
+        if not self.pas.predicate.head_base_phrase:
+            logger.warning("This function is unavailable because this object is deserialized from a JSON file")
+            return
+
+        head_bps = [self.pas.predicate.head_base_phrase]
+        for args in self.pas.arguments.values():
+            for arg in args:
+                if arg.head_base_phrase.omitted_case:
+                    if exclude_omission and arg.flag in {"O", "E"}:
+                        # e.g., [彼が] [著者が]
+                        continue
+                    if exclude_exophora and arg.flag in {"E"}:
+                        # e.g., [著者が]
+                        continue
+                    head_bps.append(arg.head_base_phrase)
+                    continue
+                if arg.head_base_phrase.is_event_head or arg.head_base_phrase.is_event_end:
+                    continue
+                if arg.head_base_phrase.tag.tag_id > self.end.tag_id:
+                    continue
+                head_bps.append(arg.head_base_phrase)
+        return sorted(list(set(bp for head_bp in head_bps for bp in head_bp.to_list())))
 
     def _to_text(
         self,
@@ -323,7 +363,6 @@ class Event(Component):
         exclude_omission: bool = False,
         exclude_exophora: bool = False,
         include_modifiers: bool = False,
-        exclude_adnominal: bool = False,
     ) -> str:
         """Convert this event to a text.
 
@@ -334,16 +373,14 @@ class Event(Component):
             exclude_omission: If true, omitted cases will not be used.
             exclude_exophora: If true, exophora will not be used.
             include_modifiers: If true, tokens of events that modify this event will be included.
-            exclude_adnominal: If true, base phrases modified by this event will be excluded.
         """
         assert mode in {"mrphs", "reps"}
 
-        # Create a list of base phrases to show.
-        grouped_bps = group_base_phrases(
-            self._collect_base_phrases(exclude_omission, exclude_exophora, exclude_adnominal)
-        )
-
-        # Create a list of morphemes.
+        bps = self.get_constituent_base_phrases(exclude_omission, exclude_exophora)
+        bucket = collections.defaultdict(list)
+        for bp in sorted(bps):
+            bucket[bp.key[:-1]].append(bp)  # bp.key[-1] is the tag id.
+        grouped_bps = list(bucket.values())  # In Python 3.6+, dictionaries are insertion ordered.
         grouped_mrphs = [[morpheme for bp in bps for morpheme in bp.morphemes] for bps in grouped_bps]
 
         # Truncate the morphemes.
@@ -368,44 +405,6 @@ class Event(Component):
         return self._format_grouped_mrphs(
             grouped_mrphs=grouped_mrphs, mode=mode, normalize=truncate, additional_texts=additional_texts
         )
-
-    def _collect_base_phrases(
-        self,
-        exclude_omission: bool = False,
-        exclude_exophora: bool = False,
-        exclude_adnominal: bool = False,
-    ) -> List[BasePhrase]:
-        """Collect base phrases belonging to this event.
-
-        Args:
-            exclude_exophora: If true, exophora will be excluded.
-            exclude_adnominal: If true, base phrases modified by this event will be excluded.
-
-        Returns:
-            A list of base phrases that belong to this event.
-        """
-        # Collect head base phrases.
-        head_bps = [self.pas.predicate.head_base_phrase]
-        for args in self.pas.arguments.values():
-            for arg in args:
-                if arg.head_base_phrase.omitted_case:
-                    if exclude_omission and arg.flag in {"O", "E"}:
-                        # e.g., [彼が] [著者が]
-                        continue
-                    if exclude_exophora and arg.flag in {"E"}:
-                        # e.g., [著者が]
-                        continue
-                    if exclude_adnominal and arg.head_base_phrase.tag == self.pas.predicate.head_base_phrase.tag.parent:
-                        # e.g., [車が] of "[車が] 高速道路を低速で走る" -> "車は危ない"
-                        continue
-                    head_bps.append(arg.head_base_phrase)
-                    continue
-                if arg.head_base_phrase.is_event_head or arg.head_base_phrase.is_event_end:
-                    continue
-                if arg.head_base_phrase.tag.tag_id > self.end.tag_id:
-                    continue
-                head_bps.append(arg.head_base_phrase)
-        return sorted(list(set(bp for head_bp in head_bps for bp in head_bp.to_list())))
 
     def _find_truncated_position(self, grouped_bps: List[List[BasePhrase]]) -> Tuple[int, int]:
         """Find a position just before adjunct words start.
@@ -493,7 +492,6 @@ class Event(Component):
                     exclude_omission=exclude_omission,
                     exclude_exophora=exclude_exophora,
                     include_modifiers=include_modifiers,
-                    exclude_adnominal=True,
                 )
                 .replace(" (", "")
                 .replace(")", "")

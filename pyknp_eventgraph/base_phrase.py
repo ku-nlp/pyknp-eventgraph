@@ -183,21 +183,6 @@ class BasePhrase(Component):
         return f"<BasePhrase, ssid: {self.ssid}, bid: {self.bid}, tid: {self.tid}, surf: {self.surf}>"
 
 
-def group_base_phrases(bps: List[BasePhrase]) -> List[List[BasePhrase]]:
-    """Group base phrases by their bunsetsu IDs (bid).
-
-    Args:
-        bps: A list of base phrases.
-
-    Returns:
-        A list of base phrases grouped by bunsetsu IDs.
-    """
-    bucket = collections.defaultdict(list)
-    for bp in sorted(bps):
-        bucket[bp.key[:-1]].append(bp)  # bp.key[-1] is the tag id.
-    return list(bucket.values())  # In Python 3.6+, dictionaries are insertion ordered.
-
-
 class BasePhraseBuilder(Builder):
     @classmethod
     def build(cls, event: "Event"):
