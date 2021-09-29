@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.2.2]
+- Bump pyknp.
+
 ## [6.2.1]
 - Bump graphviz.
 
