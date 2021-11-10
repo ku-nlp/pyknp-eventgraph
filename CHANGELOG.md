@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [6.2.5]
+- Hot fix.
+
 ## [6.2.3]
 - Relax the versions of the dependent packages
 

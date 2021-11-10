@@ -284,6 +284,6 @@ class BasePhraseBuilder(Builder):
 
         for head in head_bps:
             # TODO: fundamental fix
-            if '<ID:〜に比べて>' in head.tag.fstring or '<ID:〜によって>' in head.tag.fstring:
+            if head.tag and ('<ID:〜に比べて>' in head.tag.fstring or '<ID:〜によって>' in head.tag.fstring):
                 continue
             resolver(head.children)
