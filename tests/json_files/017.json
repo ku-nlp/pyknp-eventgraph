@@ -1,0 +1,73 @@
+{
+    "sentences": [
+        {
+            "sid": "202209261131-0-0",
+            "ssid": 0,
+            "surf": "風が吹く",
+            "mrphs": "風 が 吹く",
+            "reps": "風/かぜ が/が 吹く/ふく"
+        }
+    ],
+    "events": [
+        {
+            "event_id": 0,
+            "sid": "202209261131-0-0",
+            "ssid": 0,
+            "rel": [],
+            "surf": "風が吹く",
+            "surf_with_mark": "風が吹く",
+            "mrphs": "風 が 吹く",
+            "mrphs_with_mark": "風 が 吹く",
+            "normalized_mrphs": "風 が 吹く",
+            "normalized_mrphs_with_mark": "風 が 吹く",
+            "normalized_mrphs_without_exophora": "風 が 吹く",
+            "normalized_mrphs_with_mark_without_exophora": "風 が 吹く",
+            "reps": "風/かぜ が/が 吹く/ふく",
+            "reps_with_mark": "風/かぜ が/が 吹く/ふく",
+            "normalized_reps": "風/かぜ が/が 吹く/ふく",
+            "normalized_reps_with_mark": "風/かぜ が/が 吹く/ふく",
+            "content_rep_list": [],
+            "pas": {
+                "predicate": {
+                    "surf": "吹く",
+                    "normalized_surf": "吹く",
+                    "mrphs": "吹く",
+                    "normalized_mrphs": "吹く",
+                    "reps": "吹く/ふく",
+                    "normalized_reps": "吹く/ふく",
+                    "standard_reps": "吹く/ふく",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "風が",
+                            "normalized_surf": "風",
+                            "mrphs": "風 が",
+                            "normalized_mrphs": "風",
+                            "reps": "風/かぜ が/が",
+                            "normalized_reps": "風/かぜ",
+                            "head_reps": "風/かぜ",
+                            "eid": -1,
+                            "flag": "N",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        }
+    ]
+}
