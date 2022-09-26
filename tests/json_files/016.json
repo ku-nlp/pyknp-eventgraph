@@ -1,0 +1,93 @@
+{
+    "sentences": [
+        {
+            "sid": "1",
+            "ssid": 0,
+            "surf": "ご飯を食べる",
+            "mrphs": "ご飯 を 食べる",
+            "reps": "御飯/ごはん を/を 食べる/たべる"
+        }
+    ],
+    "events": [
+        {
+            "event_id": 0,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [],
+            "surf": "[著者が] ご飯を食べる",
+            "surf_with_mark": "[著者が] ご飯を食べる",
+            "mrphs": "[著者 が] ご飯 を 食べる",
+            "mrphs_with_mark": "[著者 が] ご飯 を 食べる",
+            "normalized_mrphs": "[著者 が] ご飯 を 食べる",
+            "normalized_mrphs_with_mark": "[著者 が] ご飯 を 食べる",
+            "normalized_mrphs_without_exophora": "ご飯 を 食べる",
+            "normalized_mrphs_with_mark_without_exophora": "ご飯 を 食べる",
+            "reps": "[著者 が/が] 御飯/ごはん を/を 食べる/たべる",
+            "reps_with_mark": "[著者 が/が] 御飯/ごはん を/を 食べる/たべる",
+            "normalized_reps": "[著者 が/が] 御飯/ごはん を/を 食べる/たべる",
+            "normalized_reps_with_mark": "[著者 が/が] 御飯/ごはん を/を 食べる/たべる",
+            "content_rep_list": [
+                "御飯/ごはん",
+                "食べる/たべる"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "食べる",
+                    "normalized_surf": "食べる",
+                    "mrphs": "食べる",
+                    "normalized_mrphs": "食べる",
+                    "reps": "食べる/たべる",
+                    "normalized_reps": "食べる/たべる",
+                    "standard_reps": "食べる/たべる",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "[著者が]",
+                            "normalized_surf": "[著者]",
+                            "mrphs": "[著者 が]",
+                            "normalized_mrphs": "[著者]",
+                            "reps": "[著者 が/が]",
+                            "normalized_reps": "[著者]",
+                            "head_reps": "[著者]",
+                            "eid": -1,
+                            "flag": "E",
+                            "sdist": -1,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ],
+                    "ヲ": [
+                        {
+                            "surf": "ご飯を",
+                            "normalized_surf": "ご飯",
+                            "mrphs": "ご飯 を",
+                            "normalized_mrphs": "ご飯",
+                            "reps": "御飯/ごはん を/を",
+                            "normalized_reps": "御飯/ごはん",
+                            "head_reps": "御飯/ごはん",
+                            "eid": -1,
+                            "flag": "N",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        }
+    ]
+}

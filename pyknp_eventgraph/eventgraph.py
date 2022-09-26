@@ -12,6 +12,7 @@ from pyknp_eventgraph.document import Document, DocumentBuilder, JsonDocumentBui
 from pyknp_eventgraph.event import Event
 from pyknp_eventgraph.relation import JsonRelationBuilder, Relation, RelationsBuilder
 from pyknp_eventgraph.sentence import Sentence
+from pyknp_eventgraph.helper import preprocess_blist
 
 logger = getLogger(__name__)
 
@@ -140,6 +141,10 @@ class EventGraph(Component):
 class EventGraphBuilder(Builder):
     @classmethod
     def build(cls, blists: List[BList]) -> EventGraph:
+        # Preprocess blists.
+        blists = preprocess_blist(blists)
+
+        # Build an event graph.
         logger.debug("Create an EventGraph.")
         Builder.reset()
         evg = EventGraph()
