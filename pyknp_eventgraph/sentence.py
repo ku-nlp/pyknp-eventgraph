@@ -84,8 +84,8 @@ class SentenceBuilder(Builder):
         Builder.ssid += 1
         for bid, bnst in enumerate(blist.bnst_list()):
             for tag in bnst.tag_list():
-                Builder.stid_bid_map[(sentence.ssid, tag.tag_id)] = bid
-                Builder.stid_tag_map[(sentence.ssid, tag.tag_id)] = tag
+                Builder.ssid_tid_bid_map[(sentence.ssid, tag.tag_id)] = bid
+                Builder.ssid_tid_tag_map[(sentence.ssid, tag.tag_id)] = tag
         return sentence
 
 

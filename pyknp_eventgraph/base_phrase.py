@@ -206,8 +206,8 @@ class BasePhraseBuilder(Builder):
         event = argument.pas.event
         ssid = argument.pas.ssid - argument.arg.sdist
         tid = argument.arg.tid
-        bid = Builder.stid_bid_map.get((ssid, tid), -1)
-        tag = Builder.stid_tag_map.get((ssid, tid), None)
+        bid = Builder.ssid_tid_bid_map.get((ssid, tid), -1)
+        tag = Builder.ssid_tid_tag_map.get((ssid, tid), None)
 
         if argument.arg.flag == "E":  # exophora
             head_bp = BasePhrase(event, None, ssid, bid, tid, exophora=argument.arg.midasi, omitted_case=argument.case)
@@ -226,14 +226,14 @@ class BasePhraseBuilder(Builder):
         event = predicate.pas.event
         ssid = predicate.pas.event.ssid
         tid = predicate.head.tag_id
-        bid = Builder.stid_bid_map.get((ssid, tid), -1)
-        tag = Builder.stid_tag_map.get((ssid, tid), None)
+        bid = Builder.ssid_tid_bid_map.get((ssid, tid), -1)
+        tag = Builder.ssid_tid_tag_map.get((ssid, tid), None)
 
         head_bp = BasePhrase(event, tag, ssid, bid, tid)
         cls._add_children(head_bp, ssid, sentinels=sentinels)
         if predicate.pas.event.head != predicate.pas.event.end:
             next_tid = predicate.pas.event.end.tag_id
-            next_bid = Builder.stid_bid_map.get((ssid, next_tid), -1)
+            next_bid = Builder.ssid_tid_bid_map.get((ssid, next_tid), -1)
             head_parent_bp = BasePhrase(event, predicate.pas.event.end, ssid, next_bid, next_tid)
             cls._add_children(head_parent_bp, ssid, sentinels=sentinels + [head_bp])
             cls._add_compound_phrase_component(head_parent_bp, ssid)
@@ -245,10 +245,10 @@ class BasePhraseBuilder(Builder):
 
     @classmethod
     def _add_compound_phrase_component(cls, bp: BasePhrase, ssid: int) -> NoReturn:
-        next_tag = Builder.stid_tag_map.get((ssid, bp.tag.tag_id + 1), None)
+        next_tag = Builder.ssid_tid_tag_map.get((ssid, bp.tag.tag_id + 1), None)
         if next_tag and "複合辞" in next_tag.features and "補文ト" not in next_tag.features:
             next_tid = bp.tag.tag_id + 1
-            next_bid = Builder.stid_bid_map.get((ssid, next_tid), -1)
+            next_bid = Builder.ssid_tid_bid_map.get((ssid, next_tid), -1)
             parent_bp = BasePhrase(bp.event, next_tag, ssid, next_bid, next_tid)
             cls._add_children(parent_bp, ssid, sentinels=[bp])
             cls._add_compound_phrase_component(parent_bp, ssid)
@@ -262,7 +262,7 @@ class BasePhraseBuilder(Builder):
             if child_tag in sentinel_tags or "節-主辞" in child_tag.features or "節-区切" in child_tag.features:
                 continue
             tid = child_tag.tag_id
-            bid = Builder.stid_bid_map.get((ssid, tid), -1)
+            bid = Builder.ssid_tid_bid_map.get((ssid, tid), -1)
             child_bp = BasePhrase(parent_bp.event, child_tag, ssid, bid, tid, is_child=True)
             cls._add_children(child_bp, ssid, sentinels)
             child_bp.parent = parent_bp

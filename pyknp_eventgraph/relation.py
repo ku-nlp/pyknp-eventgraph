@@ -129,12 +129,14 @@ class RelationsBuilder(Builder):
 
         # Discourse relation.
         if not relations:
-            for discourse_relation in re.findall("<談話関係[;:](.+?)>", event.end.fstring):
-                tmp, label = discourse_relation.split(":")
-                sdist, tid, sid = tmp.split("/")
-                head_event = Builder.stid_event_map.get((event.ssid + int(sdist), int(tid)), None)
-                if head_event:
-                    relations.append(RelationBuilder.build(event, head_event, f"談話関係:{label}"))
+            for discourse_relation in re.findall("<談話関係:(.+?)>", event.end.fstring):
+                for item in discourse_relation.split(";"):
+                    sid, tid, label = item.split("/")
+                    head_event = Builder.sid_tid_event_map.get((sid, int(tid)), None)
+                    if head_event:
+                        relations.append(
+                            RelationBuilder.build(event, head_event, f"談話関係:{label}", head_tid=int(tid))
+                        )
 
         # Clausal function.
         if not relations and event.parent:

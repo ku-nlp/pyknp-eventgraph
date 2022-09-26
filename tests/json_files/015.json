@@ -1,0 +1,161 @@
+{
+    "sentences": [
+        {
+            "sid": "1",
+            "ssid": 0,
+            "surf": "風が吹いたら桶屋が儲かる",
+            "mrphs": "風 が 吹いたら 桶 屋 が 儲かる",
+            "reps": "風/かぜ が/が 吹く/ふく 桶/おけ 屋/や が/が 儲かる/もうかる"
+        }
+    ],
+    "events": [
+        {
+            "event_id": 0,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [
+                {
+                    "event_id": 1,
+                    "label": "談話関係:条件",
+                    "surf": "",
+                    "reliable": false,
+                    "head_tid": 4
+                }
+            ],
+            "surf": "風が吹いたら",
+            "surf_with_mark": "風が吹いたら",
+            "mrphs": "風 が 吹いたら",
+            "mrphs_with_mark": "風 が 吹いたら",
+            "normalized_mrphs": "風 が 吹く",
+            "normalized_mrphs_with_mark": "風 が 吹く",
+            "normalized_mrphs_without_exophora": "風 が 吹く",
+            "normalized_mrphs_with_mark_without_exophora": "風 が 吹く",
+            "reps": "風/かぜ が/が 吹く/ふく",
+            "reps_with_mark": "風/かぜ が/が 吹く/ふく",
+            "normalized_reps": "風/かぜ が/が 吹く/ふく",
+            "normalized_reps_with_mark": "風/かぜ が/が 吹く/ふく",
+            "content_rep_list": [
+                "風/かぜ",
+                "吹く/ふく"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "吹く",
+                    "normalized_surf": "吹く",
+                    "mrphs": "吹く",
+                    "normalized_mrphs": "吹く",
+                    "reps": "吹く/ふく",
+                    "normalized_reps": "吹く/ふく",
+                    "standard_reps": "吹く/ふく",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "風が",
+                            "normalized_surf": "風",
+                            "mrphs": "風 が",
+                            "normalized_mrphs": "風",
+                            "reps": "風/かぜ が/が",
+                            "normalized_reps": "風/かぜ",
+                            "head_reps": "風/かぜ",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": []
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "unknown",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        },
+        {
+            "event_id": 1,
+            "sid": "1",
+            "ssid": 0,
+            "rel": [],
+            "surf": "桶屋が儲かる",
+            "surf_with_mark": "桶屋が儲かる",
+            "mrphs": "桶 屋 が 儲かる",
+            "mrphs_with_mark": "桶 屋 が 儲かる",
+            "normalized_mrphs": "桶 屋 が 儲かる",
+            "normalized_mrphs_with_mark": "桶 屋 が 儲かる",
+            "normalized_mrphs_without_exophora": "桶 屋 が 儲かる",
+            "normalized_mrphs_with_mark_without_exophora": "桶 屋 が 儲かる",
+            "reps": "桶/おけ 屋/や が/が 儲かる/もうかる",
+            "reps_with_mark": "桶/おけ 屋/や が/が 儲かる/もうかる",
+            "normalized_reps": "桶/おけ 屋/や が/が 儲かる/もうかる",
+            "normalized_reps_with_mark": "桶/おけ 屋/や が/が 儲かる/もうかる",
+            "content_rep_list": [
+                "桶/おけ",
+                "屋/や",
+                "儲かる/もうかる"
+            ],
+            "pas": {
+                "predicate": {
+                    "surf": "儲かる",
+                    "normalized_surf": "儲かる",
+                    "mrphs": "儲かる",
+                    "normalized_mrphs": "儲かる",
+                    "reps": "儲かる/もうかる",
+                    "normalized_reps": "儲かる/もうかる",
+                    "standard_reps": "儲かる/もうかる",
+                    "type": "動",
+                    "adnominal_event_ids": [],
+                    "sentential_complement_event_ids": [],
+                    "children": []
+                },
+                "argument": {
+                    "ガ": [
+                        {
+                            "surf": "屋が",
+                            "normalized_surf": "屋",
+                            "mrphs": "屋 が",
+                            "normalized_mrphs": "屋",
+                            "reps": "屋/や が/が",
+                            "normalized_reps": "屋/や",
+                            "head_reps": "桶/おけ+屋/や",
+                            "eid": null,
+                            "flag": "C",
+                            "sdist": 0,
+                            "adnominal_event_ids": [],
+                            "sentential_complement_event_ids": [],
+                            "children": [
+                                {
+                                    "surf": "桶",
+                                    "normalized_surf": "桶",
+                                    "mrphs": "桶",
+                                    "normalized_mrphs": "桶",
+                                    "reps": "桶/おけ",
+                                    "normalized_reps": "桶/おけ",
+                                    "adnominal_event_ids": [],
+                                    "sentential_complement_event_ids": [],
+                                    "modifier": false,
+                                    "possessive": false
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "features": {
+                "modality": [],
+                "tense": "非過去",
+                "negation": false,
+                "state": "動態述語",
+                "complement": false
+            }
+        }
+    ]
+}

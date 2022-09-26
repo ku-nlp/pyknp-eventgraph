@@ -625,7 +625,8 @@ class EventBuilder(Builder):
         sentence.events.append(event)
         Builder.evid += 1
         for tid in range(start.tag_id, end.tag_id + 1):
-            Builder.stid_event_map[(sentence.ssid, tid)] = event
+            Builder.sid_tid_event_map[(sentence.sid, tid)] = event
+            Builder.ssid_tid_event_map[(sentence.ssid, tid)] = event
         return event
 
 
